@@ -152,10 +152,6 @@ class SlidingWindowAttention(nn.Module):
         
         x = self.proj(x)
         x = self.proj_drop(x)
-        
-        if return_attention:
-            raise NotImplementedError("Attention weights not supported for sliding window attention")
-        
         return x
     
     def extra_repr(self) -> str:
