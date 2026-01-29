@@ -30,7 +30,7 @@ RUN pip3 install --break-system-packages \
 # Install DeepSpeed for distributed training (optional)
 RUN pip3 install --break-system-packages deepspeed>=0.12.0
 
-# Install Flash Attention 2 (prebuilt wheel for CUDA 13.0 + PyTorch 2.9)
+# Install Flash Attention 2 (prebuilt wheel for cu131 + PyTorch 2.9)
 RUN pip3 install --break-system-packages \
     https://github.com/mjun0812/flash-attention-prebuild-wheels/releases/download/v0.7.11/flash_attn-2.8.3%2Bcu131torch2.9-cp312-cp312-linux_x86_64.whl
 
