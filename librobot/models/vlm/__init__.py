@@ -9,6 +9,13 @@ from .registry import (
     list_vlms,
 )
 
+# Import VLM implementations to register them
+from . import qwen_vl
+from . import florence
+from . import paligemma
+from . import internvl
+from . import llava
+
 __all__ = [
     'AbstractVLM',
     'VLM_REGISTRY',
@@ -16,4 +23,10 @@ __all__ = [
     'get_vlm',
     'create_vlm',
     'list_vlms',
+    # VLM implementations
+    'qwen_vl',
+    'florence',
+    'paligemma',
+    'internvl',
+    'llava',
 ]
