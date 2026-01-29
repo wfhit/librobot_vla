@@ -2,8 +2,15 @@
 
 from .base import BasePolicy, DiffusionPolicy, AutoregressivePolicy, EnsemblePolicy
 
-# Import VLAPolicy from the parent policy.py module - need to add it here for compatibility
-# Re-export BasePolicy as VLAPolicy for backwards compatibility
+# VLAPolicy is an alias for BasePolicy to maintain API compatibility.
+# BasePolicy provides the core functionality needed for VLA inference:
+# - Model wrapping and device management
+# - Observation preprocessing (images, text, state)
+# - Action extraction from model outputs
+# - Reset functionality for stateful policies
+#
+# For specialized VLA inference needs (KV caching, action buffering, etc.),
+# see the VLAPolicy class in librobot/inference/policy.py or extend BasePolicy.
 VLAPolicy = BasePolicy
 
 __all__ = [

@@ -371,10 +371,20 @@ class OptunaTuner(AbstractTuner):
             elif config.search_algorithm == "random":
                 sampler = optuna.samplers.RandomSampler()
             elif config.search_algorithm == "grid":
-                # Grid search requires discrete values
-                sampler = optuna.samplers.GridSampler(
-                    {name: spec.get("choices", []) for name, spec in search_space.params.items()}
-                )
+                # Grid search requires discrete values - only include choice parameters
+                grid_params = {}
+                for name, spec in search_space.params.items():
+                    if spec.get("type") == "choice" and "choices" in spec:
+                        grid_params[name] = spec["choices"]
+                    else:
+                        logger.warning(
+                            f"Parameter '{name}' is not a choice type, skipping for grid search"
+                        )
+                if not grid_params:
+                    raise ValueError(
+                        "Grid search requires at least one categorical (choice) parameter"
+                    )
+                sampler = optuna.samplers.GridSampler(grid_params)
             else:
                 sampler = optuna.samplers.TPESampler()
             

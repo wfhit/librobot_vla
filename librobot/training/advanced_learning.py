@@ -177,15 +177,23 @@ class RLPolicyWrapper:
             
             AlgoClass = algo_map.get(self.config.algorithm, PPO)
             
+            # Build kwargs based on what the algorithm supports
+            model_kwargs = {
+                "learning_rate": self.config.learning_rate,
+                "batch_size": self.config.batch_size,
+                "gamma": self.config.gamma,
+                "verbose": 1,
+            }
+            
+            # Only add n_steps for on-policy algorithms (PPO)
+            if self.config.algorithm == "ppo":
+                model_kwargs["n_steps"] = self.config.n_steps
+            
             # Create model with VLA as feature extractor
             model = AlgoClass(
                 "MlpPolicy",
                 env,
-                learning_rate=self.config.learning_rate,
-                n_steps=self.config.n_steps if hasattr(AlgoClass, "n_steps") else None,
-                batch_size=self.config.batch_size,
-                gamma=self.config.gamma,
-                verbose=1,
+                **model_kwargs,
             )
             
             # Train
@@ -539,7 +547,9 @@ class MultiRobotCoordinator:
         # Simple message encoding: robot ID + action summary
         message = np.zeros(self.config.message_dim)
         message[0] = robot_id
-        message[1:1 + len(action)] = action[:self.config.message_dim - 1]
+        # Safely copy action to message, handling different lengths
+        action_len = min(len(action), self.config.message_dim - 1)
+        message[1:1 + action_len] = action[:action_len]
         return message
 
 

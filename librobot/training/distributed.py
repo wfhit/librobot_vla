@@ -744,12 +744,19 @@ class FSDPWrapper:
                 CheckpointImpl,
                 apply_activation_checkpointing,
             )
-            from functools import partial
             
-            check_fn = lambda submodule: any(
-                name in submodule.__class__.__name__
-                for name in ["TransformerEncoderLayer", "TransformerDecoderLayer", "DecoderLayer"]
-            )
+            def check_fn(submodule) -> bool:
+                """Check if module is a transformer layer that should be checkpointed."""
+                try:
+                    class_name = submodule.__class__.__name__
+                    transformer_layer_names = [
+                        "TransformerEncoderLayer",
+                        "TransformerDecoderLayer",
+                        "DecoderLayer",
+                    ]
+                    return any(name in class_name for name in transformer_layer_names)
+                except AttributeError:
+                    return False
             
             apply_activation_checkpointing(
                 self.model,
