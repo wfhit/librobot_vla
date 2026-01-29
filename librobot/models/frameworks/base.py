@@ -144,8 +144,12 @@ class AbstractVLA(ABC, nn.Module):
         Args:
             path: Path to pretrained weights
             **kwargs: Additional loading arguments
+            
+        Note:
+            Uses weights_only=False to support loading complex state dicts.
+            Only load checkpoints from trusted sources.
         """
-        state_dict = torch.load(path, **kwargs)
+        state_dict = torch.load(path, weights_only=False, **kwargs)
         self.load_state_dict(state_dict, strict=False)
     
     def save_pretrained(self, path: str) -> None:

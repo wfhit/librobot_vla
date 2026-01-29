@@ -1,5 +1,7 @@
 """File I/O utilities for various data formats."""
 
+from __future__ import annotations
+
 import json
 import pickle
 import yaml
@@ -127,8 +129,12 @@ def load_torch(path: Union[str, Path], map_location: Optional[str] = None, **kwa
         
     Returns:
         Loaded data
+        
+    Note:
+        This uses weights_only=False to support loading complex objects.
+        Only load checkpoints from trusted sources.
     """
-    return torch.load(path, map_location=map_location, **kwargs)
+    return torch.load(path, map_location=map_location, weights_only=False, **kwargs)
 
 
 def ensure_dir(path: Union[str, Path]) -> Path:

@@ -90,10 +90,12 @@ def clear_memory(device: Optional[str] = None) -> None:
         if device is not None:
             with torch.cuda.device(device):
                 torch.cuda.empty_cache()
-                torch.cuda.synchronize()
+                torch.cuda.synchronize(device)
         else:
             torch.cuda.empty_cache()
-            torch.cuda.synchronize()
+            # Synchronize all devices
+            for i in range(torch.cuda.device_count()):
+                torch.cuda.synchronize(i)
 
 
 def optimize_memory() -> None:
@@ -105,11 +107,11 @@ def optimize_memory() -> None:
     
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
-        torch.cuda.synchronize()
         
         for i in range(torch.cuda.device_count()):
             with torch.cuda.device(i):
                 torch.cuda.empty_cache()
+                torch.cuda.synchronize(i)
 
 
 class MemoryTracker:

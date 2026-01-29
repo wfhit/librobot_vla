@@ -174,7 +174,8 @@ class Checkpoint:
         if not filepath.exists():
             raise FileNotFoundError(f"Checkpoint not found: {filepath}")
         
-        checkpoint_data = torch.load(filepath, map_location=map_location)
+        # Note: weights_only=False allows loading optimizer states and other complex objects
+        checkpoint_data = torch.load(filepath, map_location=map_location, weights_only=False)
         
         # Load states into provided objects
         if model is not None and 'model_state_dict' in checkpoint_data:
@@ -334,8 +335,12 @@ def load_checkpoint(
         
     Returns:
         Dict: Checkpoint data
+        
+    Note:
+        Uses weights_only=False to support loading optimizer states.
+        Only load checkpoints from trusted sources.
     """
-    checkpoint_data = torch.load(path, map_location=map_location)
+    checkpoint_data = torch.load(path, map_location=map_location, weights_only=False)
     
     if model is not None and 'model_state_dict' in checkpoint_data:
         model.load_state_dict(checkpoint_data['model_state_dict'])

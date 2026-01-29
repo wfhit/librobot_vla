@@ -26,6 +26,8 @@ def set_seed(seed: int, deterministic: bool = False, benchmark: bool = True) -> 
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     
+    # Note: PYTHONHASHSEED must be set before Python starts to take effect
+    # Setting it here only affects subprocesses
     os.environ['PYTHONHASHSEED'] = str(seed)
     
     if deterministic:

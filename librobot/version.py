@@ -2,7 +2,7 @@
 
 __version__ = "0.1.0"
 __author__ = "LibroBot Team"
-__license__ = "MIT"
+__license__ = "Apache-2.0"
 
 VERSION_INFO = {
     "major": 0,

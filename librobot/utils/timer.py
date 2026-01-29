@@ -83,7 +83,10 @@ class Timer:
         Returns:
             Decorated function
         """
+        from functools import wraps
+        
         def decorator_wrapper(func):
+            @wraps(func)
             def wrapper(*args, **kwargs):
                 timer_name = name or func.__name__
                 with Timer(timer_name, verbose):
@@ -200,9 +203,9 @@ class TimerRegistry:
         print("-"*80)
         
         for name in sorted(stats.keys()):
-            s = stats[name]
-            print(f"{name:<30} {s['count']:>8} {s['mean']:>12.4f}s {s['std']:>12.4f}s "
-                  f"{s['min']:>12.4f}s {s['max']:>12.4f}s")
+            timing_stat = stats[name]
+            print(f"{name:<30} {timing_stat['count']:>8} {timing_stat['mean']:>12.4f}s {timing_stat['std']:>12.4f}s "
+                  f"{timing_stat['min']:>12.4f}s {timing_stat['max']:>12.4f}s")
         
         print("="*80 + "\n")
 
