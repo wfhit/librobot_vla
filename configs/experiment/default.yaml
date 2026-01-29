@@ -1,0 +1,299 @@
+# Default Experiment Configuration
+# Complete experiment setup for training a VLA model
+
+# Experiment metadata
+name: "wheel_loader_groot_vla_v1"
+description: "Train GROOT-style VLA with Qwen2-VL and diffusion policy for wheel loader"
+version: "1.0.0"
+tags:
+  - "wheel_loader"
+  - "construction_robotics"
+  - "groot_style"
+  - "diffusion_policy"
+  - "qwen2_vl"
+
+# Author and contact
+author: "LibroBot Team"
+contact: "team@librobot.ai"
+date_created: "2024-01-15"
+
+# Component configurations
+# These can be paths to config files or inline configurations
+model:
+  framework: "configs/model/framework/groot_style.yaml"
+  # Or specify inline:
+  # type: "groot_style"
+  # vlm: {...}
+  # encoder: {...}
+  # action_head: {...}
+
+robot: "configs/robot/wheel_loader.yaml"
+
+dataset:
+  # Dataset configuration
+  name: "wheel_loader_demos"
+  source:
+    type: "hdf5"
+    path: "/data/wheel_loader/demonstrations.hdf5"
+  
+  # Data splits
+  splits:
+    train: 0.85
+    val: 0.15
+    test: null
+  
+  # Observation keys (must match robot config)
+  observation_keys:
+    images: ["cabin_front", "arm_camera"]
+    proprio:
+      - "boom_joint_position"
+      - "stick_joint_position"
+      - "bucket_joint_position"
+      - "boom_joint_velocity"
+      - "stick_joint_velocity"
+      - "bucket_joint_velocity"
+      - "base_linear_velocity"
+      - "base_angular_velocity"
+  
+  # Action configuration
+  action_dim: 6
+  action_horizon: 16
+  chunk_size: 8
+  
+  # Preprocessing
+  preprocessing:
+    image_size: [224, 224]
+    normalize_images: true
+    normalize_actions: true
+    action_normalization: "bounds"  # Normalize to [-1, 1]
+  
+  # Data augmentation (training only)
+  augmentation:
+    enabled: true
+    random_crop: true
+    crop_padding: 16
+    color_jitter:
+      brightness: 0.1
+      contrast: 0.1
+      saturation: 0.1
+      hue: 0.05
+    random_rotation: 5  # degrees
+    gaussian_noise:
+      enabled: true
+      std: 0.01
+
+training: "configs/training/default.yaml"
+
+# Global overrides (optional)
+# These override values in the component configs
+overrides:
+  # Model overrides
+  model:
+    vlm:
+      freeze: true  # Keep VLM frozen
+      hidden_dim: 1536
+    action_head:
+      num_inference_steps: 10  # Faster inference
+      
+  # Training overrides
+  training:
+    batch_size: 8  # Smaller batch size for large model
+    gradient_accumulation_steps: 4  # Effective batch size = 32
+    lr: 5e-5  # Lower learning rate for fine-tuning
+    num_epochs: 30
+    
+  # Dataloader overrides
+  dataloader:
+    num_workers: 8
+    prefetch_factor: 4
+
+# Hardware configuration
+hardware:
+  device: "cuda"  # Options: "cuda", "cpu", "mps"
+  gpu_ids: [0]  # Which GPUs to use (for multi-GPU training)
+  mixed_precision: true
+  compile_model: false  # Use torch.compile (PyTorch 2.0+)
+
+# Logging configuration
+logging:
+  # Console logging
+  log_level: "INFO"  # Options: "DEBUG", "INFO", "WARNING", "ERROR"
+  log_to_file: true
+  log_file: "experiment.log"
+  
+  # Weights & Biases
+  wandb:
+    enabled: true
+    project: "librobot-vla"
+    entity: null  # Your wandb username/org
+    name: "${name}"  # Use experiment name
+    group: "wheel_loader"
+    tags: "${tags}"  # Use experiment tags
+    notes: "${description}"
+    
+  # TensorBoard (alternative to wandb)
+  tensorboard:
+    enabled: false
+    log_dir: "tensorboard_logs"
+  
+  # Logging intervals
+  log_interval: 10  # Log every N steps
+  save_interval: 1000  # Save checkpoint every N steps
+  eval_interval: 500  # Evaluate every N steps
+
+# Checkpoint configuration
+checkpoint:
+  # Checkpoint directory
+  save_dir: "experiments/${name}/checkpoints"
+  
+  # What to save
+  save_optimizer: true
+  save_scheduler: true
+  save_rng_state: true  # Save random state for reproducibility
+  
+  # Checkpoint management
+  keep_last_n: 3  # Keep only last N checkpoints
+  save_best: true  # Save best checkpoint
+  best_metric: "val/success_rate"
+  best_mode: "max"
+  
+  # Resume training
+  resume_from: null  # Path to checkpoint to resume from
+  # resume_from: "experiments/previous_run/checkpoints/checkpoint_10000.pt"
+
+# Evaluation configuration
+evaluation:
+  # When to evaluate
+  eval_during_training: true
+  eval_interval: 500  # Evaluate every N training steps
+  eval_interval_epochs: 1  # Or every N epochs
+  
+  # What to evaluate
+  num_episodes: 50  # Number of episodes per evaluation
+  environments:
+    - type: "sim"
+      name: "wheel_loader_sim"
+      num_episodes: 30
+    # - type: "real"
+    #   name: "wheel_loader_real"
+    #   num_episodes: 20
+  
+  # Metrics to compute
+  metrics:
+    - "success_rate"
+    - "average_return"
+    - "episode_length"
+    - "action_mse"
+    - "task_completion_time"
+    - "collision_rate"
+  
+  # Video recording
+  record_videos: true
+  video_fps: 10
+  max_videos: 10  # Maximum number of videos to save per evaluation
+  
+  # Action visualization
+  visualize_actions: true
+  plot_trajectories: true
+
+# Reproducibility
+seed: 42
+deterministic: false  # Use deterministic algorithms (slower)
+cudnn_benchmark: true  # Faster but less reproducible
+
+# Experiment directory structure
+paths:
+  experiment_dir: "experiments/${name}"
+  checkpoint_dir: "${paths.experiment_dir}/checkpoints"
+  log_dir: "${paths.experiment_dir}/logs"
+  video_dir: "${paths.experiment_dir}/videos"
+  plot_dir: "${paths.experiment_dir}/plots"
+  eval_dir: "${paths.experiment_dir}/evaluation"
+
+# Task-specific configuration (for wheel loader)
+task:
+  name: "material_handling"
+  
+  # Task parameters
+  params:
+    material_type: "gravel"  # What material to handle
+    target_location: [10.0, 0.0, 0.0]  # Where to dump material
+    max_episode_length: 500  # Maximum steps per episode
+    
+  # Success criteria
+  success_conditions:
+    material_dumped: true
+    bucket_emptied: true  # Bucket at least 90% empty
+    within_target_zone: true  # Dumped within 2m of target
+    
+  # Reward shaping (if using RL fine-tuning)
+  rewards:
+    material_scooped: 10.0
+    material_transported: 20.0
+    material_dumped: 50.0
+    collision_penalty: -5.0
+    efficiency_bonus: 5.0  # Bonus for completing quickly
+
+# Safety configuration
+safety:
+  # Safety checks during training/evaluation
+  enable_safety_checks: true
+  
+  # Emergency stop conditions
+  emergency_stop:
+    max_joint_velocity: 2.0  # rad/s
+    max_linear_velocity: 3.0  # m/s
+    max_tilt_angle: 0.35  # radians
+    min_ground_clearance: 0.1  # meters
+    
+  # Action filtering
+  action_filter:
+    enabled: true
+    type: "low_pass"  # Smooth actions
+    cutoff_frequency: 5.0  # Hz
+    
+  # Collision avoidance
+  collision_avoidance:
+    enabled: true
+    detection_distance: 2.0  # meters
+    slowdown_distance: 5.0  # meters
+
+# Notes and metadata
+notes: |
+  This experiment trains a GROOT-style VLA for wheel loader operation.
+  
+  Key features:
+  - Uses frozen Qwen2-VL-2B as vision-language backbone
+  - Diffusion policy for action prediction
+  - Trained on 10k demonstrations of material handling tasks
+  - Evaluates on both simulated and real wheel loader
+  
+  Expected results:
+  - Success rate > 80% on simulation
+  - Success rate > 60% on real robot (after sim-to-real transfer)
+  - Average episode length ~300 steps
+  
+  Training time:
+  - ~24 hours on 1x A100 GPU
+  - ~12 hours on 4x A100 GPUs with DDP
+
+# Custom fields (experiment-specific)
+custom:
+  # Any custom parameters for this specific experiment
+  sim_to_real_transfer:
+    enabled: false
+    domain_randomization: true
+    visual_randomization: 0.2
+    
+  curriculum_learning:
+    enabled: false
+    stages:
+      - name: "easy"
+        episodes: 1000
+        material_amount: "low"
+      - name: "medium"
+        episodes: 2000
+        material_amount: "medium"
+      - name: "hard"
+        episodes: 5000
+        material_amount: "high"

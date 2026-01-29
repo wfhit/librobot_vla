@@ -1,0 +1,168 @@
+# Wheel Loader Robot Configuration
+# Heavy-duty construction vehicle robot with articulated arm and bucket
+
+# Robot identifier
+name: "wheel_loader"
+type: "mobile_manipulator"
+manufacturer: "custom"
+
+# Physical parameters
+dof: 6  # Base (2) + Arm (3) + Bucket (1)
+mass: 15000.0  # kg
+max_payload: 3000.0  # kg
+control_frequency: 10  # Hz (lower for heavy machinery)
+
+# Base configuration (mobile platform)
+base:
+  type: "differential_drive"
+  wheel_radius: 0.6  # meters
+  wheel_base: 2.5  # meters
+  max_linear_velocity: 2.0  # m/s
+  max_angular_velocity: 0.5  # rad/s
+
+# Arm configuration
+arm:
+  segments: 3  # Boom, stick, bucket
+  
+  joints:
+    - name: "boom_joint"
+      type: "revolute"
+      position_limits: [-0.5, 1.2]  # radians
+      velocity_limits: [-0.3, 0.3]  # rad/s
+      effort_limits: [-10000, 10000]  # N·m
+      
+    - name: "stick_joint"
+      type: "revolute"
+      position_limits: [-1.5, 0.5]
+      velocity_limits: [-0.3, 0.3]
+      effort_limits: [-8000, 8000]
+      
+    - name: "bucket_joint"
+      type: "revolute"
+      position_limits: [-1.0, 1.0]
+      velocity_limits: [-0.4, 0.4]
+      effort_limits: [-5000, 5000]
+
+# End-effector (bucket)
+end_effector:
+  type: "bucket"
+  capacity: 2.0  # cubic meters
+  width: 2.5  # meters
+  has_gripper: false  # Bucket doesn't have gripper, but can scoop
+
+# Camera configuration
+cameras:
+  - name: "cabin_front"
+    width: 1920
+    height: 1080
+    fps: 30
+    fov: 90.0  # degrees
+    position: [2.0, 0.0, 3.5]  # Relative to base, meters
+    orientation: [0.0, 0.2, 0.0]  # Roll, pitch, yaw (radians)
+    
+  - name: "arm_camera"
+    width: 640
+    height: 480
+    fps: 30
+    fov: 69.4
+    position: [0.5, 0.0, 0.3]  # Relative to bucket
+    orientation: [0.0, -0.5, 0.0]
+    
+  - name: "rear_camera"
+    width: 640
+    height: 480
+    fps: 30
+    fov: 120.0
+    position: [-2.0, 0.0, 2.5]  # Rear view
+    orientation: [0.0, 0.0, 3.14159]
+
+# Sensors
+sensors:
+  imu:
+    enabled: true
+    frequency: 100  # Hz
+    location: [0.0, 0.0, 1.5]
+    
+  gps:
+    enabled: true
+    frequency: 10  # Hz
+    
+  hydraulic_pressure:
+    enabled: true
+    sensors: ["boom", "stick", "bucket"]
+    pressure_range: [0, 35000]  # kPa
+    
+  load_cell:
+    enabled: true
+    location: "bucket"
+    max_load: 3000.0  # kg
+
+# Action space configuration
+action_space:
+  type: "continuous"
+  dim: 6  # [linear_vel, angular_vel, boom, stick, bucket, auxiliary]
+  
+  # Action limits (normalized to [-1, 1])
+  low: [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0]
+  high: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+  
+  # Action names for interpretability
+  names:
+    - "base_linear_velocity"
+    - "base_angular_velocity"
+    - "boom_velocity"
+    - "stick_velocity"
+    - "bucket_velocity"
+    - "auxiliary_control"
+
+# Observation space configuration
+observation_keys:
+  images:
+    - "cabin_front"
+    - "arm_camera"
+    # - "rear_camera"  # Optional, comment out to reduce computation
+    
+  proprio:
+    - "base_linear_velocity"
+    - "base_angular_velocity"
+    - "boom_joint_position"
+    - "stick_joint_position"
+    - "bucket_joint_position"
+    - "boom_joint_velocity"
+    - "stick_joint_velocity"
+    - "bucket_joint_velocity"
+    - "imu_orientation"
+    - "imu_angular_velocity"
+    - "hydraulic_pressures"
+    - "current_load"
+    
+  goal:
+    - "goal_position"  # Target position for material
+    - "task_phase"  # E.g., "approach", "scoop", "transport", "dump"
+
+# Task-specific parameters
+tasks:
+  material_handling:
+    enabled: true
+    material_types: ["soil", "gravel", "sand", "debris"]
+    target_fill_ratio: 0.8  # Fill bucket to 80% capacity
+    
+  autonomous_navigation:
+    enabled: true
+    nav_mode: "waypoint"  # Options: "waypoint", "area_coverage", "free_navigation"
+    
+  safety:
+    obstacle_detection: true
+    emergency_stop_distance: 5.0  # meters
+    tilt_limit: 0.3  # radians (prevent tipping)
+
+# Control configuration
+control:
+  mode: "velocity"  # Options: "position", "velocity", "effort"
+  update_rate: 10  # Hz
+  
+  # PID gains for joint control (if needed)
+  pid_gains:
+    boom: {p: 1000.0, i: 100.0, d: 50.0}
+    stick: {p: 800.0, i: 80.0, d: 40.0}
+    bucket: {p: 500.0, i: 50.0, d: 25.0}

@@ -1,0 +1,155 @@
+# Default Training Configuration
+# Reasonable defaults for training VLA models
+
+# Training duration
+num_epochs: 50
+max_steps: null  # If set, overrides num_epochs
+
+# Batch configuration
+batch_size: 16  # Per-device batch size
+gradient_accumulation_steps: 2  # Effective batch size = 16 * 2 = 32
+eval_batch_size: 32  # Larger batch size for evaluation
+
+# Optimizer configuration
+optimizer:
+  type: "adamw"  # Options: "adam", "adamw", "sgd", "lion"
+  lr: 1e-4  # Learning rate
+  weight_decay: 1e-4  # L2 regularization
+  betas: [0.9, 0.999]  # Adam betas
+  eps: 1e-8  # Adam epsilon
+  
+  # Optimizer-specific parameters
+  amsgrad: false  # Use AMSGrad variant of Adam
+  fused: true  # Use fused optimizer kernel (faster on GPU)
+
+# Learning rate schedule
+lr_schedule:
+  type: "cosine_with_warmup"  # Options: "constant", "linear", "cosine_with_warmup", "polynomial"
+  warmup_steps: 1000  # Number of warmup steps
+  warmup_ratio: 0.1  # Alternative: warmup as ratio of total steps
+  min_lr: 1e-6  # Minimum learning rate at end of schedule
+  
+  # Cosine-specific parameters
+  num_cycles: 0.5  # Number of cosine cycles
+  
+  # Polynomial-specific parameters
+  power: 1.0  # Polynomial power
+
+# Regularization
+regularization:
+  # Gradient clipping
+  gradient_clip_norm: 1.0  # Max gradient norm
+  gradient_clip_value: null  # Max gradient value (alternative to norm)
+  
+  # Dropout
+  dropout: 0.1  # General dropout rate
+  attention_dropout: 0.1  # Dropout in attention layers
+  
+  # Other regularization
+  label_smoothing: 0.0  # Label smoothing for classification
+  stochastic_depth: 0.0  # Stochastic depth rate
+
+# Mixed precision training
+mixed_precision:
+  enabled: true
+  dtype: "fp16"  # Options: "fp16", "bf16"
+  opt_level: "O1"  # Options: "O0" (FP32), "O1" (mixed), "O2" (almost FP16)
+  loss_scale: "dynamic"  # Options: "dynamic", or a float value
+
+# Training stability
+stability:
+  # Gradient anomaly detection (slow, use for debugging)
+  detect_anomaly: false
+  
+  # Skip steps with NaN/Inf gradients
+  skip_nan_gradients: true
+  
+  # Maximum allowed loss value (skip if exceeded)
+  max_loss_value: 1e4
+
+# Checkpointing
+checkpoint:
+  save_interval: 2000  # Save every N steps
+  save_interval_epochs: 1  # Alternative: save every N epochs
+  keep_last_n: 3  # Keep only last N checkpoints
+  save_best: true  # Save best checkpoint based on validation metric
+  best_metric: "val/success_rate"  # Metric to use for best checkpoint
+  best_mode: "max"  # Options: "min", "max"
+  save_optimizer: true  # Save optimizer state in checkpoint
+
+# Evaluation during training
+evaluation:
+  interval: 1000  # Evaluate every N steps
+  interval_epochs: 1  # Alternative: evaluate every N epochs
+  num_eval_episodes: 50  # Number of episodes for evaluation
+  save_eval_videos: true  # Save videos of evaluation episodes
+  video_fps: 10  # FPS for saved videos
+  
+  # Metrics to compute
+  metrics:
+    - "success_rate"
+    - "average_return"
+    - "episode_length"
+    - "action_mse"  # MSE between predicted and expert actions
+
+# Logging
+logging:
+  # Logging intervals
+  log_interval: 10  # Log every N steps
+  log_interval_seconds: null  # Alternative: log every N seconds
+  
+  # What to log
+  log_gradients: false  # Log gradient norms (can be slow)
+  log_weights: false  # Log weight statistics (can be slow)
+  log_learning_rate: true  # Log current learning rate
+  log_loss_components: true  # Log individual loss components
+  
+  # Histogram logging (for tensorboard/wandb)
+  histogram_interval: 500  # Log histograms every N steps
+  histogram_enabled: false  # Enable histogram logging
+
+# Distributed training
+distributed:
+  enabled: false  # Enable distributed training
+  backend: "nccl"  # Options: "nccl", "gloo", "mpi"
+  find_unused_parameters: false  # Find unused parameters in DDP
+  gradient_as_bucket_view: true  # Optimization for DDP
+  
+  # Sharding (for very large models)
+  use_fsdp: false  # Use FullyShardedDataParallel
+  fsdp_config:
+    sharding_strategy: "full_shard"  # Options: "full_shard", "shard_grad_op", "no_shard"
+    cpu_offload: false  # Offload to CPU
+
+# Data loading
+dataloader:
+  num_workers: 4  # Number of data loading workers
+  pin_memory: true  # Pin memory for faster GPU transfer
+  persistent_workers: true  # Keep workers alive between epochs
+  prefetch_factor: 2  # Number of batches to prefetch per worker
+  drop_last: true  # Drop last incomplete batch
+  
+  # Sampling strategy
+  shuffle: true  # Shuffle training data
+  sampler: null  # Custom sampler (e.g., "weighted", "distributed")
+
+# Reproducibility
+seed: 42  # Random seed
+deterministic: false  # Use deterministic algorithms (slower, more reproducible)
+benchmark: true  # Enable cudnn.benchmark for faster training (less reproducible)
+
+# Early stopping (optional)
+early_stopping:
+  enabled: false
+  patience: 10  # Stop if no improvement for N evaluations
+  min_delta: 0.001  # Minimum change to qualify as improvement
+  metric: "val/success_rate"
+  mode: "max"  # Options: "min", "max"
+
+# Profiling (for debugging performance)
+profiling:
+  enabled: false
+  wait_steps: 5  # Steps to wait before profiling
+  warmup_steps: 5  # Steps to warm up
+  active_steps: 10  # Steps to actively profile
+  save_path: "profile_traces"
