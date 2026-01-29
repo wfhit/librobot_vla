@@ -1,0 +1,101 @@
+# GROOT-Style VLA Framework Configuration
+# Combines a frozen VLM backbone with a diffusion policy head
+# Reference: "GROOT: Learning to Follow Instructions by Watching Gameplay Demonstrations"
+
+# Framework type (must match registry name)
+type: "groot_style"
+
+# Vision-Language Model configuration
+vlm:
+  name: "qwen2_vl_2b"  # Registry name
+  pretrained: true
+  pretrained_path: "Qwen/Qwen2-VL-2B-Instruct"
+  freeze: true  # Freeze VLM weights during training
+  hidden_dim: 1536  # Output feature dimension
+  
+  # Feature extraction settings
+  extract_layer: -2  # Which transformer layer to extract features from
+  pool_method: "mean"  # Options: "mean", "last", "attention"
+  
+# Proprioceptive encoder configuration
+encoder:
+  type: "mlp"
+  input_dim: 14  # Robot state dimension (7 joint pos + 7 joint vel)
+  hidden_dims: [256, 128]
+  output_dim: 128
+  activation: "relu"
+  dropout: 0.1
+  normalize_input: true
+
+# Action head configuration
+action_head:
+  type: "diffusion"
+  action_dim: 7  # 6 DOF + gripper
+  action_horizon: 16
+  chunk_size: 8
+  
+  # Diffusion parameters
+  num_diffusion_steps: 100
+  num_inference_steps: 10
+  noise_schedule: "cosine"
+  
+  # Network architecture
+  backbone:
+    type: "temporal_unet"
+    hidden_dims: [512, 256, 128]
+    kernel_size: 5
+    num_groups: 8
+    dropout: 0.1
+
+# Feature fusion configuration
+fusion:
+  method: "cross_attention"  # Options: "cross_attention", "film", "concat"
+  
+  # Cross-attention parameters
+  num_attention_heads: 8
+  attention_dropout: 0.1
+  
+  # Vision-language fusion
+  vision_proj_dim: 512
+  lang_proj_dim: 512
+  proprio_proj_dim: 128
+  
+  # Final fusion
+  fused_dim: 512
+  fuse_vision_lang: true  # First fuse vision and language
+  fuse_with_proprio: true  # Then fuse with proprioception
+
+# Observation preprocessing
+observation:
+  # Image preprocessing
+  image_keys: ["wrist_image", "base_image"]  # Which camera views to use
+  image_size: [224, 224]
+  normalize: true
+  augmentation:
+    enabled: true
+    random_crop: true
+    color_jitter: 0.1
+  
+  # Proprioceptive preprocessing
+  proprio_keys: ["joint_positions", "joint_velocities"]
+  normalize_proprio: true
+
+# Language preprocessing
+language:
+  max_length: 77  # Maximum token length
+  tokenizer: "qwen2_vl"  # Use same tokenizer as VLM
+  padding: "max_length"
+
+# Training strategy
+training:
+  freeze_vlm: true  # Keep VLM frozen
+  freeze_encoder: false  # Train encoder
+  freeze_action_head: false  # Train action head
+  
+  # Gradient checkpointing to save memory
+  gradient_checkpointing: true
+  
+  # Loss weights
+  loss_weights:
+    action_loss: 1.0
+    auxiliary_losses: 0.1  # Any auxiliary losses (e.g., contrastive)

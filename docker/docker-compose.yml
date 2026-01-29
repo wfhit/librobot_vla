@@ -1,0 +1,90 @@
+version: '3.8'
+
+# Multi-service orchestration for LibroBot VLA
+# Includes training, inference, and supporting services
+
+services:
+  # Training service with GPU support
+  train:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.train
+    image: librobot-train:latest
+    container_name: librobot_train
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - CUDA_VISIBLE_DEVICES=0
+      - WANDB_API_KEY=${WANDB_API_KEY}
+      - HF_TOKEN=${HF_TOKEN}
+    volumes:
+      - ../librobot:/workspace/librobot_vla/librobot
+      - ../scripts:/workspace/librobot_vla/scripts
+      - ../configs:/workspace/librobot_vla/configs
+      - ../data:/workspace/data
+      - ../outputs:/workspace/outputs
+      - ../checkpoints:/workspace/checkpoints
+    shm_size: '16gb'
+    ipc: host
+    command: python scripts/train.py config=configs/experiment/default.yaml
+
+  # Inference server with REST API
+  inference:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.deploy
+    image: librobot-deploy:latest
+    container_name: librobot_inference
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - CUDA_VISIBLE_DEVICES=0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../checkpoints:/app/checkpoints:ro
+      - ../configs:/app/configs:ro
+    command: python scripts/inference.py --server --host 0.0.0.0 --port 8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # TensorBoard for monitoring training
+  tensorboard:
+    image: tensorflow/tensorflow:latest
+    container_name: librobot_tensorboard
+    ports:
+      - "6006:6006"
+    volumes:
+      - ../outputs:/logs
+    command: tensorboard --logdir=/logs --host 0.0.0.0
+
+  # Jupyter notebook for interactive development
+  notebook:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.train
+    image: librobot-train:latest
+    container_name: librobot_notebook
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - CUDA_VISIBLE_DEVICES=0
+    ports:
+      - "8888:8888"
+    volumes:
+      - ../:/workspace/librobot_vla
+      - ../data:/workspace/data
+      - ../outputs:/workspace/outputs
+    command: jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root
+
+networks:
+  default:
+    name: librobot_network
+
+volumes:
+  data:
+  outputs:
+  checkpoints:
