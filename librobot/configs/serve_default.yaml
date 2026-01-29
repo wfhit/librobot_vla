@@ -1,0 +1,39 @@
+# LibroBot VLA Inference Server Configuration
+
+server:
+  type: rest  # rest, grpc, websocket, ros2
+  host: 0.0.0.0
+  port: 8000
+  workers: 4
+
+model:
+  checkpoint: ./checkpoints/best.pt
+  device: cuda
+  
+  # Optimization
+  quantization: false
+  onnx_path: null
+  tensorrt_path: null
+
+inference:
+  batch_size: 1
+  max_batch_wait_ms: 10
+  
+  # Action chunking
+  action_horizon: 10
+  temporal_aggregation: exponential
+  
+  # Smoothing
+  smoothing:
+    enabled: true
+    type: exponential
+    alpha: 0.7
+
+logging:
+  level: INFO
+  file: ./logs/server.log
+
+cors:
+  enabled: true
+  origins:
+    - "*"
