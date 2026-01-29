@@ -43,7 +43,7 @@ LibroBot VLA Framework
 │   └── CLI override support
 │
 ├── Docker ✅
-│   ├── Base (CUDA 12.4 + PyTorch 2.5)
+│   ├── Base (CUDA 13.0 + PyTorch 2.9)
 │   ├── Train (full dependencies)
 │   ├── Deploy (lightweight)
 │   └── docker-compose orchestration

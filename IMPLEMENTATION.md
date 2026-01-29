@@ -191,9 +191,9 @@ configs/
 #### Images
 
 **Dockerfile.base**
-- CUDA 12.4 + Ubuntu 22.04
-- PyTorch 2.5 with CUDA support
-- Flash Attention 2
+- CUDA 13.0 + Ubuntu 24.04
+- PyTorch 2.9.0 with CUDA support
+- Flash Attention 2.8.3
 - Base for all other images
 
 **Dockerfile.train**
