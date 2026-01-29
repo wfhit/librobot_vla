@@ -2,6 +2,7 @@
 
 import os
 from typing import Any, Dict, Optional, Tuple, Union
+from datetime import timedelta
 import torch
 import torch.nn as nn
 import torch.distributed as dist
@@ -91,7 +92,7 @@ def setup_distributed(
     
     # Initialize process group
     if not dist.is_initialized():
-        timeout = torch.distributed.timedelta(minutes=timeout_minutes)
+        timeout = timedelta(minutes=timeout_minutes)
         dist.init_process_group(
             backend=backend,
             init_method="env://",

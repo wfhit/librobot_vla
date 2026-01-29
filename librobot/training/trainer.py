@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from torch.cuda.amp import GradScaler, autocast
+from torch.cuda.amp import GradScaler
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
 
@@ -364,8 +364,11 @@ class Trainer:
         # Move batch to device
         batch = self._move_to_device(batch)
         
+        # Determine device type for autocast
+        device_type = 'cuda' if self.device.type == 'cuda' else 'cpu'
+        
         # Forward pass with automatic mixed precision
-        with autocast(enabled=self.config.mixed_precision):
+        with torch.amp.autocast(device_type=device_type, enabled=self.config.mixed_precision):
             # TODO: Implement flexible forward pass
             # This is a placeholder - actual implementation depends on model interface
             if isinstance(batch, dict):
@@ -453,8 +456,11 @@ class Trainer:
         for batch in self.val_dataloader:
             batch = self._move_to_device(batch)
             
+            # Determine device type for autocast
+            device_type = 'cuda' if self.device.type == 'cuda' else 'cpu'
+            
             # Forward pass
-            with autocast(enabled=self.config.mixed_precision):
+            with torch.amp.autocast(device_type=device_type, enabled=self.config.mixed_precision):
                 # TODO: Implement flexible forward pass (same as training)
                 if isinstance(batch, dict):
                     outputs = self.model(**batch)

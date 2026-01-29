@@ -2,7 +2,6 @@
 
 import math
 from typing import Any, Callable, Dict, List, Optional, Union
-import warnings
 import torch
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
