@@ -38,6 +38,9 @@ class FlorenceConfig:
     layer_norm_eps: float = 1e-6
     use_cache: bool = True
     
+    # Attention config
+    use_flash_attn: bool = False
+    
     # Task-specific config
     task_tokens: Dict[str, int] = None
     prompt_templates: Dict[str, str] = None
