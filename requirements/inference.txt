@@ -1,0 +1,8 @@
+-r base.txt
+
+fastapi>=0.109.0
+uvicorn>=0.27.0
+grpcio>=1.60.0
+websockets>=12.0
+onnx>=1.15.0
+onnxruntime-gpu>=1.17.0
