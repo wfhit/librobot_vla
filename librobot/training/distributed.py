@@ -519,11 +519,16 @@ def load_checkpoint_distributed(
         
     Returns:
         Loaded state dictionary
+        
+    Warning:
+        Uses weights_only=False to support loading optimizer states and other objects.
+        Only load checkpoints from trusted sources to avoid security risks.
     """
     # Synchronize before loading
     barrier()
     
     # Note: weights_only=False allows loading optimizer states and other objects
+    # SECURITY WARNING: Only load checkpoints from trusted sources
     state_dict = torch.load(filepath, map_location=map_location, weights_only=False)
     
     logger.info(f"Checkpoint loaded: {filepath}")

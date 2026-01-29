@@ -79,7 +79,7 @@ class TrainerConfig:
     # Logging and checkpointing
     log_interval: int = 10
     eval_interval: Optional[int] = None
-    save_interval: int = 1000
+    save_interval: int = 1000  # Save checkpoint every N steps (during training) or epochs (during epoch-based training)
     save_total_limit: Optional[int] = 5
     resume_from_checkpoint: Optional[str] = None
     
@@ -200,7 +200,11 @@ class Trainer:
         self.scheduler = scheduler
         
         # Setup mixed precision
-        self.scaler = GradScaler() if config.mixed_precision else None
+        # Note: scaler is None when mixed_precision is False
+        if config.mixed_precision and torch.cuda.is_available():
+            self.scaler = GradScaler()
+        else:
+            self.scaler = None
         
         # Setup checkpointing
         self.checkpoint_manager = Checkpoint(
