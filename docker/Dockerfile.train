@@ -1,5 +1,6 @@
 # Training Docker image with all dependencies
 # Extends base image with training-specific packages and tools
+# Optimized for RTX 5090 + AMD 9950X or multi-GPU (4x L20) setups
 
 FROM librobot-base:latest
 
@@ -9,7 +10,7 @@ LABEL description="Training image for LibroBot VLA with full dependencies"
 USER root
 
 # Install training dependencies
-RUN pip3 install \
+RUN pip3 install --break-system-packages \
     wandb>=0.16.0 \
     tensorboard>=2.15.0 \
     hydra-core>=1.3.0 \
@@ -27,17 +28,18 @@ RUN pip3 install \
     pyarrow>=14.0.0
 
 # Install DeepSpeed for distributed training (optional)
-RUN pip3 install deepspeed>=0.12.0
+RUN pip3 install --break-system-packages deepspeed>=0.12.0
 
-# Install Flash Attention 2
-RUN pip3 install flash-attn>=2.5.0 --no-build-isolation
+# Install Flash Attention 2 (prebuilt wheel for CUDA 13.0 + PyTorch 2.9)
+RUN pip3 install --break-system-packages \
+    https://github.com/mjun0812/flash-attention-prebuild-wheels/releases/download/v0.7.11/flash_attn-2.8.3%2Bcu131torch2.9-cp312-cp312-linux_x86_64.whl
 
 # Copy LibroBot source code
 COPY --chown=librobot:librobot . /workspace/librobot_vla
 WORKDIR /workspace/librobot_vla
 
 # Install LibroBot in editable mode with training dependencies
-RUN pip3 install -e ".[train]"
+RUN pip3 install --break-system-packages -e ".[train]"
 
 USER librobot
 
