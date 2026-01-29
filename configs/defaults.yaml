@@ -1,0 +1,79 @@
+# Default configuration for LibroBot VLA framework
+
+# Random seed for reproducibility
+seed: 42
+
+# Paths
+data_dir: ./data
+output_dir: ./outputs
+checkpoint_dir: ${output_dir}/checkpoints
+log_dir: ${output_dir}/logs
+
+# Device
+device: cuda
+mixed_precision: bf16  # fp16, bf16, or null
+
+# Logging
+logging:
+  level: INFO
+  use_wandb: false
+  wandb_project: librobot
+  wandb_entity: null
+  log_interval: 10
+
+# Training defaults
+training:
+  batch_size: 4
+  num_workers: 4
+  max_steps: 100000
+  max_epochs: null
+  gradient_accumulation_steps: 1
+  gradient_clip_norm: 1.0
+  save_interval: 5000
+  eval_interval: 1000
+  
+  optimizer:
+    name: adamw
+    lr: 1e-4
+    weight_decay: 0.01
+    betas: [0.9, 0.999]
+  
+  scheduler:
+    name: cosine
+    warmup_steps: 1000
+    min_lr: 1e-6
+
+# Model defaults
+model:
+  framework:
+    name: groot_style
+    fusion_method: concat
+  
+  vlm:
+    name: mock_vlm  # Replace with actual VLM
+    hidden_dim: 512
+    freeze: true
+  
+  action_head:
+    name: mlp_oft
+    hidden_dim: 512
+    num_layers: 3
+    action_horizon: 10
+  
+  state_encoder:
+    name: mlp
+    hidden_dims: [256, 256]
+    output_dim: 256
+  
+  history_encoder: null
+
+# Robot defaults
+robot:
+  name: wheel_loader
+
+# Dataset defaults
+dataset:
+  name: mock_dataset  # Replace with actual dataset
+  action_horizon: 10
+  observation_horizon: 1
+  normalize: true

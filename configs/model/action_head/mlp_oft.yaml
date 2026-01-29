@@ -1,0 +1,7 @@
+# MLP OFT action head configuration
+
+name: mlp_oft
+hidden_dim: 512
+num_layers: 3
+action_horizon: 10
+dropout: 0.1

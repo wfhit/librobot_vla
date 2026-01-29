@@ -1,0 +1,4 @@
+# GR00T-style framework configuration
+
+name: groot_style
+fusion_method: concat  # concat, add, cross_attention

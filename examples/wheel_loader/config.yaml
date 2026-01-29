@@ -1,0 +1,10 @@
+# Wheel loader example configuration
+# Inherits from the experiment config
+
+defaults:
+  - /experiment/wheel_loader_groot
+
+experiment_name: wheel_loader_example
+
+# Custom overrides
+output_dir: ./examples/wheel_loader/outputs

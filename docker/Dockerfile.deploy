@@ -1,0 +1,26 @@
+# Lightweight deployment image
+FROM librobot:base
+
+# Install inference dependencies only
+RUN pip3 install \
+    fastapi \
+    uvicorn[standard] \
+    grpcio \
+    grpcio-tools \
+    onnx \
+    onnxruntime-gpu
+
+# Copy library code
+COPY . /workspace/librobot
+
+# Install librobot
+RUN cd /workspace/librobot && pip3 install -e ".[inference]"
+
+# Expose ports
+EXPOSE 8000 50051
+
+# Set working directory
+WORKDIR /workspace/librobot
+
+# Default command
+CMD ["python3", "-m", "librobot.inference.server.rest_server"]

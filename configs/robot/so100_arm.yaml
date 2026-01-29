@@ -1,0 +1,6 @@
+# SO100 arm robot configuration
+
+name: so100_arm
+action_dim: 6
+state_dim: 12
+control_frequency: 20.0

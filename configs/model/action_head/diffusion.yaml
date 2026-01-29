@@ -1,0 +1,10 @@
+# Diffusion Transformer action head configuration
+
+name: diffusion_transformer
+hidden_dim: 512
+num_layers: 6
+num_heads: 8
+action_horizon: 10
+num_diffusion_steps: 100
+num_inference_steps: 10
+dropout: 0.1

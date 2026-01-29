@@ -1,0 +1,6 @@
+# Wheel loader robot configuration
+
+name: wheel_loader
+action_dim: 6
+state_dim: 22
+control_frequency: 10.0

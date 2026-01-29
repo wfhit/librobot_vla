@@ -1,0 +1,26 @@
+# Training image with all dependencies
+FROM librobot:base
+
+# Install training dependencies
+RUN pip3 install \
+    accelerate \
+    deepspeed \
+    transformers \
+    peft \
+    bitsandbytes \
+    diffusers \
+    datasets \
+    wandb \
+    tensorboard
+
+# Copy library code
+COPY . /workspace/librobot
+
+# Install librobot
+RUN cd /workspace/librobot && pip3 install -e ".[train]"
+
+# Set working directory
+WORKDIR /workspace/librobot
+
+# Default command
+CMD ["python3", "scripts/train.py"]

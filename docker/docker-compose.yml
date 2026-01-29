@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Training service
+  train:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.train
+    image: librobot:train
+    container_name: librobot-train
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - CUDA_VISIBLE_DEVICES=0
+    volumes:
+      - ../:/workspace/librobot
+      - ~/data:/workspace/data
+      - ~/outputs:/workspace/outputs
+    command: python3 scripts/train.py config=configs/experiment/wheel_loader_groot.yaml
+    ipc: host
+    shm_size: 32gb
+
+  # Inference service
+  inference:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.deploy
+    image: librobot:deploy
+    container_name: librobot-inference
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    ports:
+      - "8000:8000"
+      - "50051:50051"
+    volumes:
+      - ../:/workspace/librobot
+      - ~/checkpoints:/workspace/checkpoints
+    command: python3 -m librobot.inference.server.rest_server
+    ipc: host
+
+  # TensorBoard service
+  tensorboard:
+    image: tensorflow/tensorflow:latest
+    container_name: librobot-tensorboard
+    ports:
+      - "6006:6006"
+    volumes:
+      - ~/outputs/logs:/logs
+    command: tensorboard --logdir=/logs --host=0.0.0.0

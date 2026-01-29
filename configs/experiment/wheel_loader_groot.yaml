@@ -1,0 +1,40 @@
+# Wheel loader with GR00T-style framework experiment
+
+defaults:
+  - /defaults
+  - /model/framework/groot_style
+  - /model/action_head/diffusion
+  - /model/encoder/mlp
+  - /robot/wheel_loader
+  - /training/standard
+
+# Experiment name
+experiment_name: wheel_loader_groot
+
+# Override model settings
+model:
+  vlm:
+    name: mock_vlm
+    hidden_dim: 512
+    freeze: true
+  
+  action_head:
+    hidden_dim: 512
+    num_layers: 6
+    action_horizon: 10
+  
+  state_encoder:
+    hidden_dims: [256, 256]
+    output_dim: 256
+
+# Override training settings
+training:
+  batch_size: 8
+  max_steps: 50000
+  optimizer:
+    lr: 3e-4
+
+# Dataset
+dataset:
+  name: mock_dataset
+  action_horizon: 10
