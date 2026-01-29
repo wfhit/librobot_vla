@@ -7,21 +7,16 @@ Modules:
 --------
 - base: Abstract base classes (AbstractDataset, AbstractTokenizer)
 - registry: Registration system for datasets and tokenizers
+- datasets: Dataset loaders (LeRobot, RLDS, HDF5, Zarr, WebDataset)
+- tokenizers: Tokenizers for state, action, image data
+- transforms: Data transforms and augmentations
 
 Usage:
 ------
 >>> from librobot.data import AbstractDataset, register_dataset
->>> 
->>> @register_dataset(name="my_dataset")
->>> class MyDataset(AbstractDataset):
-...     def __len__(self):
-...         return 1000
-...     
-...     def __getitem__(self, idx):
-...         return {'images': ..., 'text': ..., 'actions': ...}
-...     
-...     def get_statistics(self):
-...         return {'action_mean': ..., 'action_std': ...}
+>>> from librobot.data.datasets import LeRobotDataset, HDF5Dataset
+>>> from librobot.data.tokenizers import ActionTokenizer, StateTokenizer
+>>> from librobot.data.transforms import Compose, ActionNormalize
 """
 
 from .base import AbstractDataset, AbstractTokenizer
@@ -37,6 +32,11 @@ from .registry import (
     create_tokenizer,
     list_tokenizers,
 )
+
+# Import submodules
+from . import datasets
+from . import tokenizers
+from . import transforms
 
 __all__ = [
     # Base classes
@@ -54,4 +54,8 @@ __all__ = [
     'get_tokenizer',
     'create_tokenizer',
     'list_tokenizers',
+    # Submodules
+    'datasets',
+    'tokenizers',
+    'transforms',
 ]
