@@ -1,0 +1,61 @@
+# Global Default Configuration for LibroBot VLA
+# This file contains default values shared across all experiments
+
+# Random seed for reproducibility
+seed: 42
+
+# Device configuration
+device: "cuda"  # Options: "cuda", "cpu", "mps"
+mixed_precision: true  # Use automatic mixed precision training
+
+# Logging configuration
+logging:
+  wandb:
+    enabled: true
+    project: "librobot-vla"
+    entity: null  # Set to your wandb username/org
+  log_interval: 10  # Log every N steps
+  save_interval: 1000  # Save checkpoint every N steps
+  eval_interval: 500  # Evaluate every N steps
+
+# Checkpoint configuration
+checkpoint:
+  save_dir: "checkpoints"
+  keep_last_n: 3  # Keep only last N checkpoints
+  save_best: true  # Save best checkpoint based on eval metric
+  resume_from: null  # Path to checkpoint to resume from
+
+# Data loading configuration
+dataloader:
+  num_workers: 4
+  pin_memory: true
+  persistent_workers: true
+  prefetch_factor: 2
+
+# Optimization defaults
+optimization:
+  gradient_clip_norm: 1.0
+  gradient_accumulation_steps: 1
+  warmup_steps: 1000
+
+# Evaluation configuration
+evaluation:
+  num_episodes: 50  # Number of episodes for evaluation
+  save_videos: true  # Save evaluation videos
+  video_fps: 10
+
+# Model defaults
+model:
+  use_pretrained: true
+  freeze_backbone: false
+  
+# Action space defaults
+action:
+  normalization: "bounds"  # Options: "bounds", "standardize", "none"
+  clip_actions: true
+  
+# Vision preprocessing defaults
+vision:
+  image_size: [224, 224]  # [height, width]
+  normalize_mean: [0.485, 0.456, 0.406]  # ImageNet mean
+  normalize_std: [0.229, 0.224, 0.225]  # ImageNet std

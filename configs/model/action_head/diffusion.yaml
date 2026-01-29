@@ -1,0 +1,46 @@
+# Diffusion Action Head Configuration
+# Predicts actions using a diffusion model (DDPM/DDIM)
+
+# Action head type (must match registry name)
+type: "diffusion"
+
+# Action space configuration
+action_dim: 7  # 6 DOF + gripper
+action_horizon: 16  # Predict 16 future actions
+chunk_size: 8  # Execute first 8 actions, then replan
+
+# Diffusion model parameters
+num_diffusion_steps: 100  # Number of diffusion steps during training
+num_inference_steps: 10  # Number of inference steps (can be less than training)
+noise_schedule: "cosine"  # Options: "linear", "cosine", "squaredcos_cap_v2"
+prediction_type: "epsilon"  # Options: "epsilon", "sample", "v_prediction"
+
+# Network architecture
+backbone:
+  type: "temporal_unet"  # Options: "temporal_unet", "transformer"
+  hidden_dims: [512, 256, 128]
+  kernel_size: 5
+  num_groups: 8  # For GroupNorm
+  dropout: 0.1
+  
+# Conditioning
+conditioning:
+  method: "film"  # Options: "film", "cross_attention", "concat"
+  vision_feature_dim: 1536  # Must match VLM output dim
+  lang_feature_dim: 1536  # Must match VLM output dim
+  fuse_method: "add"  # Options: "add", "concat", "gated"
+
+# Loss configuration
+loss:
+  type: "mse"  # Options: "mse", "huber"
+  huber_delta: 1.0  # Only used if type is "huber"
+  
+# Inference configuration
+clip_sample: true  # Clip samples to action bounds
+clip_range: [-1.0, 1.0]  # Clipping range
+
+# Optional: Use exponential moving average
+ema:
+  enabled: true
+  decay: 0.995
+  update_every: 10
