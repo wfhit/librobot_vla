@@ -41,6 +41,9 @@ jobs:
 
   docker-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs: release
     
     steps:
