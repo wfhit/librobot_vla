@@ -1,0 +1,94 @@
+# LibroBot VLA Training Configuration
+# Example configuration for training VLA models
+
+# Model configuration
+model:
+  name: openvla
+  vlm:
+    name: qwen2-vl-2b
+    pretrained: true
+    freeze_vision: false
+  action_head:
+    type: diffusion
+    num_steps: 10
+    hidden_dim: 256
+  action_dim: 7
+  state_dim: 14
+
+# Data configuration
+data:
+  dataset: bridge_v2
+  format: lerobot
+  path: /data/bridge_v2
+  split_ratio: [0.9, 0.05, 0.05]  # train, val, test
+  
+  transforms:
+    image:
+      - type: resize
+        size: [224, 224]
+      - type: normalize
+        mean: [0.485, 0.456, 0.406]
+        std: [0.229, 0.224, 0.225]
+    action:
+      - type: normalize
+        normalize_type: standard
+  
+  dataloader:
+    batch_size: 32
+    num_workers: 8
+    pin_memory: true
+    shuffle: true
+
+# Training configuration
+training:
+  max_epochs: 100
+  gradient_accumulation_steps: 4
+  gradient_clip_val: 1.0
+  
+  optimizer:
+    type: adamw
+    lr: 1e-4
+    weight_decay: 0.01
+    betas: [0.9, 0.999]
+  
+  scheduler:
+    type: cosine
+    warmup_epochs: 5
+    min_lr: 1e-6
+  
+  loss:
+    type: mse
+    weight: 1.0
+  
+  callbacks:
+    - type: checkpoint
+      save_freq: 5
+      save_best: true
+      monitor: val_loss
+    - type: logging
+      log_interval: 10
+    - type: early_stopping
+      patience: 20
+      monitor: val_loss
+
+# Distributed training
+distributed:
+  backend: accelerate  # or deepspeed
+  mixed_precision: fp16
+  gradient_checkpointing: true
+  
+  # DeepSpeed specific
+  deepspeed:
+    zero_stage: 2
+    offload_optimizer: false
+
+# Output
+output:
+  dir: ./outputs
+  name: vla_bridge_v2
+  save_checkpoints: true
+  save_logs: true
+
+# Misc
+seed: 42
+device: cuda

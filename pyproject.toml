@@ -123,12 +123,11 @@ Documentation = "https://librobot.readthedocs.io"
 Repository = "https://github.com/wfhit/librobot_vla"
 Issues = "https://github.com/wfhit/librobot_vla/issues"
 
-# [project.scripts]
-# CLI scripts will be added in future PR
-# librobot-train = "librobot.cli.train:main"
-# librobot-eval = "librobot.cli.evaluate:main"
-# librobot-serve = "librobot.cli.serve:main"
-# librobot-collect = "librobot.cli.collect:main"
+[project.scripts]
+librobot-train = "librobot.cli.train:main"
+librobot-eval = "librobot.cli.evaluate:main"
+librobot-serve = "librobot.cli.serve:main"
+librobot-collect = "librobot.cli.collect:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

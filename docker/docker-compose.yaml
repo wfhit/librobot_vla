@@ -1,0 +1,115 @@
+# LibroBot VLA Docker Compose Configuration
+# Usage: docker-compose up -d
+
+version: '3.8'
+
+services:
+  # Training service with GPU support
+  training:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: librobot-vla:latest
+    container_name: librobot-training
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - WANDB_API_KEY=${WANDB_API_KEY}
+    volumes:
+      - ../data:/data:ro
+      - ../outputs:/outputs
+      - ../checkpoints:/checkpoints
+    command: >
+      python -m librobot.cli.train
+        --config /app/configs/train_default.yaml
+        --output /outputs
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # Inference server
+  inference:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: librobot-vla:latest
+    container_name: librobot-inference
+    runtime: nvidia
+    ports:
+      - "8000:8000"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+    volumes:
+      - ../checkpoints:/checkpoints:ro
+    command: >
+      python -m librobot.cli.serve
+        --checkpoint /checkpoints/best.pt
+        --host 0.0.0.0
+        --port 8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # gRPC inference server
+  inference-grpc:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: librobot-vla:latest
+    container_name: librobot-inference-grpc
+    runtime: nvidia
+    ports:
+      - "50051:50051"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+    volumes:
+      - ../checkpoints:/checkpoints:ro
+    command: >
+      python -m librobot.cli.serve
+        --checkpoint /checkpoints/best.pt
+        --type grpc
+        --port 50051
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # Data collection service (requires robot hardware)
+  collection:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: librobot-vla:latest
+    container_name: librobot-collection
+    network_mode: host
+    privileged: true
+    volumes:
+      - ../collected_data:/data
+      - /dev:/dev
+    command: >
+      python -m librobot.cli.collect
+        --robot so100
+        --output /data
+        --format lerobot
+    profiles:
+      - collection
+
+networks:
+  default:
+    driver: bridge
