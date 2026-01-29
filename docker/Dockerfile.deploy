@@ -1,0 +1,57 @@
+# Lightweight deployment Docker image
+# Optimized for inference with minimal dependencies
+
+FROM nvidia/cuda:12.4.0-runtime-ubuntu22.04
+
+LABEL maintainer="LibroBot Team"
+LABEL description="Lightweight deployment image for LibroBot VLA inference"
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=${CUDA_HOME}/bin:${PATH}
+ENV LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
+
+# Install minimal system dependencies
+RUN apt-get update && apt-get install -y \
+    python3.10 \
+    python3-pip \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip
+RUN pip3 install --upgrade pip setuptools wheel
+
+# Install minimal dependencies for inference
+RUN pip3 install \
+    torch==2.5.0 torchvision==0.20.0 \
+    --index-url https://download.pytorch.org/whl/cu124
+
+RUN pip3 install \
+    transformers>=4.40.0 \
+    fastapi>=0.109.0 \
+    uvicorn[standard]>=0.27.0 \
+    pillow>=10.0.0 \
+    numpy>=1.24.0
+
+# Copy only necessary files for inference
+COPY --chown=root:root librobot /app/librobot
+COPY --chown=root:root scripts/inference.py /app/scripts/
+COPY --chown=root:root setup.py pyproject.toml /app/
+
+WORKDIR /app
+
+# Install LibroBot in deployment mode
+RUN pip3 install -e ".[deploy]"
+
+# Expose port for API server
+EXPOSE 8000
+
+# Create a non-root user for security
+RUN useradd -m -u 1000 -s /bin/bash deploy
+USER deploy
+
+# Default command runs inference server
+CMD ["python", "scripts/inference.py", "--server"]
