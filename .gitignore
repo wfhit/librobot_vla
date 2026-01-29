@@ -51,8 +51,8 @@ site/
 .ipynb_checkpoints/
 *.ipynb
 
-# Data
-data/
+# Data (external datasets, not librobot/data module)
+/data/
 datasets/
 *.hdf5
 *.h5
