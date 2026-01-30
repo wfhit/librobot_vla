@@ -2,28 +2,36 @@
 
 Architecture:
     Each robot type subfolder follows a consistent structure:
-    - base.py: Base class for that robot type
-    - robots.py: Specific robot implementations
-    - Optional: Comprehensive implementations in separate files (e.g., so100_arm.py)
+    - <type>.py: Base class for that robot type (e.g., arm.py, humanoid.py)
+    - <type>_robot.py: Specific robot implementations
 
     arms/
-        base.py         -> Arm (base class)
-        robots.py       -> FrankaArm, UR5Arm, xArmRobot, WidowXArm
-        so100_arm.py    -> SO100Arm (comprehensive)
+        arm.py       -> Arm (base class)
+        arm_robot.py -> FrankaArm, UR5Arm, xArmRobot, WidowXArm, SO100Arm
 
     mobile/
-        base.py         -> MobileRobot (base class)
-        robots.py       -> LeKiwiRobot, DifferentialDriveRobot
+        mobile.py       -> MobileRobot (base class)
+        mobile_robot.py -> LeKiwiRobot, DifferentialDriveRobot
 
     mobile_manipulators/
-        base.py              -> MobileManipulator (base class)
-        wheel_loader_base.py -> WheelLoaderRobot (base class for loaders)
-        robots.py            -> FetchRobot, TIAGoRobot
-        wheel_loader.py      -> WheelLoader (comprehensive)
+        mobile_manipulator.py       -> MobileManipulator (base class)
+        mobile_manipulator_robot.py -> FetchRobot, TIAGoRobot
 
     humanoids/
-        base.py         -> Humanoid (base class)
-        robots.py       -> Figure01Robot, GR1Robot, UnitreeH1Robot
+        humanoid.py         -> Humanoid (base class)
+        humanoid_robot.py   -> Figure01Robot, GR1Robot, UnitreeH1Robot
+
+    wheel_loaders/
+        wheel_loader.py       -> WheelLoaderRobot (base class)
+        wheel_loader_robot.py -> WheelLoader (comprehensive)
+
+    excavators/
+        excavator.py       -> ExcavatorRobot (base class)
+        excavator_robot.py -> Excavator (comprehensive)
+
+    articulated_trucks/
+        articulated_truck.py       -> ArticulatedTruckRobot (base class)
+        articulated_truck_robot.py -> ArticulatedTruck (comprehensive)
 """
 
 from .base import AbstractRobot
@@ -40,19 +48,28 @@ from . import arms
 from . import mobile
 from . import mobile_manipulators
 from . import humanoids
+from . import wheel_loaders
+from . import excavators
+from . import articulated_trucks
 from . import sensors
 
 # Base classes
 from .arms import Arm
 from .mobile import MobileRobot
-from .mobile_manipulators import MobileManipulator, WheelLoaderRobot
+from .mobile_manipulators import MobileManipulator
 from .humanoids import Humanoid
+from .wheel_loaders import WheelLoaderRobot
+from .excavators import ExcavatorRobot
+from .articulated_trucks import ArticulatedTruckRobot
 
 # Robot implementations
 from .arms import SO100Arm, FrankaArm, UR5Arm, xArmRobot, WidowXArm
 from .mobile import LeKiwiRobot, DifferentialDriveRobot
-from .mobile_manipulators import FetchRobot, TIAGoRobot, WheelLoader
+from .mobile_manipulators import FetchRobot, TIAGoRobot
 from .humanoids import Figure01Robot, GR1Robot, UnitreeH1Robot
+from .wheel_loaders import WheelLoader
+from .excavators import Excavator
+from .articulated_trucks import ArticulatedTruck
 from .sensors import Camera, DepthCamera, ForceTorqueSensor, IMU, Lidar
 
 __all__ = [
@@ -68,8 +85,10 @@ __all__ = [
     'Arm',
     'MobileRobot',
     'MobileManipulator',
-    'WheelLoaderRobot',
     'Humanoid',
+    'WheelLoaderRobot',
+    'ExcavatorRobot',
+    'ArticulatedTruckRobot',
     # Arms
     'SO100Arm',
     'FrankaArm',
@@ -82,11 +101,16 @@ __all__ = [
     # Mobile Manipulators
     'FetchRobot',
     'TIAGoRobot',
-    'WheelLoader',
     # Humanoids
     'Figure01Robot',
     'GR1Robot',
     'UnitreeH1Robot',
+    # Wheel Loaders
+    'WheelLoader',
+    # Excavators
+    'Excavator',
+    # Articulated Trucks
+    'ArticulatedTruck',
     # Sensors
     'Camera',
     'DepthCamera',
@@ -98,5 +122,8 @@ __all__ = [
     'mobile',
     'mobile_manipulators',
     'humanoids',
+    'wheel_loaders',
+    'excavators',
+    'articulated_trucks',
     'sensors',
 ]

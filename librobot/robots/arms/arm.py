@@ -4,7 +4,6 @@ This module provides the base class for all robot arm implementations.
 Specific robot arm platforms should inherit from Arm and override
 methods as needed for their hardware.
 """
-"""
 
 from typing import Any, Dict
 import numpy as np
@@ -17,7 +16,7 @@ class Arm(AbstractRobot):
     
     Provides common functionality for robotic arm implementations.
     For a comprehensive reference implementation with full features,
-    see SO100Arm in so100_arm.py.
+    see SO100Arm in arm_robot.py.
     """
     
     def __init__(

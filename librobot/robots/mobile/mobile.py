@@ -4,7 +4,6 @@ This module provides the base class for all mobile robot implementations.
 Specific mobile robot platforms should inherit from MobileRobot and override
 methods as needed for their hardware.
 """
-"""
 
 from typing import Any, Dict
 import numpy as np

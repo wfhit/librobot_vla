@@ -3,7 +3,7 @@
 from typing import Any, Dict
 import numpy as np
 
-from .base import MobileRobot
+from .mobile import MobileRobot
 from ..registry import register_robot
 
 
