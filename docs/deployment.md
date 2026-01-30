@@ -156,9 +156,9 @@ pip freeze > requirements.txt
 
 # Or use minimal dependencies
 cat > requirements-prod.txt << EOF
-torch==2.5.0
-torchvision==0.20.0
-transformers>=4.40.0
+torch>=2.9.0
+torchvision>=0.24.0
+transformers>=4.57.0
 fastapi>=0.109.0
 uvicorn[standard]>=0.27.0
 pillow>=10.0.0
@@ -347,15 +347,15 @@ Create a custom deployment Dockerfile:
 
 ```dockerfile
 # Dockerfile.custom
-FROM nvidia/cuda:12.4.0-runtime-ubuntu22.04
+FROM nvidia/cuda:13.0.0-cudnn-runtime-ubuntu24.04
 
 # Install Python and dependencies
 RUN apt-get update && apt-get install -y \
-    python3.10 python3-pip \
+    python3 python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PyTorch
-RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+RUN pip3 install --break-system-packages torch torchvision --index-url https://download.pytorch.org/whl/cu130
 
 # Install LibroBot
 COPY requirements-prod.txt /tmp/

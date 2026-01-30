@@ -32,7 +32,7 @@ RUN pip3 install --break-system-packages --no-cache-dir \
     --extra-index-url https://download.pytorch.org/whl/cu130
 
 RUN pip3 install --break-system-packages \
-    transformers>=4.40.0 \
+    transformers>=4.57.0 \
     fastapi>=0.109.0 \
     uvicorn[standard]>=0.27.0 \
     pillow>=10.0.0 \

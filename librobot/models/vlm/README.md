@@ -483,4 +483,4 @@ To add a new VLM:
 
 ## License
 
-All implementations are provided under the Apache-2.0 license, consistent with the LibroBot framework.
+All implementations are provided under the MIT license, consistent with the LibroBot framework.

@@ -20,18 +20,18 @@ This directory contains the CI/CD workflows for the LibroBot VLA project.
 1. **Lint and Format Check**
    - Runs Black code formatter (check mode)
    - Runs Ruff linter
-   - Python 3.11 on Ubuntu
+   - Python 3.12 on Ubuntu
 
 2. **Type Checking**
    - Runs mypy type checker
-   - Python 3.11 on Ubuntu
+   - Python 3.12 on Ubuntu
 
 3. **Tests (Matrix)**
-   - Python versions: 3.9, 3.10, 3.11
+   - Python version: 3.12
    - Runs unit tests (`tests/unit/`)
    - Runs integration tests (`tests/integration/`)
    - Generates coverage reports
-   - Uploads coverage to Codecov (Python 3.11 only)
+   - Uploads coverage to Codecov
 
 4. **Minimal Install Test**
    - Tests basic package installation without optional dependencies
@@ -60,7 +60,7 @@ This directory contains the CI/CD workflows for the LibroBot VLA project.
 
 1. **Build Base Image**
    - Builds from `docker/Dockerfile.base`
-   - CUDA 12.4 + PyTorch 2.5 foundation
+   - CUDA 13.0 + PyTorch 2.9 foundation
 
 2. **Build Train Image**
    - Builds from `docker/Dockerfile.train`
@@ -110,7 +110,7 @@ This directory contains the CI/CD workflows for the LibroBot VLA project.
 **Jobs:**
 
 1. **Run Tests Before Release**
-   - Full test suite across Python 3.9, 3.10, 3.11
+   - Full test suite on Python 3.12
    - Linting and type checking
    - Must pass before release proceeds
 

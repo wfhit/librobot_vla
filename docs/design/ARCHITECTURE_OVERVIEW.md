@@ -3,8 +3,8 @@
 > **Comprehensive Framework for Vision-Language-Action Models for Robot Learning**
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![PyTorch 2.0+](https://img.shields.io/badge/pytorch-2.0+-red.svg)](https://pytorch.org/)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
+[![PyTorch 2.9+](https://img.shields.io/badge/pytorch-2.9+-red.svg)](https://pytorch.org/)
 
 ## What is LibroBot VLA?
 
@@ -110,16 +110,16 @@ Vision-Language Models for multimodal understanding:
 #### 2. VLA Frameworks
 Complete robot learning architectures:
 
-| Framework | Type | Best For |
-|-----------|------|----------|
-| **GR00T** | Diffusion | Multi-camera, stable training |
-| **π0** | Flow Matching | Complex state spaces |
-| **Octo** | Unified Transformer | Multi-task learning |
-| **OpenVLA** | VLM Fine-tuning | Language-guided tasks |
-| **RT-2** | Token-based | Discrete actions |
-| **ACT** | Action Chunking | Bi-manual manipulation |
-| **Helix** | Hierarchical | Long-horizon planning |
-| **Custom** | User-defined | Experimentation |
+| Framework | Type | Best For | Company/Org | Origin |
+|-----------|------|----------|-------------|--------|
+| **GR00T** | Diffusion | Multi-camera, stable training | NVIDIA | Project GR00T |
+| **π0** | Flow Matching | Complex state spaces | Physical Intelligence | π0 foundation model |
+| **Octo** | Unified Transformer | Multi-task learning | UC Berkeley | Open X-Embodiment (Octo) |
+| **OpenVLA** | VLM Fine-tuning | Language-guided tasks | UC Berkeley | OpenVLA |
+| **RT-2** | Token-based | Discrete actions | Google DeepMind | Robotics Transformer 2 |
+| **ACT** | Action Chunking | Bi-manual manipulation | Stanford (ALOHA) | Action Chunking Transformer |
+| **Helix** | Hierarchical | Long-horizon planning | Figure AI | Helix hierarchical VLA |
+| **Custom** | User-defined | Experimentation | User-defined | Custom template |
 
 #### 3. Action Heads
 Various action prediction mechanisms:

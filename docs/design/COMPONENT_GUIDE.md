@@ -1242,7 +1242,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "librobot>=0.1.0",
-        "torch>=2.0.0",
+        "torch>=2.9.0",
     ],
     author="Your Name",
     author_email="your.email@example.com",

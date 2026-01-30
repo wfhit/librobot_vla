@@ -151,7 +151,7 @@ This document outlines the development roadmap for the LibroBot VLA framework, i
 
 ---
 
-### Phase 4: Action Heads (🔄 In Progress)
+### Phase 4: Action Heads (✅ Completed)
 
 **Goal:** Implement diverse action prediction mechanisms
 
@@ -163,16 +163,14 @@ This document outlines the development roadmap for the LibroBot VLA framework, i
 - ✅ Flow matching (Rectified Flow, OT-CFM)
 - ✅ Hybrid approaches
 
-**Remaining:**
-- 🔄 Advanced diffusion schedules
-- 🔄 Variational inference heads
-- 🔄 Ensemble methods
-
-**Target Completion:** Q2 2024
+**Planned (Post v0.1.0):**
+- ⏳ Advanced diffusion schedules
+- ⏳ Variational inference heads
+- ⏳ Ensemble methods
 
 ---
 
-### Phase 5: Data Pipeline (🔄 In Progress)
+### Phase 5: Data Pipeline (✅ Completed)
 
 **Goal:** Robust data loading and preprocessing
 
@@ -180,28 +178,22 @@ This document outlines the development roadmap for the LibroBot VLA framework, i
 - ✅ Abstract dataset interface
 - ✅ RLDS dataset support
 - ✅ HDF5 dataset support
+- ✅ LeRobot dataset support
 - ✅ Dummy/testing datasets
-- ✅ Image transforms
-- ✅ Action transforms
+- ✅ Image/state/action transforms
 - ✅ Action tokenizer
 - ✅ Text tokenizer (basic)
+- ✅ Data augmentation utilities
 
-**In Progress:**
-- 🔄 Additional dataset formats
-- 🔄 Data augmentation strategies
-- 🔄 Online data loading
-- 🔄 Distributed data loading
-
-**Planned:**
+**Planned (Post v0.1.0):**
+- ⏳ Additional dataset formats
 - ⏳ Real-time data streaming
 - ⏳ Data caching and prefetching
 - ⏳ Custom data format converters
 
-**Target Completion:** Q2 2024
-
 ---
 
-### Phase 6: Training Infrastructure (🔄 In Progress)
+### Phase 6: Training Infrastructure (✅ Completed)
 
 **Goal:** Complete training and optimization pipeline
 
@@ -212,19 +204,16 @@ This document outlines the development roadmap for the LibroBot VLA framework, i
 - ✅ Configuration-driven training
 - ✅ Mixed precision support
 
-**In Progress:**
-- 🔄 Distributed training (DDP, FSDP)
-- 🔄 Advanced optimization strategies
-- 🔄 Curriculum learning
-- 🔄 Learning rate schedulers
+**Completed:**
+- ✅ Distributed training (DDP, FSDP, DeepSpeed)
+- ✅ Learning rate schedulers
+- ✅ Hyperparameter tuning utilities
+- ✅ Experiment tracking utilities
+- ✅ Advanced learning module scaffolding
 
-**Planned:**
-- ⏳ Hyperparameter tuning (Ray Tune)
-- ⏳ Experiment tracking (W&B, MLflow)
+**Planned (Post v0.1.0):**
 - ⏳ Model profiling and optimization
-- ⏳ Gradient accumulation strategies
-
-**Target Completion:** Q3 2024
+- ⏳ Advanced curriculum learning presets
 
 ---
 
@@ -246,61 +235,61 @@ This document outlines the development roadmap for the LibroBot VLA framework, i
 - ⏳ Mobile manipulator support
 - ⏳ Simulation interfaces (Isaac Sim, MuJoCo)
 
-**Target Completion:** Q3 2024
+**Target Completion:** TBD
 
 ---
 
-### Phase 8: Evaluation & Benchmarking (📋 Planned)
+### Phase 8: Evaluation & Benchmarking (✅ Completed - Core)
 
 **Goal:** Standardized evaluation protocols
 
-**Planned:**
-- ⏳ Success rate metrics
-- ⏳ FPS and latency benchmarks
-- ⏳ Standard benchmark tasks
+**Completed:**
+- ✅ Success rate and task metrics
+- ✅ FPS and latency benchmarks
+- ✅ Benchmark utilities and scripts
+
+**Planned (Post v0.1.0):**
+- ⏳ Standard benchmark task suites
 - ⏳ Simulation evaluation tools
 - ⏳ Real-world evaluation protocols
 - ⏳ Leaderboard system
 
-**Target Completion:** Q3 2024
-
 ---
 
-### Phase 9: Inference & Deployment (📋 Planned)
+### Phase 9: Inference & Deployment (✅ Completed - Core)
 
 **Goal:** Production-ready model serving
 
 **Completed:**
 - ✅ Base predictor
 - ✅ Batched predictor
+- ✅ REST (FastAPI) inference server
+- ✅ gRPC inference server
+- ✅ Model export (ONNX, TorchScript, TensorRT)
+- ✅ Quantization (INT8, INT4)
+- ✅ Docker training/deploy images
 
-**Planned:**
-- ⏳ FastAPI server implementation
-- ⏳ gRPC server implementation
-- ⏳ Model optimization (TensorRT, ONNX)
-- ⏳ Quantization (INT8, INT4)
+**Planned (Post v0.1.0):**
 - ⏳ Model distillation
-- ⏳ Edge deployment
-- ⏳ Docker containers
-
-**Target Completion:** Q4 2024
+- ⏳ Edge/mobile deployment hardening
 
 ---
 
-### Phase 10: Advanced Features (📋 Planned)
+### Phase 10: Advanced Features (🔄 In Progress - Scaffolding Implemented)
 
 **Goal:** Cutting-edge capabilities
 
-**Planned:**
-- ⏳ Multi-robot coordination
-- ⏳ Sim-to-real transfer
-- ⏳ Online learning and adaptation
-- ⏳ Imitation learning from video
-- ⏳ Reinforcement learning integration
-- ⏳ Zero-shot generalization
-- ⏳ Few-shot adaptation
+**Implemented (Scaffolding/Utilities):**
+- ✅ Reinforcement learning integration scaffolding
+- ✅ Imitation learning from video scaffolding
+- ✅ Multi-robot coordination scaffolding
+- ✅ Sim-to-real transfer scaffolding
+- ✅ Online learning and adaptation utilities
+- ✅ Zero-shot and few-shot capability hooks
 
-**Target Completion:** 2025
+**Planned (Post v0.1.0):**
+- ⏳ Production-ready algorithms and benchmarks
+- ⏳ End-to-end evaluation suites
 
 ---
 
@@ -364,53 +353,33 @@ This document outlines the development roadmap for the LibroBot VLA framework, i
 ## Pending Components
 
 ### High Priority 🔴
-- [x] Distributed training (DDP, FSDP) ✓
-- [x] FastAPI inference server ✓
-- [x] Model optimization (ONNX, TensorRT) ✓
-- [x] Standard evaluation benchmarks ✓
 - [ ] Additional dataset formats
-
-### Medium Priority 🟡
 - [ ] More robot interfaces (Franka, UR5, etc.)
 - [ ] Simulation integration (Isaac Sim, MuJoCo)
-- [x] Experiment tracking (W&B, MLflow) ✓
-- [x] Hyperparameter tuning ✓
-- [x] Data augmentation strategies ✓
+
+### Medium Priority 🟡
+- [ ] Standard benchmark task suites
+- [ ] Real-world evaluation protocols
+- [ ] Leaderboard system
+- [ ] Data streaming/caching pipeline
 
 ### Low Priority 🟢
-- [x] Advanced RL integration ✓
-- [x] Multi-robot coordination ✓
-- [x] Zero-shot generalization ✓
-- [x] Model compression techniques ✓
-- [x] Edge deployment ✓
+- [ ] Model distillation workflows
+- [ ] Edge/mobile deployment hardening
 
 ## Future Enhancements
 
-### Q2 2024
-- Complete data pipeline enhancements
-- Distributed training support
-- Additional action head variants
-- More dataset formats
-
-### Q3 2024
-- Inference server implementations
-- Model optimization and quantization
+### Near Term (Post v0.1.0)
+- Additional dataset formats and converters
+- Data streaming/caching pipeline
 - More robot interfaces
-- Simulation integration
-- Standardized benchmarks
+- Simulation integration (Isaac Sim, MuJoCo)
+- Standard benchmark task suites
 
-### Q4 2024
-- Production deployment tools
-- Advanced evaluation protocols
-- Model distillation
-- Edge deployment support
-
-### 2025
-- [x] Advanced learning paradigms (RL, imitation from video) ✓
-- [x] Multi-robot coordination ✓
-- [x] Sim-to-real transfer techniques ✓
-- [x] Online learning and adaptation ✓
-- [x] Zero-shot and few-shot capabilities ✓
+### Longer Term
+- Model distillation workflows
+- Production-grade edge/mobile deployment
+- Leaderboard system and public benchmarks
 
 ## Known Limitations
 
@@ -422,9 +391,8 @@ This document outlines the development roadmap for the LibroBot VLA framework, i
    - **Workaround:** Use HuggingFace tokenizers directly
 
 2. **Distributed Training**
-   - Single-GPU training only currently
-   - DDP/FSDP support in progress
-   - **Workaround:** Use smaller batch sizes or models
+  - Distributed training utilities exist, but cluster-specific setup varies
+  - **Workaround:** Validate launcher and environment settings per cluster
 
 3. **Model Checkpointing**
    - Basic checkpoint support only
@@ -432,14 +400,12 @@ This document outlines the development roadmap for the LibroBot VLA framework, i
    - **Workaround:** Manual checkpoint management
 
 4. **Evaluation**
-   - Limited standardized benchmarks
-   - Custom evaluation required
-   - **Workaround:** Implement custom evaluation scripts
+  - Standard task suites and leaderboards are not yet finalized
+  - **Workaround:** Use provided benchmark scripts and custom evaluation
 
 5. **Data Loading**
-   - Some formats require preprocessing
-   - Real-time streaming not optimized
-   - **Workaround:** Preprocess datasets offline
+  - Real-time streaming and caching are not yet available
+  - **Workaround:** Preprocess datasets offline
 
 ### Performance Considerations
 
@@ -484,7 +450,7 @@ This document outlines the development roadmap for the LibroBot VLA framework, i
 
 ## Release History
 
-### v0.1.0 (Current) - Foundation Release
+### v0.1.0 (Current) - Foundation + Infrastructure
 
 **Date:** TBD
 
@@ -503,51 +469,43 @@ This document outlines the development roadmap for the LibroBot VLA framework, i
 - Comprehensive documentation
 
 **Known Issues:**
-- Single-GPU training only
 - Limited real-world robot testing
-- Some advanced features pending
+- Some advanced features are scaffolding-only
 
 ---
 
-### v0.2.0 (Planned) - Training & Deployment
+### v0.2.0 (Planned) - Data & Robotics Expansion
 
-**Target:** Q3 2024
+**Target:** TBD
 
 **Planned Features:**
-- Distributed training (DDP, FSDP)
-- FastAPI/gRPC inference servers
-- Model optimization (ONNX, TensorRT)
-- Quantization support
-- Additional robot interfaces
-- Standardized benchmarks
+- Additional dataset formats and streaming
+- More robot interfaces
+- Simulation integration
+- Standard benchmark task suites
 
 ---
 
 ### v0.3.0 (Planned) - Advanced Features
 
-**Target:** Q4 2024
+**Target:** TBD
 
 **Planned Features:**
-- Multi-robot coordination
-- Sim-to-real transfer
-- Online learning
-- Zero-shot generalization
-- Edge deployment
-- Production-ready tools
+- Production-ready advanced learning workflows
+- Public benchmarks and leaderboards
+- Edge/mobile deployment hardening
 
 ---
 
 ### v1.0.0 (Planned) - Production Ready
 
-**Target:** Q1 2025
+**Target:** TBD
 
 **Planned Features:**
 - Complete feature set
-- Production-tested
-- Comprehensive benchmarks
-- Full documentation
-- Community plugins
-- Enterprise support
+- Production validation
+- Comprehensive public benchmarks
+- Community plugin ecosystem
 
 ## Contributing
 

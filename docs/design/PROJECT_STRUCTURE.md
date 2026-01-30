@@ -216,12 +216,15 @@ librobot_vla/
 │   │   ├── API_CONTRACTS.md
 │   │   ├── ROADMAP.md
 │   │   └── QUICK_REFERENCE.md
+│   ├── PROJECT_COMPLETION_SUMMARY.md
 │   ├── VLM_INTEGRATION_GUIDE.md
 │   └── tutorials/
 │       └── getting_started.md
 │
 ├── docker/                            # Docker configurations
-│   ├── Dockerfile
+│   ├── Dockerfile.base               # Base image with CUDA + PyTorch
+│   ├── Dockerfile.train              # Training environment
+│   ├── Dockerfile.deploy             # Lightweight inference server
 │   └── docker-compose.yml
 │
 ├── requirements/                      # Requirements

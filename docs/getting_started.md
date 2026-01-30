@@ -17,9 +17,9 @@ Welcome to LibroBot VLA! This guide will help you get up and running with the fr
 
 Before installing LibroBot VLA, ensure you have:
 
-- **Python 3.9+** (3.10 or 3.11 recommended)
-- **PyTorch 2.0+** with CUDA support (for GPU training)
-- **CUDA 11.7+** (if using NVIDIA GPUs)
+- **Python 3.12** (required)
+- **PyTorch 2.9+** with CUDA support (for GPU training)
+- **CUDA 13.0+** (if using NVIDIA GPUs)
 - **16GB+ RAM** (32GB+ recommended)
 - **NVIDIA GPU with 8GB+ VRAM** (16GB+ recommended)
 
