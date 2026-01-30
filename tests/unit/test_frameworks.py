@@ -23,6 +23,7 @@ def mock_model():
     model.train = Mock()
     model.eval = Mock()
     model.forward = Mock(return_value={"loss": torch.tensor(0.5)})
+    model.state_dict = Mock(return_value={})
     return model
 
 
