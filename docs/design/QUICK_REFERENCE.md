@@ -159,7 +159,7 @@ librobot_vla/
 |-------|------|-----|-----------------|
 | SO-100 | Arm | 7 | `SO100Arm` |
 | Humanoid | Full body | 20+ | `HumanoidRobot` |
-| Wheel Loader | Mobile | Variable | `WheelLoader` |
+| Wheel Loader | Mobile | Variable | `WheelLoaderRobot` |
 
 ## Common Patterns
 
