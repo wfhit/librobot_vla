@@ -7,12 +7,12 @@ supporting autonomous operation with multiple camera views, GPS, and IMU sensors
 from typing import Any, Dict, List, Optional
 import numpy as np
 
-from ..base import AbstractRobot
+from .articulated_truck import ArticulatedTruck
 from ..registry import register_robot
 
 
 @register_robot(name="articulated_truck", aliases=["adt", "dump_truck", "hauler"])
-class ArticulatedTruck(AbstractRobot):
+class ArticulatedTruckRobot(ArticulatedTruck):
     """
     Articulated Truck robot interface for autonomous heavy equipment operation.
     
@@ -325,4 +325,4 @@ class ArticulatedTruck(AbstractRobot):
         return True
 
 
-__all__ = ['ArticulatedTruck']
+__all__ = ['ArticulatedTruckRobot']

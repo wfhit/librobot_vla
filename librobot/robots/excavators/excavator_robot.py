@@ -7,12 +7,12 @@ supporting autonomous operation with multiple camera views, GPS, and IMU sensors
 from typing import Any, Dict, List, Optional
 import numpy as np
 
-from ..base import AbstractRobot
+from .excavator import Excavator
 from ..registry import register_robot
 
 
 @register_robot(name="excavator", aliases=["digger", "backhoe"])
-class Excavator(AbstractRobot):
+class ExcavatorRobot(Excavator):
     """
     Excavator robot interface for autonomous heavy equipment operation.
     
@@ -325,4 +325,4 @@ class Excavator(AbstractRobot):
         print(f"[{self.robot_id}] EMERGENCY STOP activated")
 
 
-__all__ = ['Excavator']
+__all__ = ['ExcavatorRobot']

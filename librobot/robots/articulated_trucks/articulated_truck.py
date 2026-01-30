@@ -1,7 +1,7 @@
 """Base class for articulated truck implementations.
 
 This module provides the base class for articulated truck robot implementations.
-Specific articulated truck platforms should inherit from ArticulatedTruckRobot
+Specific articulated truck platforms should inherit from ArticulatedTruck
 and override methods as needed for their hardware.
 """
 
@@ -11,12 +11,12 @@ import numpy as np
 from ..base import AbstractRobot
 
 
-class ArticulatedTruckRobot(AbstractRobot):
+class ArticulatedTruck(AbstractRobot):
     """Base class for articulated truck robots.
     
     Provides common functionality for articulated truck implementations.
     For a comprehensive reference implementation with full features,
-    see ArticulatedTruck in articulated_truck_robot.py.
+    see ArticulatedTruckRobot in articulated_truck_robot.py.
     """
     
     # Common articulated truck specifications
@@ -70,4 +70,4 @@ class ArticulatedTruckRobot(AbstractRobot):
         }
 
 
-__all__ = ['ArticulatedTruckRobot']
+__all__ = ['ArticulatedTruck']

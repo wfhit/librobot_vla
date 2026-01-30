@@ -1,11 +1,11 @@
 """Articulated truck robot implementations."""
 
-from .articulated_truck import ArticulatedTruckRobot
-from .articulated_truck_robot import ArticulatedTruck
+from .articulated_truck import ArticulatedTruck
+from .articulated_truck_robot import ArticulatedTruckRobot
 
 __all__ = [
     # Base
-    'ArticulatedTruckRobot',
-    # Implementations
     'ArticulatedTruck',
+    # Implementations
+    'ArticulatedTruckRobot',
 ]

@@ -1,7 +1,7 @@
 """Base class for wheel loader implementations.
 
 This module provides the base class for wheel loader robot implementations.
-Specific wheel loader platforms should inherit from WheelLoaderRobot and override
+Specific wheel loader platforms should inherit from WheelLoader and override
 methods as needed for their hardware.
 """
 
@@ -11,12 +11,12 @@ import numpy as np
 from ..base import AbstractRobot
 
 
-class WheelLoaderRobot(AbstractRobot):
+class WheelLoader(AbstractRobot):
     """Base class for wheel loader robots.
     
     Provides common functionality for wheel loader implementations.
     For a comprehensive reference implementation with full features,
-    see WheelLoader in wheel_loader_robot.py.
+    see WheelLoaderRobot in wheel_loader_robot.py.
     """
     
     # Common wheel loader specifications
@@ -70,4 +70,4 @@ class WheelLoaderRobot(AbstractRobot):
         }
 
 
-__all__ = ['WheelLoaderRobot']
+__all__ = ['WheelLoader']

@@ -1,11 +1,11 @@
 """Wheel loader robot implementations."""
 
-from .wheel_loader import WheelLoaderRobot
-from .wheel_loader_robot import WheelLoader
+from .wheel_loader import WheelLoader
+from .wheel_loader_robot import WheelLoaderRobot
 
 __all__ = [
     # Base
-    'WheelLoaderRobot',
-    # Implementations
     'WheelLoader',
+    # Implementations
+    'WheelLoaderRobot',
 ]

@@ -1,7 +1,7 @@
 """Base class for excavator implementations.
 
 This module provides the base class for excavator robot implementations.
-Specific excavator platforms should inherit from ExcavatorRobot and override
+Specific excavator platforms should inherit from Excavator and override
 methods as needed for their hardware.
 """
 
@@ -11,12 +11,12 @@ import numpy as np
 from ..base import AbstractRobot
 
 
-class ExcavatorRobot(AbstractRobot):
+class Excavator(AbstractRobot):
     """Base class for excavator robots.
     
     Provides common functionality for excavator implementations.
     For a comprehensive reference implementation with full features,
-    see Excavator in excavator_robot.py.
+    see ExcavatorRobot in excavator_robot.py.
     """
     
     # Common excavator specifications
@@ -74,4 +74,4 @@ class ExcavatorRobot(AbstractRobot):
         }
 
 
-__all__ = ['ExcavatorRobot']
+__all__ = ['Excavator']
