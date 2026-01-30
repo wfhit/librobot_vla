@@ -9,7 +9,7 @@ import sys
 def train_cli(args: Optional[list] = None) -> int:
     """
     Train a VLA model.
-    
+
     Usage:
         librobot-train --config configs/train.yaml
         librobot-train --model openvla --dataset bridge --output ./checkpoints
@@ -18,14 +18,14 @@ def train_cli(args: Optional[list] = None) -> int:
         description="Train a Vision-Language-Action model",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    
+
     # Config
     parser.add_argument(
         "--config", "-c",
         type=str,
         help="Path to training configuration file",
     )
-    
+
     # Model
     parser.add_argument(
         "--model", "-m",
@@ -45,7 +45,7 @@ def train_cli(args: Optional[list] = None) -> int:
         default="diffusion",
         help="Action head type",
     )
-    
+
     # Data
     parser.add_argument(
         "--dataset", "-d",
@@ -60,7 +60,7 @@ def train_cli(args: Optional[list] = None) -> int:
         choices=["lerobot", "rlds", "hdf5", "zarr", "webdataset"],
         help="Dataset format",
     )
-    
+
     # Training
     parser.add_argument(
         "--epochs", "-e",
@@ -86,7 +86,7 @@ def train_cli(args: Optional[list] = None) -> int:
         default=1,
         help="Gradient accumulation steps",
     )
-    
+
     # Output
     parser.add_argument(
         "--output", "-o",
@@ -100,7 +100,7 @@ def train_cli(args: Optional[list] = None) -> int:
         default="vla_train",
         help="Experiment name",
     )
-    
+
     # Distributed
     parser.add_argument(
         "--accelerate",
@@ -118,7 +118,7 @@ def train_cli(args: Optional[list] = None) -> int:
         default=2,
         help="DeepSpeed ZeRO stage",
     )
-    
+
     # Misc
     parser.add_argument(
         "--seed",
@@ -141,9 +141,9 @@ def train_cli(args: Optional[list] = None) -> int:
         action="store_true",
         help="Enable debug mode",
     )
-    
+
     parsed_args = parser.parse_args(args)
-    
+
     # Run training
     return run_training(parsed_args)
 
@@ -158,12 +158,12 @@ def run_training(args) -> int:
         print(f"  Epochs: {args.epochs}")
         print(f"  Batch size: {args.batch_size}")
         print(f"  Output: {args.output}")
-        
+
         # Load config if provided
         config = {}
         if args.config:
             config = load_config(args.config)
-        
+
         # Setup model
         from librobot.models import create_vla
         model = create_vla(
@@ -171,14 +171,14 @@ def run_training(args) -> int:
             vlm_name=args.vlm,
             action_head=args.action_head,
         )
-        
+
         # Setup dataset
         from librobot.data.datasets import LeRobotDataset, HDF5Dataset
         if args.data_format == "lerobot":
             dataset = LeRobotDataset(args.dataset)
         else:
             dataset = HDF5Dataset(args.dataset)
-        
+
         # Setup trainer
         if args.deepspeed:
             from librobot.training.trainers import DeepSpeedTrainer
@@ -198,10 +198,10 @@ def run_training(args) -> int:
             )
         else:
             print("Using basic training (no distributed)")
-        
+
         print("Training complete!")
         return 0
-        
+
     except Exception as e:
         print(f"Training failed: {e}")
         return 1

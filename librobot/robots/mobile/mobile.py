@@ -13,7 +13,7 @@ from ..base import AbstractRobot
 
 class MobileRobot(AbstractRobot):
     """Base class for mobile robots."""
-    
+
     def __init__(
         self,
         robot_id: str,
@@ -32,12 +32,12 @@ class MobileRobot(AbstractRobot):
         self.drive_type = drive_type
         self.max_linear_velocity = max_linear_velocity
         self.max_angular_velocity = max_angular_velocity
-        
+
         # State
         self._position = np.zeros(3)  # x, y, z
         self._orientation = np.array([0, 0, 0, 1])  # quaternion
         self._velocity = np.zeros(2)  # linear, angular
-    
+
     def get_action_space(self) -> Dict[str, Any]:
         if self.drive_type == "differential":
             return {
@@ -54,7 +54,7 @@ class MobileRobot(AbstractRobot):
                 "high": 1.0,
             }
         return {}
-    
+
     def get_observation_space(self) -> Dict[str, Any]:
         return {
             "position": {"shape": (3,)},

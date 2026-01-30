@@ -15,12 +15,12 @@ from ..registry import register_robot
 class ExcavatorRobot(Excavator):
     """
     Excavator robot interface for autonomous heavy equipment operation.
-    
+
     The excavator is a tracked heavy equipment vehicle with a rotating cab
     and articulated arm for digging and material handling. This implementation
     provides a unified interface for autonomous control with comprehensive
     safety features.
-    
+
     Action Space (7 DOF):
         - left_track: Left track speed [-1.0, 1.0] (normalized)
         - right_track: Right track speed [-1.0, 1.0] (normalized)
@@ -29,7 +29,7 @@ class ExcavatorRobot(Excavator):
         - arm: Arm angle control [-1.0, 1.0] (extend/retract)
         - bucket: Bucket angle control [-1.0, 1.0] (curl/dump)
         - throttle: Engine throttle [0.0, 1.0]
-    
+
     Observation Space:
         - images: Dict of camera views
             - 'front': (H, W, 3) Front view camera
@@ -54,7 +54,7 @@ class ExcavatorRobot(Excavator):
             - 'linear_acceleration': (3,) Linear acceleration (m/s²)
             - 'angular_velocity': (3,) Angular velocity (rad/s)
             - 'orientation': (4,) Quaternion orientation
-    
+
     Safety Features:
         - Maximum speed limits for autonomous operation
         - Hydraulic pressure monitoring and limits
@@ -62,7 +62,7 @@ class ExcavatorRobot(Excavator):
         - Swing zone monitoring
         - Emergency stop capability
         - Geofencing support
-    
+
     Example:
         >>> # Basic usage with context manager
         >>> with ExcavatorRobot(robot_id="excavator_001") as robot:
@@ -88,7 +88,7 @@ class ExcavatorRobot(Excavator):
         ...     ])
         ...     robot.execute_action(action)
     """
-    
+
     # Safety limits
     MAX_AUTONOMOUS_SPEED = 3.0  # m/s (approximately 11 km/h)
     MAX_SWING_SPEED = 0.3  # rad/s
@@ -100,11 +100,11 @@ class ExcavatorRobot(Excavator):
     MIN_ARM_ANGLE = 0.0
     MAX_BUCKET_ANGLE = np.pi / 2  # 90 degrees
     MIN_BUCKET_ANGLE = -np.pi / 4  # -45 degrees
-    
+
     # Camera configurations
     CAMERA_RESOLUTION = (480, 640)  # Height x Width
     CAMERA_FPS = 30
-    
+
     def __init__(
         self,
         robot_id: str,
@@ -115,7 +115,7 @@ class ExcavatorRobot(Excavator):
     ):
         """
         Initialize excavator interface.
-        
+
         Args:
             robot_id: Unique identifier for this excavator
             camera_enabled: Whether to enable camera feeds
@@ -128,7 +128,7 @@ class ExcavatorRobot(Excavator):
         self.gps_enabled = gps_enabled
         self.imu_enabled = imu_enabled
         self.max_speed = max_speed or self.MAX_AUTONOMOUS_SPEED
-        
+
         # Robot state
         self._left_track_speed = 0.0
         self._right_track_speed = 0.0
@@ -139,32 +139,32 @@ class ExcavatorRobot(Excavator):
         self._hydraulic_pressure = 3000.0
         self._engine_rpm = 0.0
         self._fuel_level = 1.0
-        
+
         # GPS state
         self._latitude = 0.0
         self._longitude = 0.0
         self._altitude = 0.0
-        
+
         # IMU state
         self._linear_acceleration = np.zeros(3)
         self._angular_velocity = np.zeros(3)
         self._orientation = np.array([0.0, 0.0, 0.0, 1.0])  # quaternion
-        
+
         # Connection state
         self._connection_params = {}
-    
+
     def connect(self, **kwargs) -> bool:
         """Connect to the excavator control system."""
         self._connection_params = kwargs
         self._is_connected = True
         print(f"[{self.robot_id}] Connected to excavator at {kwargs.get('ip', 'unknown')}")
         return True
-    
+
     def disconnect(self) -> None:
         """Disconnect from the excavator."""
         self._is_connected = False
         print(f"[{self.robot_id}] Disconnected from excavator")
-    
+
     def reset(self) -> None:
         """Reset excavator to safe initial state."""
         self._left_track_speed = 0.0
@@ -174,7 +174,7 @@ class ExcavatorRobot(Excavator):
         self._arm_angle = 0.0
         self._bucket_angle = 0.0
         print(f"[{self.robot_id}] Reset to safe initial state")
-    
+
     def get_state(self) -> Dict[str, np.ndarray]:
         """Get current excavator state."""
         return {
@@ -186,15 +186,15 @@ class ExcavatorRobot(Excavator):
             'position': np.array([self._latitude, self._longitude, self._altitude]),
             'orientation': self._orientation.copy(),
         }
-    
+
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
         """Execute action on excavator."""
         if action.shape[0] != 7:
             raise ValueError(f"Action must have 7 dimensions, got {action.shape[0]}")
-        
+
         if not self._is_connected:
             raise RuntimeError("Not connected to excavator")
-        
+
         # Parse and clip action
         left_track = np.clip(action[0], -1.0, 1.0)
         right_track = np.clip(action[1], -1.0, 1.0)
@@ -203,7 +203,7 @@ class ExcavatorRobot(Excavator):
         arm = np.clip(action[4], -1.0, 1.0)
         bucket = np.clip(action[5], -1.0, 1.0)
         throttle = np.clip(action[6], 0.0, 1.0)
-        
+
         # Update internal state (simulation)
         self._left_track_speed = left_track * self.max_speed
         self._right_track_speed = right_track * self.max_speed
@@ -211,9 +211,9 @@ class ExcavatorRobot(Excavator):
         self._boom_angle = boom * self.MAX_BOOM_ANGLE
         self._arm_angle = (arm + 1.0) / 2.0 * self.MAX_ARM_ANGLE
         self._bucket_angle = bucket * self.MAX_BUCKET_ANGLE
-        
+
         return True
-    
+
     def get_observation(self) -> Dict[str, Any]:
         """Get current observation from excavator sensors."""
         observation = {
@@ -229,7 +229,7 @@ class ExcavatorRobot(Excavator):
                 'fuel_level': self._fuel_level,
             }
         }
-        
+
         if self.camera_enabled:
             observation['images'] = {
                 'front': np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
@@ -237,23 +237,23 @@ class ExcavatorRobot(Excavator):
                 'left': np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
                 'bucket': np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
             }
-        
+
         if self.gps_enabled:
             observation['gps'] = {
                 'latitude': self._latitude,
                 'longitude': self._longitude,
                 'altitude': self._altitude,
             }
-        
+
         if self.imu_enabled:
             observation['imu'] = {
                 'linear_acceleration': self._linear_acceleration.copy(),
                 'angular_velocity': self._angular_velocity.copy(),
                 'orientation': self._orientation.copy(),
             }
-        
+
         return observation
-    
+
     def get_action_space(self) -> Dict[str, Any]:
         """Get action space specification."""
         return {
@@ -273,7 +273,7 @@ class ExcavatorRobot(Excavator):
                 'throttle'
             ],
         }
-    
+
     def get_observation_space(self) -> Dict[str, Any]:
         """Get observation space specification."""
         obs_space = {
@@ -293,7 +293,7 @@ class ExcavatorRobot(Excavator):
                 ],
             }
         }
-        
+
         if self.camera_enabled:
             obs_space['images'] = {
                 'front': {'shape': (*self.CAMERA_RESOLUTION, 3), 'dtype': np.uint8},
@@ -301,23 +301,23 @@ class ExcavatorRobot(Excavator):
                 'left': {'shape': (*self.CAMERA_RESOLUTION, 3), 'dtype': np.uint8},
                 'bucket': {'shape': (*self.CAMERA_RESOLUTION, 3), 'dtype': np.uint8},
             }
-        
+
         if self.gps_enabled:
             obs_space['gps'] = {
                 'shape': (3,),
                 'dtype': np.float64,
                 'names': ['latitude', 'longitude', 'altitude'],
             }
-        
+
         if self.imu_enabled:
             obs_space['imu'] = {
                 'linear_acceleration': {'shape': (3,), 'dtype': np.float32},
                 'angular_velocity': {'shape': (3,), 'dtype': np.float32},
                 'orientation': {'shape': (4,), 'dtype': np.float32},
             }
-        
+
         return obs_space
-    
+
     def emergency_stop(self) -> None:
         """Trigger emergency stop of excavator."""
         self._left_track_speed = 0.0

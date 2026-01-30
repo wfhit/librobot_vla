@@ -9,12 +9,12 @@ ENCODER_REGISTRY = GlobalRegistry.get_registry("encoders")
 def register_encoder(name=None, aliases=None, **kwargs):
     """
     Decorator to register an encoder.
-    
+
     Args:
         name: Registration name
         aliases: List of aliases
         **kwargs: Additional metadata
-        
+
     Returns:
         Decorator function
     """
@@ -24,10 +24,10 @@ def register_encoder(name=None, aliases=None, **kwargs):
 def get_encoder(name):
     """
     Get registered encoder class.
-    
+
     Args:
         name: Encoder name or alias
-        
+
     Returns:
         Encoder class
     """
@@ -37,12 +37,12 @@ def get_encoder(name):
 def create_encoder(name, *args, **kwargs):
     """
     Create encoder instance.
-    
+
     Args:
         name: Encoder name or alias
         *args: Positional arguments
         **kwargs: Keyword arguments
-        
+
     Returns:
         Encoder instance
     """
@@ -52,7 +52,7 @@ def create_encoder(name, *args, **kwargs):
 def list_encoders():
     """
     List all registered encoders.
-    
+
     Returns:
         List of encoder names
     """

@@ -13,17 +13,17 @@ from ..base import AbstractRobot
 
 class Excavator(AbstractRobot):
     """Base class for excavator robots.
-    
+
     Provides common functionality for excavator implementations.
     For a comprehensive reference implementation with full features,
     see ExcavatorRobot in excavator_robot.py.
     """
-    
+
     # Common excavator specifications
     NUM_CAMERAS = 4
     HAS_GPS = True
     HAS_IMU = True
-    
+
     def __init__(
         self,
         robot_id: str,
@@ -42,7 +42,7 @@ class Excavator(AbstractRobot):
         self.max_speed = max_speed
         self.max_swing_speed = max_swing_speed
         self.bucket_capacity = bucket_capacity
-        
+
         # State
         self._left_track_speed = 0.0
         self._right_track_speed = 0.0
@@ -52,7 +52,7 @@ class Excavator(AbstractRobot):
         self._bucket_angle = 0.0
         self._engine_rpm = 0.0
         self._fuel_level = 1.0
-    
+
     def get_action_space(self) -> Dict[str, Any]:
         return {
             "type": "continuous",
@@ -60,7 +60,7 @@ class Excavator(AbstractRobot):
             "low": [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 0.0],
             "high": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
         }
-    
+
     def get_observation_space(self) -> Dict[str, Any]:
         return {
             "left_track_speed": {"shape": (), "dtype": "float32"},

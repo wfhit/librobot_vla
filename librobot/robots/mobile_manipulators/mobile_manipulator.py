@@ -13,7 +13,7 @@ from ..base import AbstractRobot
 
 class MobileManipulator(AbstractRobot):
     """Base class for mobile manipulators."""
-    
+
     def __init__(
         self,
         robot_id: str,
@@ -33,12 +33,12 @@ class MobileManipulator(AbstractRobot):
         self.gripper_dof = gripper_dof
         self.base_dof = base_dof
         self.action_dim = arm_joints + gripper_dof + base_dof
-        
+
         self._arm_positions = np.zeros(arm_joints)
         self._gripper_state = np.zeros(gripper_dof)
         self._base_position = np.zeros(3)
         self._base_velocity = np.zeros(base_dof)
-    
+
     def get_action_space(self) -> Dict[str, Any]:
         return {
             "type": "continuous",
@@ -46,7 +46,7 @@ class MobileManipulator(AbstractRobot):
             "low": -1.0,
             "high": 1.0,
         }
-    
+
     def get_observation_space(self) -> Dict[str, Any]:
         return {
             "arm_positions": {"shape": (self.arm_joints,)},

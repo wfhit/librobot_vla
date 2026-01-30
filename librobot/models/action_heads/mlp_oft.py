@@ -14,13 +14,13 @@ class MLPActionHead(AbstractActionHead):
             if i < len(dims) - 2:
                 layers.append(nn.ReLU())
         self.mlp = nn.Sequential(*layers)
-    
+
     def forward(self, embeddings: torch.Tensor, **kwargs) -> dict:
         actions = self.mlp(embeddings)
         return {'actions': actions, 'logits': actions}
-    
+
     def compute_loss(self, predictions: dict, targets: torch.Tensor, **kwargs) -> torch.Tensor:
         return torch.nn.functional.mse_loss(predictions['actions'], targets)
-    
+
     def sample(self, embeddings: torch.Tensor, **kwargs) -> torch.Tensor:
         return self.mlp(embeddings)

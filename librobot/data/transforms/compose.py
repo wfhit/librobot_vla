@@ -6,20 +6,20 @@ import numpy as np
 
 class Compose:
     """Compose multiple transforms together."""
-    
+
     def __init__(self, transforms: List[Callable]):
         """
         Args:
             transforms: List of transform functions
         """
         self.transforms = transforms
-    
+
     def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         """Apply all transforms in sequence."""
         for t in self.transforms:
             sample = t(sample)
         return sample
-    
+
     def __repr__(self) -> str:
         format_string = self.__class__.__name__ + '('
         for t in self.transforms:
@@ -30,7 +30,7 @@ class Compose:
 
 class RandomApply:
     """Randomly apply a transform with given probability."""
-    
+
     def __init__(
         self,
         transform: Callable,
@@ -43,7 +43,7 @@ class RandomApply:
         """
         self.transform = transform
         self.p = p
-    
+
     def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         """Apply transform with probability p."""
         if np.random.random() < self.p:
@@ -53,14 +53,14 @@ class RandomApply:
 
 class RandomChoice:
     """Randomly choose one transform from a list."""
-    
+
     def __init__(self, transforms: List[Callable]):
         """
         Args:
             transforms: List of transforms to choose from
         """
         self.transforms = transforms
-    
+
     def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         """Apply randomly chosen transform."""
         t = np.random.choice(self.transforms)
@@ -69,7 +69,7 @@ class RandomChoice:
 
 class Identity:
     """Identity transform (no-op)."""
-    
+
     def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         """Return sample unchanged."""
         return sample
@@ -77,14 +77,14 @@ class Identity:
 
 class Lambda:
     """Apply a custom lambda function."""
-    
+
     def __init__(self, func: Callable):
         """
         Args:
             func: Function to apply
         """
         self.func = func
-    
+
     def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         """Apply function."""
         return self.func(sample)
@@ -92,14 +92,14 @@ class Lambda:
 
 class KeyRename:
     """Rename keys in sample."""
-    
+
     def __init__(self, mapping: Dict[str, str]):
         """
         Args:
             mapping: Old key -> New key mapping
         """
         self.mapping = mapping
-    
+
     def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         """Rename keys."""
         for old_key, new_key in self.mapping.items():
@@ -110,14 +110,14 @@ class KeyRename:
 
 class KeySelect:
     """Select only specified keys from sample."""
-    
+
     def __init__(self, keys: List[str]):
         """
         Args:
             keys: Keys to keep
         """
         self.keys = keys
-    
+
     def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         """Select keys."""
         return {k: sample[k] for k in self.keys if k in sample}
@@ -125,7 +125,7 @@ class KeySelect:
 
 class ToTensor:
     """Convert numpy arrays to tensors."""
-    
+
     def __init__(
         self,
         keys: Optional[List[str]] = None,
@@ -138,18 +138,18 @@ class ToTensor:
         """
         self.keys = keys
         self.device = device
-    
+
     def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         """Convert to tensors."""
         try:
             import torch
-            
+
             keys = self.keys or list(sample.keys())
-            
+
             for key in keys:
                 if key in sample and isinstance(sample[key], np.ndarray):
                     sample[key] = torch.from_numpy(sample[key]).to(self.device)
-            
+
             return sample
         except ImportError:
             return sample

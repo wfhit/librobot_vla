@@ -14,10 +14,10 @@ from ...components.normalization import LayerNorm
 class TransformerStateEncoder(AbstractEncoder):
     """
     Transformer encoder for robot state sequences.
-    
+
     Processes sequential state information using self-attention,
     useful for encoding state history or multi-agent states.
-    
+
     Args:
         input_dim: Input state dimension
         output_dim: Output embedding dimension
@@ -29,7 +29,7 @@ class TransformerStateEncoder(AbstractEncoder):
         use_pos_encoding: Whether to use positional encoding
         max_seq_len: Maximum sequence length
     """
-    
+
     def __init__(
         self,
         input_dim: int,
@@ -51,10 +51,10 @@ class TransformerStateEncoder(AbstractEncoder):
         self.activation_name = activation
         self.use_pos_encoding = use_pos_encoding
         self.max_seq_len = max_seq_len
-        
+
         # Input projection
         self.input_proj = nn.Linear(input_dim, output_dim)
-        
+
         # Positional encoding
         if use_pos_encoding:
             self.pos_encoding = SinusoidalPositionalEncoding(
@@ -64,7 +64,7 @@ class TransformerStateEncoder(AbstractEncoder):
             )
         else:
             self.pos_encoding = None
-        
+
         # Transformer layers
         self.layers = nn.ModuleList([
             TransformerEncoderLayer(
@@ -76,9 +76,9 @@ class TransformerStateEncoder(AbstractEncoder):
             )
             for _ in range(num_layers)
         ])
-        
+
         self.norm = LayerNorm(output_dim)
-    
+
     def forward(
         self,
         inputs: torch.Tensor,
@@ -87,38 +87,38 @@ class TransformerStateEncoder(AbstractEncoder):
     ) -> torch.Tensor:
         """
         Encode state sequence.
-        
+
         Args:
             inputs: State tensor [batch_size, seq_len, input_dim]
             attention_mask: Optional attention mask [batch_size, seq_len]
             **kwargs: Additional arguments
-            
+
         Returns:
             Encoded embeddings [batch_size, seq_len, output_dim]
         """
         # Project input
         x = self.input_proj(inputs)
-        
+
         # Add positional encoding
         if self.pos_encoding is not None:
             x = self.pos_encoding(x)
-        
+
         # Apply transformer layers
         for layer in self.layers:
             x = layer(x, attention_mask)
-        
+
         # Final normalization
         x = self.norm(x)
-        
+
         return x
-    
+
     def get_output_shape(self, input_shape: tuple) -> tuple:
         """Get output shape for given input shape."""
         if len(input_shape) == 3:
             return (input_shape[0], input_shape[1], self.output_dim)
         else:
             raise ValueError(f"Expected 3D input, got shape: {input_shape}")
-    
+
     @property
     def config(self) -> Dict[str, Any]:
         """Get encoder configuration."""
@@ -138,7 +138,7 @@ class TransformerStateEncoder(AbstractEncoder):
 
 class TransformerEncoderLayer(nn.Module):
     """Single transformer encoder layer."""
-    
+
     def __init__(
         self,
         d_model: int,
@@ -148,7 +148,7 @@ class TransformerEncoderLayer(nn.Module):
         activation: str = 'gelu',
     ):
         super().__init__()
-        
+
         # Self-attention
         self.self_attn = StandardAttention(
             dim=d_model,
@@ -156,7 +156,7 @@ class TransformerEncoderLayer(nn.Module):
             attn_drop=dropout,
             proj_drop=dropout,
         )
-        
+
         # Feedforward network
         self.ffn = nn.Sequential(
             nn.Linear(d_model, ffn_dim),
@@ -165,11 +165,11 @@ class TransformerEncoderLayer(nn.Module):
             nn.Linear(ffn_dim, d_model),
             nn.Dropout(dropout),
         )
-        
+
         # Layer normalization
         self.norm1 = LayerNorm(d_model)
         self.norm2 = LayerNorm(d_model)
-    
+
     def forward(
         self,
         x: torch.Tensor,
@@ -178,8 +178,8 @@ class TransformerEncoderLayer(nn.Module):
         """Forward pass with pre-norm architecture."""
         # Self-attention with residual
         x = x + self.self_attn(self.norm1(x), attention_mask)
-        
+
         # FFN with residual
         x = x + self.ffn(self.norm2(x))
-        
+
         return x

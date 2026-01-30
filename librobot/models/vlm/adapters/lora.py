@@ -11,10 +11,10 @@ class LoRAAdapter(nn.Module):
         self.lora_A = nn.Parameter(torch.randn(rank, in_features) * 0.01)
         self.lora_B = nn.Parameter(torch.zeros(out_features, rank))
         self.scaling = alpha / rank
-    
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return (x @ self.lora_A.T @ self.lora_B.T) * self.scaling
-    
+
     def apply_to_layer(self, layer: nn.Linear):
         """Apply LoRA to a linear layer."""
         original_forward = layer.forward

@@ -13,18 +13,18 @@ import torch.nn as nn
 class StateTransform(nn.Module):
     """
     Base class for state transforms.
-    
+
     All state transforms should inherit from this class to ensure
     consistent interface and composability.
     """
-    
+
     def forward(self, state: torch.Tensor) -> torch.Tensor:
         """
         Apply transform to state.
-        
+
         Args:
             state: State tensor [batch_size, state_dim] or [state_dim]
-            
+
         Returns:
             Transformed state
         """
@@ -34,9 +34,9 @@ class StateTransform(nn.Module):
 class NormalizeState(StateTransform):
     """
     Normalize states using pre-computed statistics.
-    
+
     Transforms states to zero mean and unit variance, or to [-1, 1] range.
-    
+
     Args:
         mean: Mean values for each state dimension
         std: Standard deviation for each state dimension
@@ -45,7 +45,7 @@ class NormalizeState(StateTransform):
         max_val: Maximum values (for minmax mode)
         eps: Small constant for numerical stability
     """
-    
+
     def __init__(
         self,
         mean: Optional[torch.Tensor] = None,
@@ -58,7 +58,7 @@ class NormalizeState(StateTransform):
         super().__init__()
         self.mode = mode
         self.eps = eps
-        
+
         if mode == "standard":
             if mean is None or std is None:
                 raise ValueError("mean and std required for standard normalization")
@@ -71,7 +71,7 @@ class NormalizeState(StateTransform):
             self.register_buffer("max_val", max_val)
         else:
             raise ValueError(f"Unknown mode: {mode}")
-    
+
     def forward(self, state: torch.Tensor) -> torch.Tensor:
         """Normalize state."""
         if self.mode == "standard":
@@ -87,9 +87,9 @@ class NormalizeState(StateTransform):
 class DenormalizeState(StateTransform):
     """
     Denormalize states back to original scale.
-    
+
     Inverse of NormalizeState.
-    
+
     Args:
         mean: Mean values for each state dimension
         std: Standard deviation for each state dimension
@@ -98,7 +98,7 @@ class DenormalizeState(StateTransform):
         max_val: Maximum values (for minmax mode)
         eps: Small constant for numerical stability
     """
-    
+
     def __init__(
         self,
         mean: Optional[torch.Tensor] = None,
@@ -111,7 +111,7 @@ class DenormalizeState(StateTransform):
         super().__init__()
         self.mode = mode
         self.eps = eps
-        
+
         if mode == "standard":
             if mean is None or std is None:
                 raise ValueError("mean and std required for standard normalization")
@@ -124,7 +124,7 @@ class DenormalizeState(StateTransform):
             self.register_buffer("max_val", max_val)
         else:
             raise ValueError(f"Unknown mode: {mode}")
-    
+
     def forward(self, state: torch.Tensor) -> torch.Tensor:
         """Denormalize state."""
         if self.mode == "standard":
@@ -140,12 +140,12 @@ class DenormalizeState(StateTransform):
 class ClipState(StateTransform):
     """
     Clip states to specified range.
-    
+
     Args:
         min_val: Minimum state values
         max_val: Maximum state values
     """
-    
+
     def __init__(
         self,
         min_val: torch.Tensor,
@@ -154,7 +154,7 @@ class ClipState(StateTransform):
         super().__init__()
         self.register_buffer("min_val", min_val)
         self.register_buffer("max_val", max_val)
-    
+
     def forward(self, state: torch.Tensor) -> torch.Tensor:
         """Clip state."""
         # TODO: Implement
@@ -165,13 +165,13 @@ class ClipState(StateTransform):
 class AddStateNoise(StateTransform):
     """
     Add Gaussian noise to states for data augmentation.
-    
+
     Args:
         noise_std: Standard deviation of noise for each dimension
         clip_min: Optional minimum values for clipping after noise
         clip_max: Optional maximum values for clipping after noise
     """
-    
+
     def __init__(
         self,
         noise_std: torch.Tensor,
@@ -184,12 +184,12 @@ class AddStateNoise(StateTransform):
             self.register_buffer("clip_min", clip_min)
         if clip_max is not None:
             self.register_buffer("clip_max", clip_max)
-    
+
     def forward(self, state: torch.Tensor) -> torch.Tensor:
         """Add noise to state."""
         if not self.training:
             return state
-        
+
         # TODO: Implement
         # TODO: Sample noise from normal distribution
         # TODO: Add noise to state
@@ -200,15 +200,15 @@ class AddStateNoise(StateTransform):
 class StateTemporalSmoothing(StateTransform):
     """
     Apply temporal smoothing to state sequences.
-    
+
     Useful for filtering noisy sensor readings.
-    
+
     Args:
         window_size: Size of smoothing window
         method: Smoothing method ("moving_average", "exponential")
         alpha: Exponential smoothing factor (for exponential method)
     """
-    
+
     def __init__(
         self,
         window_size: int = 3,
@@ -220,7 +220,7 @@ class StateTemporalSmoothing(StateTransform):
         self.method = method
         self.alpha = alpha
         self.state_buffer = []
-    
+
     def forward(self, state: torch.Tensor) -> torch.Tensor:
         """Apply temporal smoothing."""
         # TODO: Implement
@@ -228,7 +228,7 @@ class StateTemporalSmoothing(StateTransform):
         # TODO: Apply smoothing based on method
         # TODO: Maintain buffer size
         raise NotImplementedError("StateTemporalSmoothing.forward not yet implemented")
-    
+
     def reset(self):
         """Clear state buffer."""
         self.state_buffer = []
@@ -237,12 +237,12 @@ class StateTemporalSmoothing(StateTransform):
 class StateDerivative(StateTransform):
     """
     Compute derivatives of state (velocities, accelerations).
-    
+
     Args:
         order: Derivative order (1 for velocity, 2 for acceleration)
         dt: Time step between state measurements
     """
-    
+
     def __init__(
         self,
         order: int = 1,
@@ -252,14 +252,14 @@ class StateDerivative(StateTransform):
         self.order = order
         self.dt = dt
         self.prev_states = []
-    
+
     def forward(self, state: torch.Tensor) -> torch.Tensor:
         """Compute state derivative."""
         # TODO: Implement
         # TODO: Compute finite differences
         # TODO: Handle initialization (no previous states)
         raise NotImplementedError("StateDerivative.forward not yet implemented")
-    
+
     def reset(self):
         """Clear state history."""
         self.prev_states = []

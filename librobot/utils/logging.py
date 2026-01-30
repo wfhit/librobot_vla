@@ -19,7 +19,7 @@ class ColoredFormatter(logging.Formatter):
     """
     Colored log formatter for terminal output.
     """
-    
+
     # ANSI color codes
     COLORS = {
         'DEBUG': '\033[36m',      # Cyan
@@ -29,29 +29,29 @@ class ColoredFormatter(logging.Formatter):
         'CRITICAL': '\033[35m',   # Magenta
         'RESET': '\033[0m',       # Reset
     }
-    
+
     def format(self, record: logging.LogRecord) -> str:
         """Format log record with colors."""
         log_color = self.COLORS.get(record.levelname, self.COLORS['RESET'])
         reset_color = self.COLORS['RESET']
-        
+
         # Add color to levelname
         record.levelname = f"{log_color}{record.levelname}{reset_color}"
-        
+
         return super().format(record)
 
 
 class Logger:
     """
     Wrapper around Python logging with additional features.
-    
+
     Examples:
         >>> logger = Logger("my_module")
         >>> logger.info("Processing data")
         >>> logger.warning("Low memory")
         >>> logger.error("Failed to load file", exc_info=True)
     """
-    
+
     def __init__(
         self,
         name: str,
@@ -61,7 +61,7 @@ class Logger:
     ):
         """
         Initialize logger.
-        
+
         Args:
             name: Logger name
             level: Logging level
@@ -71,11 +71,11 @@ class Logger:
         self.logger = logging.getLogger(name)
         self.logger.setLevel(level)
         self.logger.handlers.clear()
-        
+
         # Console handler
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(level)
-        
+
         if use_color:
             console_format = ColoredFormatter(
                 '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -86,53 +86,53 @@ class Logger:
                 '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                 datefmt='%Y-%m-%d %H:%M:%S'
             )
-        
+
         console_handler.setFormatter(console_format)
         self.logger.addHandler(console_handler)
-        
+
         # File handler
         if log_file:
             log_path = Path(log_file)
             log_path.parent.mkdir(parents=True, exist_ok=True)
-            
+
             file_handler = logging.FileHandler(log_path)
             file_handler.setLevel(level)
-            
+
             file_format = logging.Formatter(
                 '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                 datefmt='%Y-%m-%d %H:%M:%S'
             )
             file_handler.setFormatter(file_format)
             self.logger.addHandler(file_handler)
-    
+
     def debug(self, msg: str, *args, **kwargs) -> None:
         """Log debug message."""
         self.logger.debug(msg, *args, **kwargs)
-    
+
     def info(self, msg: str, *args, **kwargs) -> None:
         """Log info message."""
         self.logger.info(msg, *args, **kwargs)
-    
+
     def warning(self, msg: str, *args, **kwargs) -> None:
         """Log warning message."""
         self.logger.warning(msg, *args, **kwargs)
-    
+
     def error(self, msg: str, *args, **kwargs) -> None:
         """Log error message."""
         self.logger.error(msg, *args, **kwargs)
-    
+
     def critical(self, msg: str, *args, **kwargs) -> None:
         """Log critical message."""
         self.logger.critical(msg, *args, **kwargs)
-    
+
     def exception(self, msg: str, *args, **kwargs) -> None:
         """Log exception with traceback."""
         self.logger.exception(msg, *args, **kwargs)
-    
+
     def set_level(self, level: int) -> None:
         """
         Set logging level.
-        
+
         Args:
             level: New logging level
         """
@@ -153,13 +153,13 @@ def get_logger(
 ) -> Logger:
     """
     Get or create a logger instance.
-    
+
     Args:
         name: Logger name
         level: Logging level
         log_file: Optional file path for logging
         use_color: If True, uses colored output for console
-        
+
     Returns:
         Logger: Logger instance
     """
@@ -169,7 +169,7 @@ def get_logger(
 def get_default_logger() -> Logger:
     """
     Get the default global logger.
-    
+
     Returns:
         Logger: Default logger instance
     """
@@ -182,7 +182,7 @@ def get_default_logger() -> Logger:
 def set_default_logger(logger: Logger) -> None:
     """
     Set the default global logger.
-    
+
     Args:
         logger: Logger instance to set as default
     """
@@ -197,12 +197,12 @@ def setup_logging(
 ) -> Logger:
     """
     Setup global logging configuration.
-    
+
     Args:
         level: Logging level
         log_file: Optional file path for logging
         use_color: If True, uses colored output for console
-        
+
     Returns:
         Logger: Configured logger instance
     """

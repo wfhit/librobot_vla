@@ -15,11 +15,11 @@ OPTIMIZER_REGISTRY = Registry("optimizers")
 def register_optimizer(name: str, **kwargs):
     """
     Decorator to register an optimizer builder.
-    
+
     Args:
         name: Name to register the optimizer under
         **kwargs: Additional metadata
-        
+
     Examples:
         >>> @register_optimizer("adam")
         >>> def build_adam(params, lr=1e-3, **kwargs):
@@ -31,13 +31,13 @@ def register_optimizer(name: str, **kwargs):
 class OptimizerBuilder:
     """
     Builder class for creating optimizers with parameter groups.
-    
+
     Supports:
     - Layerwise learning rate scaling
     - Weight decay exclusions (bias, norm layers)
     - Parameter group customization
     - Mixed precision optimization
-    
+
     Examples:
         >>> builder = OptimizerBuilder("adamw", lr=1e-3, weight_decay=0.01)
         >>> optimizer = builder.build(model)
@@ -48,7 +48,7 @@ class OptimizerBuilder:
         >>> builder.add_param_group(model.decoder.parameters(), lr=1e-3)
         >>> optimizer = builder.build()
     """
-    
+
     def __init__(
         self,
         optimizer_type: str,
@@ -59,7 +59,7 @@ class OptimizerBuilder:
     ):
         """
         Initialize optimizer builder.
-        
+
         Args:
             optimizer_type: Type of optimizer (registered name)
             lr: Base learning rate
@@ -73,7 +73,7 @@ class OptimizerBuilder:
         self.exclude_bias_and_norm = exclude_bias_and_norm
         self.optimizer_kwargs = optimizer_kwargs
         self._param_groups: List[Dict[str, Any]] = []
-    
+
     def add_param_group(
         self,
         params: Iterable[torch.Tensor],
@@ -83,7 +83,7 @@ class OptimizerBuilder:
     ) -> None:
         """
         Add a custom parameter group.
-        
+
         Args:
             params: Parameters for this group
             lr: Learning rate override for this group
@@ -91,22 +91,22 @@ class OptimizerBuilder:
             **kwargs: Additional optimizer arguments for this group
         """
         group = {'params': list(params)}
-        
+
         if lr is not None:
             group['lr'] = lr
         if weight_decay is not None:
             group['weight_decay'] = weight_decay
-        
+
         group.update(kwargs)
         self._param_groups.append(group)
-    
+
     def build(self, model: Optional[nn.Module] = None) -> Optimizer:
         """
         Build optimizer instance.
-        
+
         Args:
             model: Model to optimize. Required if no custom param groups added.
-            
+
         Returns:
             Optimizer: Configured optimizer instance
         """
@@ -117,7 +117,7 @@ class OptimizerBuilder:
             param_groups = self._get_param_groups(model)
         else:
             raise ValueError("Either model or custom param groups must be provided")
-        
+
         # Get optimizer builder from registry
         optimizer_fn = OPTIMIZER_REGISTRY.get(self.optimizer_type)
         if optimizer_fn is None:
@@ -125,20 +125,20 @@ class OptimizerBuilder:
                 f"Optimizer '{self.optimizer_type}' not found in registry. "
                 f"Available: {OPTIMIZER_REGISTRY.list()}"
             )
-        
+
         return optimizer_fn(
             param_groups,
             lr=self.lr,
             **self.optimizer_kwargs
         )
-    
+
     def _get_param_groups(self, model: nn.Module) -> List[Dict[str, Any]]:
         """
         Create parameter groups with weight decay exclusions.
-        
+
         Args:
             model: Model to create param groups from
-            
+
         Returns:
             List of parameter group dictionaries
         """
@@ -149,21 +149,21 @@ class OptimizerBuilder:
                 'lr': self.lr,
                 'weight_decay': self.weight_decay,
             }]
-        
+
         # Separate parameters with and without weight decay
         decay_params = []
         no_decay_params = []
-        
+
         for name, param in model.named_parameters():
             if not param.requires_grad:
                 continue
-            
+
             # Exclude bias and normalization parameters from weight decay
             if self._should_exclude_from_decay(name, param):
                 no_decay_params.append(param)
             else:
                 decay_params.append(param)
-        
+
         param_groups = [
             {
                 'params': decay_params,
@@ -176,37 +176,37 @@ class OptimizerBuilder:
                 'weight_decay': 0.0,
             }
         ]
-        
+
         return param_groups
-    
+
     @staticmethod
     def _should_exclude_from_decay(name: str, param: torch.Tensor) -> bool:
         """
         Check if parameter should be excluded from weight decay.
-        
+
         Args:
             name: Parameter name
             param: Parameter tensor
-            
+
         Returns:
             bool: True if should exclude from decay
         """
         # Bias parameters
         if name.endswith('.bias'):
             return True
-        
+
         # 1D parameters (usually norm layer scales/biases)
         if param.ndim == 1:
             return True
-        
+
         # Normalization layers by name
         if any(norm in name for norm in ['norm', 'ln', 'bn', 'gn']):
             return True
-        
+
         # Embedding parameters
         if 'embedding' in name or 'emb' in name:
             return True
-        
+
         return False
 
 
@@ -222,7 +222,7 @@ def build_adam(
 ) -> Optimizer:
     """
     Build Adam optimizer.
-    
+
     Args:
         params: Model parameters or parameter groups
         lr: Learning rate
@@ -230,7 +230,7 @@ def build_adam(
         eps: Term for numerical stability
         weight_decay: Weight decay coefficient
         **kwargs: Additional optimizer arguments
-        
+
     Returns:
         Optimizer: Adam optimizer instance
     """
@@ -255,9 +255,9 @@ def build_adamw(
 ) -> Optimizer:
     """
     Build AdamW optimizer with decoupled weight decay.
-    
+
     Recommended for transformer models and most modern architectures.
-    
+
     Args:
         params: Model parameters or parameter groups
         lr: Learning rate
@@ -265,7 +265,7 @@ def build_adamw(
         eps: Term for numerical stability
         weight_decay: Weight decay coefficient (decoupled)
         **kwargs: Additional optimizer arguments
-        
+
     Returns:
         Optimizer: AdamW optimizer instance
     """
@@ -291,7 +291,7 @@ def build_sgd(
 ) -> Optimizer:
     """
     Build SGD optimizer with optional momentum.
-    
+
     Args:
         params: Model parameters or parameter groups
         lr: Learning rate
@@ -300,7 +300,7 @@ def build_sgd(
         weight_decay: Weight decay coefficient
         nesterov: Whether to use Nesterov momentum
         **kwargs: Additional optimizer arguments
-        
+
     Returns:
         Optimizer: SGD optimizer instance
     """
@@ -327,7 +327,7 @@ def build_rmsprop(
 ) -> Optimizer:
     """
     Build RMSprop optimizer.
-    
+
     Args:
         params: Model parameters or parameter groups
         lr: Learning rate
@@ -336,7 +336,7 @@ def build_rmsprop(
         weight_decay: Weight decay coefficient
         momentum: Momentum factor
         **kwargs: Additional optimizer arguments
-        
+
     Returns:
         Optimizer: RMSprop optimizer instance
     """
@@ -361,7 +361,7 @@ def build_optimizer(
 ) -> Optimizer:
     """
     Convenience function to build an optimizer.
-    
+
     Args:
         optimizer_type: Type of optimizer
         model: Model to optimize
@@ -369,10 +369,10 @@ def build_optimizer(
         weight_decay: Weight decay coefficient
         exclude_bias_and_norm: If True, excludes bias and norm params from weight decay
         **optimizer_kwargs: Additional optimizer arguments
-        
+
     Returns:
         Optimizer: Configured optimizer instance
-        
+
     Examples:
         >>> optimizer = build_optimizer("adamw", model, lr=1e-3, weight_decay=0.01)
     """
@@ -389,7 +389,7 @@ def build_optimizer(
 def get_optimizer_names() -> List[str]:
     """
     Get list of registered optimizer names.
-    
+
     Returns:
         List of optimizer names
     """

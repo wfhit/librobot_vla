@@ -11,10 +11,10 @@ from ..base import AbstractEncoder
 class TemporalConvEncoder(AbstractEncoder):
     """
     Temporal convolutional encoder for history.
-    
+
     Uses 1D convolutions to capture temporal patterns in robot trajectories.
     Efficient alternative to transformers for fixed-length sequences.
-    
+
     Args:
         input_dim: Input dimension per timestep
         output_dim: Output embedding dimension
@@ -25,7 +25,7 @@ class TemporalConvEncoder(AbstractEncoder):
         dropout: Dropout rate
         pooling: Final pooling method ('mean', 'max', 'adaptive')
     """
-    
+
     def __init__(
         self,
         input_dim: int,
@@ -45,15 +45,15 @@ class TemporalConvEncoder(AbstractEncoder):
         self.activation_name = activation
         self.dropout_rate = dropout
         self.pooling_method = pooling
-        
+
         # Ensure lists have same length
         if not (len(channels) == len(kernel_sizes) == len(strides)):
             raise ValueError("channels, kernel_sizes, and strides must have same length")
-        
+
         # Build convolutional layers
         layers = []
         in_channels = [input_dim] + channels[:-1]
-        
+
         for i, (in_ch, out_ch, kernel, stride) in enumerate(
             zip(in_channels, channels, kernel_sizes, strides)
         ):
@@ -68,10 +68,10 @@ class TemporalConvEncoder(AbstractEncoder):
                     padding=padding,
                 )
             )
-            
+
             # Batch normalization
             layers.append(nn.BatchNorm1d(out_ch))
-            
+
             # Activation
             if activation == 'relu':
                 layers.append(nn.ReLU(inplace=True))
@@ -79,13 +79,13 @@ class TemporalConvEncoder(AbstractEncoder):
                 layers.append(nn.GELU())
             elif activation == 'silu':
                 layers.append(nn.SiLU(inplace=True))
-            
+
             # Dropout
             if dropout > 0:
                 layers.append(nn.Dropout(dropout))
-        
+
         self.conv_layers = nn.Sequential(*layers)
-        
+
         # Pooling
         if pooling == 'adaptive':
             self.pool = nn.AdaptiveAvgPool1d(1)
@@ -93,10 +93,10 @@ class TemporalConvEncoder(AbstractEncoder):
             self.pool = None
         elif pooling == 'max':
             self.pool = None
-        
+
         # Output projection
         self.output_proj = nn.Linear(channels[-1], output_dim)
-    
+
     def forward(
         self,
         inputs: torch.Tensor,
@@ -105,21 +105,21 @@ class TemporalConvEncoder(AbstractEncoder):
     ) -> torch.Tensor:
         """
         Encode history with temporal convolutions.
-        
+
         Args:
             inputs: History tensor [batch_size, seq_len, input_dim]
             mask: Optional mask [batch_size, seq_len] (not fully supported)
             **kwargs: Additional arguments
-            
+
         Returns:
             Encoded embeddings [batch_size, output_dim]
         """
         # Transpose for conv1d: [batch, channels, length]
         x = inputs.transpose(1, 2)
-        
+
         # Apply convolutions
         x = self.conv_layers(x)
-        
+
         # Pool
         if self.pooling_method == 'adaptive':
             x = self.pool(x).squeeze(-1)
@@ -129,19 +129,19 @@ class TemporalConvEncoder(AbstractEncoder):
             x = x.max(dim=-1)[0]
         else:
             raise ValueError(f"Unknown pooling method: {self.pooling_method}")
-        
+
         # Project to output dimension
         output = self.output_proj(x)
-        
+
         return output
-    
+
     def get_output_shape(self, input_shape: tuple) -> tuple:
         """Get output shape for given input shape."""
         if len(input_shape) == 3:
             return (input_shape[0], self.output_dim)
         else:
             raise ValueError(f"Expected 3D input, got shape: {input_shape}")
-    
+
     @property
     def config(self) -> Dict[str, Any]:
         """Get encoder configuration."""

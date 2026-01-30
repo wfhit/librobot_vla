@@ -11,17 +11,17 @@ class ConsistencyActionHead(AbstractActionHead):
             nn.Linear(action_dim + input_dim, hidden_dim),
             nn.ReLU(), nn.Linear(hidden_dim, hidden_dim),
             nn.ReLU(), nn.Linear(hidden_dim, action_dim))
-    
+
     def forward(self, embeddings: torch.Tensor, **kwargs) -> dict:
         return {'embeddings': embeddings}
-    
+
     def compute_loss(self, predictions: dict, targets: torch.Tensor, **kwargs) -> torch.Tensor:
         emb = predictions['embeddings']
         noise = torch.randn_like(targets) * 0.1
         inp = torch.cat([targets + noise, emb], dim=-1)
         pred = self.model(inp)
         return torch.nn.functional.mse_loss(pred, targets)
-    
+
     def sample(self, embeddings: torch.Tensor, **kwargs) -> torch.Tensor:
         batch_size = embeddings.size(0)
         noise = torch.randn(batch_size, self.action_dim, device=embeddings.device)

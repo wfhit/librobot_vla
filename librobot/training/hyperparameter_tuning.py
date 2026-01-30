@@ -14,50 +14,50 @@ logger = get_logger(__name__)
 @dataclass
 class SearchSpace:
     """Define hyperparameter search space.
-    
+
     Example:
         >>> space = SearchSpace()
         >>> space.add_uniform("lr", 1e-5, 1e-3)
         >>> space.add_choice("batch_size", [16, 32, 64])
         >>> space.add_loguniform("weight_decay", 1e-6, 1e-2)
     """
-    
+
     params: Dict[str, Dict[str, Any]] = field(default_factory=dict)
-    
+
     def add_uniform(self, name: str, low: float, high: float) -> "SearchSpace":
         """Add uniform distribution parameter."""
         self.params[name] = {"type": "uniform", "low": low, "high": high}
         return self
-    
+
     def add_loguniform(self, name: str, low: float, high: float) -> "SearchSpace":
         """Add log-uniform distribution parameter."""
         self.params[name] = {"type": "loguniform", "low": low, "high": high}
         return self
-    
+
     def add_choice(self, name: str, choices: List[Any]) -> "SearchSpace":
         """Add categorical choice parameter."""
         self.params[name] = {"type": "choice", "choices": choices}
         return self
-    
+
     def add_int(self, name: str, low: int, high: int) -> "SearchSpace":
         """Add integer range parameter."""
         self.params[name] = {"type": "int", "low": low, "high": high}
         return self
-    
+
     def add_quniform(self, name: str, low: float, high: float, q: float) -> "SearchSpace":
         """Add quantized uniform distribution parameter."""
         self.params[name] = {"type": "quniform", "low": low, "high": high, "q": q}
         return self
-    
+
     def to_ray(self) -> Dict[str, Any]:
         """Convert to Ray Tune search space."""
         try:
             from ray import tune
-            
+
             ray_space = {}
             for name, config in self.params.items():
                 param_type = config["type"]
-                
+
                 if param_type == "uniform":
                     ray_space[name] = tune.uniform(config["low"], config["high"])
                 elif param_type == "loguniform":
@@ -68,19 +68,19 @@ class SearchSpace:
                     ray_space[name] = tune.randint(config["low"], config["high"] + 1)
                 elif param_type == "quniform":
                     ray_space[name] = tune.quniform(config["low"], config["high"], config["q"])
-            
+
             return ray_space
-            
+
         except ImportError:
             raise ImportError("ray[tune] required for Ray Tune. Install with: pip install ray[tune]")
-    
+
     def to_optuna(self, trial) -> Dict[str, Any]:
         """Convert to Optuna trial suggestions."""
         optuna_params = {}
-        
+
         for name, config in self.params.items():
             param_type = config["type"]
-            
+
             if param_type == "uniform":
                 optuna_params[name] = trial.suggest_float(name, config["low"], config["high"])
             elif param_type == "loguniform":
@@ -93,14 +93,14 @@ class SearchSpace:
                 optuna_params[name] = trial.suggest_float(
                     name, config["low"], config["high"], step=config["q"]
                 )
-        
+
         return optuna_params
 
 
 @dataclass
 class TuningConfig:
     """Configuration for hyperparameter tuning.
-    
+
     Args:
         num_trials: Number of trials to run
         max_concurrent_trials: Maximum concurrent trials
@@ -129,7 +129,7 @@ class TuningConfig:
 
 class AbstractTuner(ABC):
     """Abstract base class for hyperparameter tuners."""
-    
+
     @abstractmethod
     def tune(
         self,
@@ -139,12 +139,12 @@ class AbstractTuner(ABC):
     ) -> Dict[str, Any]:
         """Run hyperparameter tuning."""
         pass
-    
+
     @abstractmethod
     def get_best_config(self) -> Dict[str, Any]:
         """Get best hyperparameter configuration."""
         pass
-    
+
     @abstractmethod
     def get_results_df(self):
         """Get results as DataFrame."""
@@ -153,30 +153,30 @@ class AbstractTuner(ABC):
 
 class RayTuner(AbstractTuner):
     """Ray Tune hyperparameter tuner.
-    
+
     Features:
         - Parallel trial execution
         - Multiple search algorithms (Bayesian, HyperBand, etc.)
         - Early stopping schedulers
         - Integration with experiment tracking
         - Distributed execution
-    
+
     Example:
         >>> def train_fn(config):
         ...     model = create_model(lr=config["lr"])
         ...     for epoch in range(10):
         ...         loss = train_epoch(model)
         ...         tune.report(loss=loss)
-        
+
         >>> search_space = SearchSpace().add_loguniform("lr", 1e-5, 1e-3)
         >>> tuner = RayTuner()
         >>> results = tuner.tune(train_fn, search_space, TuningConfig())
     """
-    
+
     def __init__(self):
         self._results = None
         self._best_config = None
-    
+
     def tune(
         self,
         train_fn: Callable,
@@ -185,12 +185,12 @@ class RayTuner(AbstractTuner):
     ) -> Dict[str, Any]:
         """
         Run hyperparameter tuning with Ray Tune.
-        
+
         Args:
             train_fn: Training function that takes config dict
             search_space: Hyperparameter search space
             config: Tuning configuration
-            
+
         Returns:
             Best hyperparameter configuration
         """
@@ -201,7 +201,7 @@ class RayTuner(AbstractTuner):
             from ray.tune.search.optuna import OptunaSearch
             from ray.tune.search.hyperopt import HyperOptSearch
             from ray.tune.search import BasicVariantGenerator
-            
+
             # Create search algorithm
             if config.search_algorithm == "bayesian":
                 search_alg = OptunaSearch(
@@ -215,7 +215,7 @@ class RayTuner(AbstractTuner):
                 )
             else:
                 search_alg = BasicVariantGenerator()
-            
+
             # Create scheduler
             scheduler = None
             if config.scheduler == "asha":
@@ -237,13 +237,13 @@ class RayTuner(AbstractTuner):
                     mode=config.mode,
                     grace_period=config.grace_period,
                 )
-            
+
             # Create reporter
             reporter = CLIReporter(
                 metric_columns=[config.metric],
                 parameter_columns=list(search_space.params.keys())[:3],
             )
-            
+
             # Run tuning
             self._results = tune.run(
                 train_fn,
@@ -258,36 +258,36 @@ class RayTuner(AbstractTuner):
                 time_budget_s=config.time_budget_s,
                 verbose=1,
             )
-            
+
             # Get best config
             self._best_config = self._results.get_best_config(
                 metric=config.metric,
                 mode=config.mode,
             )
-            
+
             best_trial = self._results.get_best_trial(
                 metric=config.metric,
                 mode=config.mode,
             )
-            
+
             logger.info(
                 f"Best trial: {best_trial.last_result[config.metric]:.4f} "
                 f"with config: {self._best_config}"
             )
-            
+
             return self._best_config
-            
+
         except ImportError as e:
             raise ImportError(
                 f"ray[tune] required for Ray Tune. Install with: pip install 'ray[tune]': {e}"
             )
-    
+
     def get_best_config(self) -> Dict[str, Any]:
         """Get best hyperparameter configuration."""
         if self._best_config is None:
             raise RuntimeError("No tuning results available. Run tune() first.")
         return self._best_config
-    
+
     def get_results_df(self):
         """Get results as DataFrame."""
         if self._results is None:
@@ -297,25 +297,25 @@ class RayTuner(AbstractTuner):
 
 class OptunaTuner(AbstractTuner):
     """Optuna hyperparameter tuner.
-    
+
     Features:
         - Efficient Bayesian optimization
         - Pruning of unpromising trials
         - Multi-objective optimization
         - Visualization tools
         - Lightweight and easy to use
-    
+
     Example:
         >>> def objective(trial):
         ...     lr = trial.suggest_float("lr", 1e-5, 1e-3, log=True)
         ...     model = create_model(lr=lr)
         ...     loss = train_and_evaluate(model)
         ...     return loss
-        
+
         >>> tuner = OptunaTuner()
         >>> best_params = tuner.optimize(objective, n_trials=50)
     """
-    
+
     def __init__(
         self,
         study_name: Optional[str] = None,
@@ -326,7 +326,7 @@ class OptunaTuner(AbstractTuner):
         self._study_name = study_name
         self._storage = storage
         self._load_if_exists = load_if_exists
-    
+
     def tune(
         self,
         train_fn: Callable,
@@ -335,36 +335,36 @@ class OptunaTuner(AbstractTuner):
     ) -> Dict[str, Any]:
         """
         Run hyperparameter tuning with Optuna.
-        
+
         Args:
             train_fn: Training function that takes config dict and returns metric
             search_space: Hyperparameter search space
             config: Tuning configuration
-            
+
         Returns:
             Best hyperparameter configuration
         """
         try:
             import optuna
-            
+
             # Create objective function that wraps train_fn
             def objective(trial):
                 # Convert search space to Optuna suggestions
                 params = search_space.to_optuna(trial)
-                
+
                 # Run training
                 result = train_fn(params)
-                
+
                 # Return metric value
                 if isinstance(result, dict):
                     return result.get(config.metric, result)
                 return result
-            
+
             # Create pruner
             pruner = optuna.pruners.MedianPruner(
                 n_startup_trials=config.grace_period,
             )
-            
+
             # Create sampler
             if config.search_algorithm == "bayesian":
                 sampler = optuna.samplers.TPESampler()
@@ -387,7 +387,7 @@ class OptunaTuner(AbstractTuner):
                 sampler = optuna.samplers.GridSampler(grid_params)
             else:
                 sampler = optuna.samplers.TPESampler()
-            
+
             # Create or load study
             direction = "minimize" if config.mode == "min" else "maximize"
             self._study = optuna.create_study(
@@ -398,7 +398,7 @@ class OptunaTuner(AbstractTuner):
                 sampler=sampler,
                 pruner=pruner,
             )
-            
+
             # Run optimization
             self._study.optimize(
                 objective,
@@ -407,17 +407,17 @@ class OptunaTuner(AbstractTuner):
                 n_jobs=config.max_concurrent_trials,
                 show_progress_bar=True,
             )
-            
+
             logger.info(
                 f"Best trial: {self._study.best_value:.4f} "
                 f"with config: {self._study.best_params}"
             )
-            
+
             return self._study.best_params
-            
+
         except ImportError as e:
             raise ImportError(f"optuna required. Install with: pip install optuna: {e}")
-    
+
     def optimize(
         self,
         objective: Callable,
@@ -429,7 +429,7 @@ class OptunaTuner(AbstractTuner):
     ) -> Dict[str, Any]:
         """
         Direct Optuna optimization interface.
-        
+
         Args:
             objective: Objective function (takes trial, returns value)
             n_trials: Number of trials
@@ -437,20 +437,20 @@ class OptunaTuner(AbstractTuner):
             n_jobs: Number of parallel jobs
             direction: Optimization direction ("minimize" or "maximize")
             study_name: Study name for persistence
-            
+
         Returns:
             Best hyperparameter configuration
         """
         try:
             import optuna
-            
+
             self._study = optuna.create_study(
                 study_name=study_name or self._study_name,
                 storage=self._storage,
                 load_if_exists=self._load_if_exists,
                 direction=direction,
             )
-            
+
             self._study.optimize(
                 objective,
                 n_trials=n_trials,
@@ -458,40 +458,40 @@ class OptunaTuner(AbstractTuner):
                 n_jobs=n_jobs,
                 show_progress_bar=True,
             )
-            
+
             return self._study.best_params
-            
+
         except ImportError as e:
             raise ImportError(f"optuna required. Install with: pip install optuna: {e}")
-    
+
     def get_best_config(self) -> Dict[str, Any]:
         """Get best hyperparameter configuration."""
         if self._study is None:
             raise RuntimeError("No tuning results available. Run tune() first.")
         return self._study.best_params
-    
+
     def get_results_df(self):
         """Get results as DataFrame."""
         if self._study is None:
             raise RuntimeError("No tuning results available. Run tune() first.")
         return self._study.trials_dataframe()
-    
+
     def visualize_optimization_history(self):
         """Visualize optimization history."""
         if self._study is None:
             raise RuntimeError("No tuning results available. Run tune() first.")
-        
+
         try:
             import optuna.visualization as vis
             return vis.plot_optimization_history(self._study)
         except ImportError:
             logger.warning("optuna visualization requires plotly")
-    
+
     def visualize_param_importances(self):
         """Visualize parameter importances."""
         if self._study is None:
             raise RuntimeError("No tuning results available. Run tune() first.")
-        
+
         try:
             import optuna.visualization as vis
             return vis.plot_param_importances(self._study)
@@ -505,11 +505,11 @@ def create_tuner(
 ) -> AbstractTuner:
     """
     Factory function to create hyperparameter tuner.
-    
+
     Args:
         backend: Tuning backend ("ray", "optuna")
         **kwargs: Backend-specific arguments
-        
+
     Returns:
         Configured hyperparameter tuner
     """

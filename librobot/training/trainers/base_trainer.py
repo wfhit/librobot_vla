@@ -10,10 +10,10 @@ import numpy as np
 class BaseTrainer(ABC):
     """
     Base trainer class for VLA models.
-    
+
     Provides common training loop functionality and hooks for customization.
     """
-    
+
     def __init__(
         self,
         model: Any,
@@ -36,7 +36,7 @@ class BaseTrainer(ABC):
     ):
         """
         Initialize trainer.
-        
+
         Args:
             model: Model to train
             optimizer: Optimizer instance
@@ -73,98 +73,98 @@ class BaseTrainer(ABC):
         self.device = device
         self.mixed_precision = mixed_precision
         self.seed = seed
-        
+
         # Training state
         self.current_epoch = 0
         self.global_step = 0
         self.best_val_loss = float('inf')
         self._stop_training = False
-        
+
         # Metrics tracking
         self.train_metrics: Dict[str, List[float]] = {}
         self.val_metrics: Dict[str, List[float]] = {}
-        
+
         # Initialize callbacks
         for callback in self.callbacks:
             callback.set_trainer(self)
-    
+
     def train(self) -> Dict[str, Any]:
         """
         Run full training loop.
-        
+
         Returns:
             Training history dictionary
         """
         self._call_callbacks('on_train_begin')
-        
+
         try:
             for epoch in range(self.current_epoch, self.max_epochs):
                 if self._stop_training:
                     break
-                
+
                 self.current_epoch = epoch
                 self._call_callbacks('on_epoch_begin', epoch=epoch)
-                
+
                 # Training epoch
                 train_loss = self._train_epoch()
-                
+
                 # Validation
                 if self.val_dataloader and epoch % self.val_interval == 0:
                     val_loss = self._validate()
-                    
+
                     # Check for best model
                     if val_loss < self.best_val_loss:
                         self.best_val_loss = val_loss
                         if self.checkpoint_dir:
                             self.save_checkpoint('best.pt')
-                
+
                 self._call_callbacks('on_epoch_end', epoch=epoch)
-                
+
                 # Check max steps
                 if self.max_steps and self.global_step >= self.max_steps:
                     break
-        
+
         finally:
             self._call_callbacks('on_train_end')
-        
+
         return self.get_training_history()
-    
+
     @abstractmethod
     def _train_epoch(self) -> float:
         """
         Train for one epoch.
-        
+
         Returns:
             Average training loss
         """
         pass
-    
+
     @abstractmethod
     def _train_step(self, batch: Dict[str, Any]) -> Dict[str, Any]:
         """
         Perform single training step.
-        
+
         Args:
             batch: Training batch
-            
+
         Returns:
             Dictionary with loss and metrics
         """
         pass
-    
+
     def _validate(self) -> float:
         """
         Run validation.
-        
+
         Returns:
             Average validation loss
         """
         self.model.eval()
         self._call_callbacks('on_validation_begin')
-        
+
         total_loss = 0
         num_batches = 0
-        
+
         try:
             import torch
             with torch.no_grad():
@@ -174,47 +174,47 @@ class BaseTrainer(ABC):
                     num_batches += 1
         except ImportError:
             pass
-        
+
         avg_loss = total_loss / max(num_batches, 1)
         self._call_callbacks('on_validation_end', logs={'val_loss': avg_loss})
-        
+
         self.model.train()
         return avg_loss
-    
+
     def _validate_step(self, batch: Dict[str, Any]) -> float:
         """
         Perform single validation step.
-        
+
         Args:
             batch: Validation batch
-            
+
         Returns:
             Validation loss value
         """
         # Default implementation - override for custom validation
         result = self._train_step(batch)
         return result.get('loss', 0)
-    
+
     def _call_callbacks(self, method: str, **kwargs) -> None:
         """Call callback method on all callbacks."""
         for callback in self.callbacks:
             fn = getattr(callback, method, None)
             if fn:
                 fn(**kwargs)
-    
+
     def save_checkpoint(self, filename: str) -> None:
         """
         Save training checkpoint.
-        
+
         Args:
             filename: Checkpoint filename
         """
         if self.checkpoint_dir is None:
             return
-        
+
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
         path = self.checkpoint_dir / filename
-        
+
         try:
             import torch
             checkpoint = {
@@ -229,11 +229,11 @@ class BaseTrainer(ABC):
             torch.save(checkpoint, path)
         except ImportError:
             pass
-    
+
     def load_checkpoint(self, path: str) -> None:
         """
         Load training checkpoint.
-        
+
         Args:
             path: Path to checkpoint
         """
@@ -249,11 +249,11 @@ class BaseTrainer(ABC):
                 self.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
         except (ImportError, FileNotFoundError):
             pass
-    
+
     def get_training_history(self) -> Dict[str, Any]:
         """
         Get training history.
-        
+
         Returns:
             Dictionary with training metrics
         """
@@ -264,7 +264,7 @@ class BaseTrainer(ABC):
             'total_epochs': self.current_epoch + 1,
             'total_steps': self.global_step,
         }
-    
+
     def stop_training(self) -> None:
         """Signal to stop training."""
         self._stop_training = True

@@ -13,12 +13,12 @@ from ..base import AbstractRobot
 
 class Arm(AbstractRobot):
     """Base class for robot arms.
-    
+
     Provides common functionality for robotic arm implementations.
     For a comprehensive reference implementation with full features,
     see SO100Arm in arm_robot.py.
     """
-    
+
     def __init__(
         self,
         robot_id: str,
@@ -38,13 +38,13 @@ class Arm(AbstractRobot):
         self.gripper_dof = gripper_dof
         self.control_mode = control_mode
         self.action_dim = num_joints + gripper_dof
-        
+
         # State
         self._joint_positions = np.zeros(num_joints)
         self._joint_velocities = np.zeros(num_joints)
         self._gripper_state = np.zeros(gripper_dof)
         self._ee_pose = np.zeros(7)  # xyz + quaternion
-    
+
     def get_action_space(self) -> Dict[str, Any]:
         return {
             "type": "continuous",
@@ -52,7 +52,7 @@ class Arm(AbstractRobot):
             "low": -1.0,
             "high": 1.0,
         }
-    
+
     def get_observation_space(self) -> Dict[str, Any]:
         return {
             "joint_positions": {"shape": (self.num_joints,)},

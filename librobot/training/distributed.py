@@ -17,7 +17,7 @@ logger = get_logger(__name__)
 class DistributedConfig:
     """
     Configuration for distributed training.
-    
+
     Args:
         backend: Distributed backend ('nccl', 'gloo', 'mpi')
         world_size: Total number of processes
@@ -26,7 +26,7 @@ class DistributedConfig:
         master_addr: Address of master node
         master_port: Port of master node
     """
-    
+
     def __init__(
         self,
         backend: str = "nccl",
@@ -44,17 +44,17 @@ class DistributedConfig:
         )
         self.master_addr = master_addr or os.environ.get("MASTER_ADDR", "localhost")
         self.master_port = master_port or os.environ.get("MASTER_PORT", "12355")
-    
+
     @property
     def is_distributed(self) -> bool:
         """Check if running in distributed mode."""
         return self.world_size > 1
-    
+
     @property
     def is_main_process(self) -> bool:
         """Check if this is the main process."""
         return self.rank == 0
-    
+
     @property
     def is_local_main_process(self) -> bool:
         """Check if this is the main process on this node."""
@@ -67,29 +67,29 @@ def setup_distributed(
 ) -> DistributedConfig:
     """
     Initialize distributed training environment.
-    
+
     Args:
         backend: Distributed backend ('nccl', 'gloo', 'mpi')
         timeout_minutes: Timeout for distributed operations
-        
+
     Returns:
         DistributedConfig: Configuration object
-        
+
     Examples:
         >>> config = setup_distributed()
         >>> if config.is_distributed:
         ...     model = DDP(model, device_ids=[config.local_rank])
     """
     config = DistributedConfig(backend=backend)
-    
+
     if not config.is_distributed:
         logger.info("Running in single-process mode")
         return config
-    
+
     # Set environment variables
     os.environ["MASTER_ADDR"] = config.master_addr
     os.environ["MASTER_PORT"] = config.master_port
-    
+
     # Initialize process group
     if not dist.is_initialized():
         timeout = timedelta(minutes=timeout_minutes)
@@ -100,7 +100,7 @@ def setup_distributed(
             rank=config.rank,
             timeout=timeout,
         )
-    
+
     logger.info(
         f"Distributed training initialized: "
         f"world_size={config.world_size}, "
@@ -108,14 +108,14 @@ def setup_distributed(
         f"local_rank={config.local_rank}, "
         f"backend={backend}"
     )
-    
+
     return config
 
 
 def cleanup_distributed() -> None:
     """
     Clean up distributed training environment.
-    
+
     Should be called at the end of training when using distributed mode.
     """
     if dist.is_initialized():
@@ -126,7 +126,7 @@ def cleanup_distributed() -> None:
 def is_distributed() -> bool:
     """
     Check if running in distributed mode.
-    
+
     Returns:
         bool: True if distributed training is active
     """
@@ -136,7 +136,7 @@ def is_distributed() -> bool:
 def get_world_size() -> int:
     """
     Get the number of processes in distributed training.
-    
+
     Returns:
         int: World size (1 if not distributed)
     """
@@ -148,7 +148,7 @@ def get_world_size() -> int:
 def get_rank() -> int:
     """
     Get the rank of current process.
-    
+
     Returns:
         int: Rank (0 if not distributed)
     """
@@ -160,7 +160,7 @@ def get_rank() -> int:
 def is_main_process() -> bool:
     """
     Check if this is the main process.
-    
+
     Returns:
         bool: True if main process or not distributed
     """
@@ -170,7 +170,7 @@ def is_main_process() -> bool:
 def barrier() -> None:
     """
     Synchronize all processes.
-    
+
     Blocks until all processes reach this point.
     """
     if is_distributed():
@@ -180,17 +180,17 @@ def barrier() -> None:
 def all_reduce(tensor: torch.Tensor, op: str = "sum") -> torch.Tensor:
     """
     All-reduce a tensor across all processes.
-    
+
     Args:
         tensor: Tensor to reduce
         op: Reduction operation ('sum', 'mean', 'max', 'min')
-        
+
     Returns:
         Reduced tensor
     """
     if not is_distributed():
         return tensor
-    
+
     # Map operation string to dist.ReduceOp
     op_map = {
         "sum": dist.ReduceOp.SUM,
@@ -198,40 +198,40 @@ def all_reduce(tensor: torch.Tensor, op: str = "sum") -> torch.Tensor:
         "max": dist.ReduceOp.MAX,
         "min": dist.ReduceOp.MIN,
     }
-    
+
     if op not in op_map:
         raise ValueError(f"Unknown operation: {op}. Available: {list(op_map.keys())}")
-    
+
     # Perform all-reduce
     dist.all_reduce(tensor, op=op_map[op])
-    
+
     # Average if needed
     if op == "mean":
         tensor /= get_world_size()
-    
+
     return tensor
 
 
 def all_gather(tensor: torch.Tensor) -> torch.Tensor:
     """
     Gather tensors from all processes.
-    
+
     Args:
         tensor: Tensor to gather
-        
+
     Returns:
         Concatenated tensor from all processes
     """
     if not is_distributed():
         return tensor
-    
+
     # Prepare output tensor list
     world_size = get_world_size()
     tensor_list = [torch.zeros_like(tensor) for _ in range(world_size)]
-    
+
     # Gather tensors
     dist.all_gather(tensor_list, tensor)
-    
+
     # Concatenate
     return torch.cat(tensor_list, dim=0)
 
@@ -239,11 +239,11 @@ def all_gather(tensor: torch.Tensor) -> torch.Tensor:
 def broadcast(tensor: torch.Tensor, src: int = 0) -> torch.Tensor:
     """
     Broadcast tensor from source to all processes.
-    
+
     Args:
         tensor: Tensor to broadcast
         src: Source rank
-        
+
     Returns:
         Broadcasted tensor
     """
@@ -255,10 +255,10 @@ def broadcast(tensor: torch.Tensor, src: int = 0) -> torch.Tensor:
 class DDPWrapper:
     """
     Wrapper for PyTorch DistributedDataParallel.
-    
+
     Provides simplified interface for DDP training with automatic device placement
     and gradient synchronization control.
-    
+
     Args:
         model: Model to wrap
         config: Distributed configuration
@@ -268,7 +268,7 @@ class DDPWrapper:
         gradient_as_bucket_view: Use gradient as bucket view for efficiency
         static_graph: Whether computational graph is static
     """
-    
+
     def __init__(
         self,
         model: nn.Module,
@@ -280,18 +280,18 @@ class DDPWrapper:
         static_graph: bool = False,
     ):
         self.config = config
-        
+
         if not config.is_distributed:
             self.model = model
             logger.info("DDP not used (single process)")
             return
-        
+
         # Set device IDs
         if device_ids is None:
             device_ids = [config.local_rank]
         if output_device is None:
             output_device = config.local_rank
-        
+
         # Wrap model with DDP
         self.model = DDP(
             model,
@@ -301,24 +301,24 @@ class DDPWrapper:
             gradient_as_bucket_view=gradient_as_bucket_view,
             static_graph=static_graph,
         )
-        
+
         logger.info(
             f"Model wrapped with DDP: "
             f"device_ids={device_ids}, "
             f"output_device={output_device}"
         )
-    
+
     def __getattr__(self, name: str) -> Any:
         """Forward attribute access to wrapped model."""
         try:
             return super().__getattr__(name)
         except AttributeError:
             return getattr(self.model, name)
-    
+
     def unwrap(self) -> nn.Module:
         """
         Get the underlying model without DDP wrapper.
-        
+
         Returns:
             Unwrapped model
         """
@@ -330,10 +330,10 @@ class DDPWrapper:
 class DeepSpeedWrapper:
     """
     Wrapper for DeepSpeed training.
-    
+
     Provides efficient distributed training with ZeRO optimization,
     mixed precision, gradient accumulation, and pipeline parallelism.
-    
+
     Features:
         - ZeRO optimization stages (1, 2, 3)
         - Mixed precision training (FP16, BF16)
@@ -341,7 +341,7 @@ class DeepSpeedWrapper:
         - CPU/NVMe offloading
         - Pipeline parallelism support
         - Automatic loss scaling
-    
+
     Args:
         model: Model to wrap
         config: DeepSpeed configuration dict
@@ -350,7 +350,7 @@ class DeepSpeedWrapper:
         optimizer: Optional optimizer (DeepSpeed can create one)
         lr_scheduler: Optional LR scheduler
     """
-    
+
     def __init__(
         self,
         model: nn.Module,
@@ -365,14 +365,14 @@ class DeepSpeedWrapper:
         self.optimizer = optimizer
         self.scheduler = lr_scheduler
         self.engine = None
-        
+
         try:
             import deepspeed
-            
+
             # Get model parameters
             if model_parameters is None:
                 model_parameters = filter(lambda p: p.requires_grad, model.parameters())
-            
+
             # Initialize DeepSpeed
             self.engine, self.optimizer, self.data_loader, self.scheduler = deepspeed.initialize(
                 model=model,
@@ -382,40 +382,40 @@ class DeepSpeedWrapper:
                 optimizer=optimizer,
                 lr_scheduler=lr_scheduler,
             )
-            
+
             self.model = self.engine
-            
+
             # Log configuration
             zero_stage = config.get("zero_optimization", {}).get("stage", 0)
             fp16_enabled = config.get("fp16", {}).get("enabled", False)
             bf16_enabled = config.get("bf16", {}).get("enabled", False)
-            
+
             logger.info(
                 f"DeepSpeed initialized: "
                 f"ZeRO stage={zero_stage}, "
                 f"FP16={fp16_enabled}, "
                 f"BF16={bf16_enabled}"
             )
-            
+
         except ImportError:
             logger.warning(
                 "DeepSpeed not installed. Install with: pip install deepspeed"
             )
             self.model = model
             raise
-    
+
     def forward(self, *args, **kwargs) -> Any:
         """Forward pass through the model."""
         return self.model(*args, **kwargs)
-    
+
     def backward(self, loss: torch.Tensor) -> None:
         """Backward pass with DeepSpeed loss scaling."""
         self.engine.backward(loss)
-    
+
     def step(self) -> None:
         """Optimizer step with DeepSpeed."""
         self.engine.step()
-    
+
     def __getattr__(self, name: str) -> Any:
         """Forward attribute access to wrapped model."""
         try:
@@ -424,18 +424,18 @@ class DeepSpeedWrapper:
             if self.engine is not None:
                 return getattr(self.engine, name)
             return getattr(self.model, name)
-    
+
     def unwrap(self) -> nn.Module:
         """
         Get the underlying model without DeepSpeed wrapper.
-        
+
         Returns:
             Unwrapped model
         """
         if self.engine is not None:
             return self.engine.module
         return self._original_model
-    
+
     def save_checkpoint(
         self,
         save_dir: str,
@@ -444,7 +444,7 @@ class DeepSpeedWrapper:
     ) -> None:
         """
         Save DeepSpeed checkpoint.
-        
+
         Args:
             save_dir: Directory to save checkpoint
             tag: Checkpoint tag (version)
@@ -457,7 +457,7 @@ class DeepSpeedWrapper:
                 client_state=client_state or {},
             )
             logger.info(f"DeepSpeed checkpoint saved to {save_dir}")
-    
+
     def load_checkpoint(
         self,
         load_dir: str,
@@ -467,13 +467,13 @@ class DeepSpeedWrapper:
     ) -> Dict[str, Any]:
         """
         Load DeepSpeed checkpoint.
-        
+
         Args:
             load_dir: Directory to load checkpoint from
             tag: Checkpoint tag (version)
             load_optimizer_states: Whether to load optimizer states
             load_lr_scheduler_states: Whether to load LR scheduler states
-            
+
         Returns:
             Client state dictionary
         """
@@ -487,7 +487,7 @@ class DeepSpeedWrapper:
             logger.info(f"DeepSpeed checkpoint loaded from {load_dir}")
             return client_state or {}
         return {}
-    
+
     @staticmethod
     def get_default_config(
         zero_stage: int = 2,
@@ -501,7 +501,7 @@ class DeepSpeedWrapper:
     ) -> Dict[str, Any]:
         """
         Get default DeepSpeed configuration.
-        
+
         Args:
             zero_stage: ZeRO optimization stage (0, 1, 2, or 3)
             fp16: Enable FP16 training
@@ -511,7 +511,7 @@ class DeepSpeedWrapper:
             train_micro_batch_size_per_gpu: Micro batch size per GPU
             offload_optimizer: Offload optimizer to CPU (ZeRO-3)
             offload_params: Offload parameters to CPU (ZeRO-3)
-            
+
         Returns:
             DeepSpeed configuration dictionary
         """
@@ -522,7 +522,7 @@ class DeepSpeedWrapper:
             "gradient_clipping": 1.0,
             "steps_per_print": 100,
         }
-        
+
         # FP16/BF16 configuration
         if fp16:
             config["fp16"] = {
@@ -537,7 +537,7 @@ class DeepSpeedWrapper:
             config["bf16"] = {
                 "enabled": True,
             }
-        
+
         # ZeRO optimization configuration
         zero_config = {
             "stage": zero_stage,
@@ -548,45 +548,45 @@ class DeepSpeedWrapper:
             "overlap_comm": True,
             "contiguous_gradients": True,
         }
-        
+
         # ZeRO-3 specific options
         if zero_stage == 3:
             zero_config["stage3_max_live_parameters"] = 1e9
             zero_config["stage3_max_reuse_distance"] = 1e9
             zero_config["stage3_prefetch_bucket_size"] = 5e7
             zero_config["stage3_param_persistence_threshold"] = 1e5
-            
+
             if offload_optimizer:
                 zero_config["offload_optimizer"] = {
                     "device": "cpu",
                     "pin_memory": True,
                 }
-            
+
             if offload_params:
                 zero_config["offload_param"] = {
                     "device": "cpu",
                     "pin_memory": True,
                 }
-        
+
         config["zero_optimization"] = zero_config
-        
+
         return config
 
 
 class FSDPWrapper:
     """
     Wrapper for Fully Sharded Data Parallel (FSDP).
-    
+
     Provides memory-efficient distributed training by sharding model parameters,
     gradients, and optimizer states across multiple GPUs.
-    
+
     Features:
         - Automatic mixed precision training
         - CPU offloading for memory reduction
         - Activation checkpointing
         - Transformer auto-wrap policy
         - Gradient accumulation support
-    
+
     Args:
         model: Model to wrap
         config: Distributed configuration
@@ -598,7 +598,7 @@ class FSDPWrapper:
         min_num_params: Minimum parameters for size-based wrapping
         backward_prefetch: Backward prefetch strategy ("backward_pre", "backward_post", None)
     """
-    
+
     def __init__(
         self,
         model: nn.Module,
@@ -616,12 +616,12 @@ class FSDPWrapper:
         self._cpu_offload = cpu_offload
         self._activation_checkpointing = activation_checkpointing
         self._original_model = model
-        
+
         if not config.is_distributed:
             self.model = model
             logger.info("FSDP not used (single process)")
             return
-        
+
         try:
             from torch.distributed.fsdp import (
                 FullyShardedDataParallel as FSDP,
@@ -635,7 +635,7 @@ class FSDPWrapper:
                 size_based_auto_wrap_policy,
             )
             from functools import partial
-            
+
             # Configure sharding strategy
             sharding_map = {
                 "full": ShardingStrategy.FULL_SHARD,
@@ -643,7 +643,7 @@ class FSDPWrapper:
                 "no_shard": ShardingStrategy.NO_SHARD,
             }
             shard_strategy = sharding_map.get(sharding_strategy, ShardingStrategy.FULL_SHARD)
-            
+
             # Configure mixed precision
             mp_policy = None
             if mixed_precision == "fp16":
@@ -658,10 +658,10 @@ class FSDPWrapper:
                     reduce_dtype=torch.bfloat16,
                     buffer_dtype=torch.bfloat16,
                 )
-            
+
             # Configure CPU offloading
             cpu_offload_policy = CPUOffload(offload_params=cpu_offload) if cpu_offload else None
-            
+
             # Configure auto wrap policy
             wrap_policy = None
             if auto_wrap_policy == "transformer":
@@ -677,14 +677,14 @@ class FSDPWrapper:
                     size_based_auto_wrap_policy,
                     min_num_params=min_num_params,
                 )
-            
+
             # Configure backward prefetch
             prefetch_map = {
                 "backward_pre": BackwardPrefetch.BACKWARD_PRE,
                 "backward_post": BackwardPrefetch.BACKWARD_POST,
             }
             backward_prefetch_policy = prefetch_map.get(backward_prefetch) if backward_prefetch else None
-            
+
             # Wrap model with FSDP
             self.model = FSDP(
                 model,
@@ -695,11 +695,11 @@ class FSDPWrapper:
                 backward_prefetch=backward_prefetch_policy,
                 device_id=torch.cuda.current_device() if torch.cuda.is_available() else None,
             )
-            
+
             # Apply activation checkpointing
             if activation_checkpointing:
                 self._apply_activation_checkpointing()
-            
+
             logger.info(
                 f"Model wrapped with FSDP: "
                 f"sharding={sharding_strategy}, "
@@ -707,16 +707,16 @@ class FSDPWrapper:
                 f"cpu_offload={cpu_offload}, "
                 f"activation_checkpointing={activation_checkpointing}"
             )
-            
+
         except ImportError as e:
             logger.warning(f"FSDP not available. Requires PyTorch >= 2.0: {e}")
             self.model = model
             raise
-    
+
     def _get_transformer_layers(self, model: nn.Module) -> set:
         """Get transformer layer classes from model for auto-wrapping."""
         layer_classes = set()
-        
+
         # Common transformer layer class names
         transformer_names = [
             "TransformerEncoderLayer",
@@ -728,14 +728,14 @@ class FSDPWrapper:
             "DecoderLayer",
             "EncoderLayer",
         ]
-        
+
         for name, module in model.named_modules():
             class_name = module.__class__.__name__
             if class_name in transformer_names:
                 layer_classes.add(type(module))
-        
+
         return layer_classes
-    
+
     def _apply_activation_checkpointing(self) -> None:
         """Apply activation checkpointing to transformer layers."""
         try:
@@ -744,7 +744,7 @@ class FSDPWrapper:
                 CheckpointImpl,
                 apply_activation_checkpointing,
             )
-            
+
             def check_fn(submodule) -> bool:
                 """Check if module is a transformer layer that should be checkpointed."""
                 try:
@@ -757,28 +757,28 @@ class FSDPWrapper:
                     return any(name in class_name for name in transformer_layer_names)
                 except AttributeError:
                     return False
-            
+
             apply_activation_checkpointing(
                 self.model,
                 checkpoint_wrapper_fn=checkpoint_wrapper,
                 check_fn=check_fn,
             )
             logger.info("Activation checkpointing applied to transformer layers")
-            
+
         except ImportError:
             logger.warning("Activation checkpointing not available")
-    
+
     def __getattr__(self, name: str) -> Any:
         """Forward attribute access to wrapped model."""
         try:
             return super().__getattr__(name)
         except AttributeError:
             return getattr(self.model, name)
-    
+
     def unwrap(self) -> nn.Module:
         """
         Get the underlying model without FSDP wrapper.
-        
+
         Returns:
             Unwrapped model
         """
@@ -789,11 +789,11 @@ class FSDPWrapper:
         except ImportError:
             pass
         return self._original_model
-    
+
     def get_state_dict(self) -> Dict[str, Any]:
         """
         Get model state dict with FSDP-specific handling.
-        
+
         Returns:
             State dictionary
         """
@@ -803,20 +803,20 @@ class FSDPWrapper:
                 StateDictType,
                 FullStateDictConfig,
             )
-            
+
             # Use full state dict for saving
             save_policy = FullStateDictConfig(offload_to_cpu=True, rank0_only=True)
             with FSDP.state_dict_type(self.model, StateDictType.FULL_STATE_DICT, save_policy):
                 state_dict = self.model.state_dict()
             return state_dict
-            
+
         except ImportError:
             return self.model.state_dict()
-    
+
     def load_state_dict(self, state_dict: Dict[str, Any]) -> None:
         """
         Load state dict with FSDP-specific handling.
-        
+
         Args:
             state_dict: State dictionary to load
         """
@@ -826,11 +826,11 @@ class FSDPWrapper:
                 StateDictType,
                 FullStateDictConfig,
             )
-            
+
             load_policy = FullStateDictConfig(offload_to_cpu=True, rank0_only=True)
             with FSDP.state_dict_type(self.model, StateDictType.FULL_STATE_DICT, load_policy):
                 self.model.load_state_dict(state_dict)
-                
+
         except ImportError:
             self.model.load_state_dict(state_dict)
 
@@ -843,27 +843,27 @@ def wrap_model_distributed(
 ) -> Union[nn.Module, DDPWrapper, DeepSpeedWrapper, FSDPWrapper]:
     """
     Wrap model for distributed training.
-    
+
     Args:
         model: Model to wrap
         strategy: Distributed strategy ('ddp', 'deepspeed', 'fsdp')
         config: Distributed configuration
         **kwargs: Additional strategy-specific arguments
-        
+
     Returns:
         Wrapped model
-        
+
     Examples:
         >>> config = setup_distributed()
         >>> model = wrap_model_distributed(model, strategy="ddp", config=config)
     """
     if config is None:
         config = setup_distributed()
-    
+
     if not config.is_distributed:
         logger.info("Single process mode - no distributed wrapper needed")
         return model
-    
+
     if strategy == "ddp":
         return DDPWrapper(model, config, **kwargs)
     elif strategy == "deepspeed":
@@ -884,9 +884,9 @@ def save_checkpoint_distributed(
 ) -> None:
     """
     Save checkpoint in distributed training.
-    
+
     Only saves on main process to avoid conflicts.
-    
+
     Args:
         state_dict: State dictionary to save
         filepath: Path to save checkpoint
@@ -896,11 +896,11 @@ def save_checkpoint_distributed(
         should_save = is_main_process()
     else:
         should_save = config.is_main_process
-    
+
     if should_save:
         torch.save(state_dict, filepath)
         logger.info(f"Checkpoint saved: {filepath}")
-    
+
     # Synchronize all processes
     barrier()
 
@@ -911,24 +911,24 @@ def load_checkpoint_distributed(
 ) -> Dict[str, Any]:
     """
     Load checkpoint in distributed training.
-    
+
     Args:
         filepath: Path to checkpoint
         map_location: Device to map tensors to
-        
+
     Returns:
         Loaded state dictionary
-        
+
     Warning:
         Uses weights_only=False to support loading optimizer states and other objects.
         Only load checkpoints from trusted sources to avoid security risks.
     """
     # Synchronize before loading
     barrier()
-    
+
     # Note: weights_only=False allows loading optimizer states and other objects
     # SECURITY WARNING: Only load checkpoints from trusted sources
     state_dict = torch.load(filepath, map_location=map_location, weights_only=False)
-    
+
     logger.info(f"Checkpoint loaded: {filepath}")
     return state_dict

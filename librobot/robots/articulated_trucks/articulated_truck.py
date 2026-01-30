@@ -13,17 +13,17 @@ from ..base import AbstractRobot
 
 class ArticulatedTruck(AbstractRobot):
     """Base class for articulated truck robots.
-    
+
     Provides common functionality for articulated truck implementations.
     For a comprehensive reference implementation with full features,
     see ArticulatedTruckRobot in articulated_truck_robot.py.
     """
-    
+
     # Common articulated truck specifications
     NUM_CAMERAS = 4
     HAS_GPS = True
     HAS_IMU = True
-    
+
     def __init__(
         self,
         robot_id: str,
@@ -42,7 +42,7 @@ class ArticulatedTruck(AbstractRobot):
         self.max_speed = max_speed
         self.max_steering_angle = max_steering_angle
         self.payload_capacity = payload_capacity
-        
+
         # State
         self._steering_angle = 0.0
         self._vehicle_speed = 0.0
@@ -50,7 +50,7 @@ class ArticulatedTruck(AbstractRobot):
         self._current_payload = 0.0
         self._engine_rpm = 0.0
         self._fuel_level = 1.0
-    
+
     def get_action_space(self) -> Dict[str, Any]:
         return {
             "type": "continuous",
@@ -58,7 +58,7 @@ class ArticulatedTruck(AbstractRobot):
             "low": [-1.0, 0.0, 0.0, -1.0, -1.0],
             "high": [1.0, 1.0, 1.0, 1.0, 1.0],
         }
-    
+
     def get_observation_space(self) -> Dict[str, Any]:
         return {
             "steering_angle": {"shape": (), "dtype": "float32"},

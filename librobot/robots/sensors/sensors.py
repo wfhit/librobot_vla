@@ -7,7 +7,7 @@ import numpy as np
 
 class BaseSensor(ABC):
     """Base class for sensors."""
-    
+
     def __init__(
         self,
         sensor_id: str,
@@ -21,21 +21,21 @@ class BaseSensor(ABC):
         self.sensor_id = sensor_id
         self.rate = rate
         self._is_active = False
-    
+
     @abstractmethod
     def read(self) -> Dict[str, Any]:
         """Read sensor data."""
         pass
-    
+
     def start(self) -> bool:
         """Start sensor."""
         self._is_active = True
         return True
-    
+
     def stop(self) -> None:
         """Stop sensor."""
         self._is_active = False
-    
+
     @property
     def is_active(self) -> bool:
         return self._is_active
@@ -43,7 +43,7 @@ class BaseSensor(ABC):
 
 class Camera(BaseSensor):
     """RGB camera sensor."""
-    
+
     def __init__(
         self,
         sensor_id: str = "camera",
@@ -54,7 +54,7 @@ class Camera(BaseSensor):
         super().__init__(sensor_id, rate)
         self.resolution = resolution
         self.fov = fov
-    
+
     def read(self) -> Dict[str, Any]:
         """Read camera image."""
         # Return dummy data
@@ -62,7 +62,7 @@ class Camera(BaseSensor):
             "image": np.random.randint(0, 255, (*self.resolution, 3), dtype=np.uint8),
             "timestamp": 0.0,
         }
-    
+
     def get_intrinsics(self) -> np.ndarray:
         """Get camera intrinsic matrix."""
         fx = self.resolution[0] / (2 * np.tan(np.radians(self.fov / 2)))
@@ -78,7 +78,7 @@ class Camera(BaseSensor):
 
 class DepthCamera(Camera):
     """RGB-D camera sensor."""
-    
+
     def __init__(
         self,
         sensor_id: str = "depth_camera",
@@ -91,7 +91,7 @@ class DepthCamera(Camera):
         super().__init__(sensor_id, resolution, fov, rate)
         self.min_depth = min_depth
         self.max_depth = max_depth
-    
+
     def read(self) -> Dict[str, Any]:
         """Read RGB and depth images."""
         base_data = super().read()
@@ -104,7 +104,7 @@ class DepthCamera(Camera):
 
 class ForceTorqueSensor(BaseSensor):
     """Force-torque sensor."""
-    
+
     def __init__(
         self,
         sensor_id: str = "ft_sensor",
@@ -113,7 +113,7 @@ class ForceTorqueSensor(BaseSensor):
         super().__init__(sensor_id, rate)
         self.force_range = 100.0  # N
         self.torque_range = 10.0  # Nm
-    
+
     def read(self) -> Dict[str, Any]:
         """Read force-torque data."""
         return {
@@ -125,7 +125,7 @@ class ForceTorqueSensor(BaseSensor):
 
 class JointEncoder(BaseSensor):
     """Joint encoder sensor."""
-    
+
     def __init__(
         self,
         sensor_id: str = "encoder",
@@ -136,7 +136,7 @@ class JointEncoder(BaseSensor):
         super().__init__(sensor_id, rate)
         self.num_joints = num_joints
         self.resolution = resolution
-    
+
     def read(self) -> Dict[str, Any]:
         """Read joint encoder data."""
         return {
@@ -148,14 +148,14 @@ class JointEncoder(BaseSensor):
 
 class IMU(BaseSensor):
     """Inertial measurement unit."""
-    
+
     def __init__(
         self,
         sensor_id: str = "imu",
         rate: float = 200.0,
     ):
         super().__init__(sensor_id, rate)
-    
+
     def read(self) -> Dict[str, Any]:
         """Read IMU data."""
         return {
@@ -168,7 +168,7 @@ class IMU(BaseSensor):
 
 class Lidar(BaseSensor):
     """LiDAR sensor."""
-    
+
     def __init__(
         self,
         sensor_id: str = "lidar",
@@ -179,7 +179,7 @@ class Lidar(BaseSensor):
         super().__init__(sensor_id, rate)
         self.num_beams = num_beams
         self.max_range = max_range
-    
+
     def read(self) -> Dict[str, Any]:
         """Read LiDAR scan."""
         return {
@@ -191,7 +191,7 @@ class Lidar(BaseSensor):
 
 class Tactile(BaseSensor):
     """Tactile sensor (e.g., GelSight)."""
-    
+
     def __init__(
         self,
         sensor_id: str = "tactile",
@@ -200,7 +200,7 @@ class Tactile(BaseSensor):
     ):
         super().__init__(sensor_id, rate)
         self.resolution = resolution
-    
+
     def read(self) -> Dict[str, Any]:
         """Read tactile data."""
         return {

@@ -70,7 +70,7 @@ def parse_args():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__
     )
-    
+
     # Required arguments
     parser.add_argument(
         "--checkpoint",
@@ -78,7 +78,7 @@ def parse_args():
         required=True,
         help="Path to model checkpoint"
     )
-    
+
     # Configuration
     parser.add_argument(
         "--config",
@@ -86,7 +86,7 @@ def parse_args():
         default=None,
         help="Path to configuration YAML file (optional)"
     )
-    
+
     # Inference mode
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument(
@@ -100,7 +100,7 @@ def parse_args():
         type=str,
         help="Directory containing images for batch inference"
     )
-    
+
     # Single inference inputs
     parser.add_argument(
         "--image",
@@ -117,7 +117,7 @@ def parse_args():
         type=str,
         help="Robot state as JSON string or file path for single inference"
     )
-    
+
     # Server options
     parser.add_argument(
         "--host",
@@ -142,7 +142,7 @@ def parse_args():
         default=1,
         help="Number of worker processes for server"
     )
-    
+
     # Output options
     parser.add_argument(
         "--output-file",
@@ -155,7 +155,7 @@ def parse_args():
         action="store_true",
         help="Save visualization of predictions"
     )
-    
+
     # Device options
     parser.add_argument(
         "--device",
@@ -171,7 +171,7 @@ def parse_args():
         choices=["fp32", "fp16", "bf16"],
         help="Inference precision (default: fp32)"
     )
-    
+
     # Performance options
     parser.add_argument(
         "--batch-size",
@@ -184,7 +184,7 @@ def parse_args():
         action="store_true",
         help="Compile model with torch.compile for faster inference"
     )
-    
+
     # Logging
     parser.add_argument(
         "--log-level",
@@ -199,7 +199,7 @@ def parse_args():
         default=None,
         help="Path to log file"
     )
-    
+
     return parser.parse_args()
 
 
@@ -211,23 +211,23 @@ def load_model_for_inference(
 ) -> nn.Module:
     """
     Load model from checkpoint for inference.
-    
+
     Args:
         checkpoint_path: Path to checkpoint file
         config: Configuration object (optional)
         device: Device to load model on
         precision: Inference precision (fp32/fp16/bf16)
-        
+
     Returns:
         Loaded model ready for inference
     """
     logger = get_logger(__name__)
-    
+
     if not Path(checkpoint_path).exists():
         raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
-    
+
     logger.info(f"Loading checkpoint: {checkpoint_path}")
-    
+
     # Build model
     if config:
         model = build_model(config.get("model", {}))
@@ -238,7 +238,7 @@ def load_model_for_inference(
             model = build_model(checkpoint["config"].get("model", {}))
         else:
             raise ValueError("No config provided and checkpoint doesn't contain config")
-    
+
     # Load weights
     checkpoint = torch.load(checkpoint_path, map_location="cpu")
     if "model_state_dict" in checkpoint:
@@ -247,7 +247,7 @@ def load_model_for_inference(
         model.load_state_dict(checkpoint["model"])
     else:
         model.load_state_dict(checkpoint)
-    
+
     # Set precision
     dtype_map = {
         "fp32": torch.float32,
@@ -255,24 +255,24 @@ def load_model_for_inference(
         "bf16": torch.bfloat16,
     }
     dtype = dtype_map[precision]
-    
+
     # Move to device and set precision
     model.to(device=device, dtype=dtype)
     model.eval()
-    
+
     logger.info(f"Model loaded on {device} with {precision} precision")
     logger.info(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
-    
+
     return model
 
 
 def load_image(image_path: Union[str, Path]) -> np.ndarray:
     """
     Load and preprocess image.
-    
+
     Args:
         image_path: Path to image file
-        
+
     Returns:
         Preprocessed image as numpy array
     """
@@ -289,48 +289,48 @@ def run_single_inference(
 ) -> Dict[str, Any]:
     """
     Run single inference.
-    
+
     Args:
         model: Model for inference
         image: Input image (optional)
         text: Input text (optional)
         state: Robot state (optional)
         device: Device to run on
-        
+
     Returns:
         Prediction dictionary
     """
     logger = get_logger(__name__)
-    
+
     # Prepare inputs
     inputs = {}
-    
+
     if image is not None:
         # Convert to tensor and add batch dimension
         image_tensor = torch.from_numpy(image).permute(2, 0, 1).float() / 255.0
         image_tensor = image_tensor.unsqueeze(0).to(device)
         inputs["image"] = image_tensor
-    
+
     if text is not None:
         inputs["text"] = [text]  # Batch of 1
-    
+
     if state is not None:
         state_tensor = torch.from_numpy(state).float().unsqueeze(0).to(device)
         inputs["state"] = state_tensor
-    
+
     # Run inference
     with torch.no_grad():
         outputs = model(inputs)
-    
+
     # Process outputs
     if isinstance(outputs, dict):
         actions = outputs.get("actions", outputs.get("logits", None))
     else:
         actions = outputs
-    
+
     if actions is not None:
         actions = actions.cpu().numpy()[0]  # Remove batch dimension
-    
+
     result = {
         "actions": actions.tolist() if actions is not None else None,
         "inputs": {
@@ -339,9 +339,9 @@ def run_single_inference(
             "has_state": state is not None,
         }
     }
-    
+
     logger.debug(f"Inference result: {result}")
-    
+
     return result
 
 
@@ -354,35 +354,35 @@ def run_batch_inference(
 ) -> List[Dict[str, Any]]:
     """
     Run batch inference on directory of images.
-    
+
     Args:
         model: Model for inference
         batch_dir: Directory containing images
         batch_size: Batch size for inference
         device: Device to run on
         output_file: Output file for predictions (optional)
-        
+
     Returns:
         List of predictions
     """
     logger = get_logger(__name__)
-    
+
     # Find all images
     image_extensions = {".jpg", ".jpeg", ".png", ".bmp"}
     image_paths = [
         p for p in batch_dir.iterdir()
         if p.suffix.lower() in image_extensions
     ]
-    
+
     logger.info(f"Found {len(image_paths)} images in {batch_dir}")
-    
+
     predictions = []
-    
+
     # Process in batches
     for i in range(0, len(image_paths), batch_size):
         batch_paths = image_paths[i:i + batch_size]
         logger.info(f"Processing batch {i // batch_size + 1}/{(len(image_paths) + batch_size - 1) // batch_size}")
-        
+
         # Load images
         images = []
         for path in batch_paths:
@@ -392,45 +392,45 @@ def run_batch_inference(
             except Exception as e:
                 logger.error(f"Failed to load {path}: {e}")
                 continue
-        
+
         if not images:
             continue
-        
+
         # Run inference on batch
         with torch.no_grad():
             # Stack images and convert to tensor
             images_array = np.stack(images)
             images_tensor = torch.from_numpy(images_array).permute(0, 3, 1, 2).float() / 255.0
             images_tensor = images_tensor.to(device)
-            
+
             outputs = model({"image": images_tensor})
-            
+
             if isinstance(outputs, dict):
                 actions = outputs.get("actions", outputs.get("logits", None))
             else:
                 actions = outputs
-            
+
             if actions is not None:
                 actions = actions.cpu().numpy()
-                
+
                 for j, path in enumerate(batch_paths[:len(actions)]):
                     predictions.append({
                         "image_path": str(path),
                         "actions": actions[j].tolist()
                     })
-    
+
     logger.info(f"Completed batch inference on {len(predictions)} images")
-    
+
     # Save predictions if output file specified
     if output_file:
         output_path = Path(output_file)
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         with open(output_path, "w") as f:
             json.dump(predictions, f, indent=2)
-        
+
         logger.info(f"Saved predictions to: {output_path}")
-    
+
     return predictions
 
 
@@ -447,7 +447,7 @@ def start_server(
 ):
     """
     Start inference server.
-    
+
     Args:
         server_type: Type of server (rest or grpc)
         checkpoint_path: Path to model checkpoint
@@ -460,18 +460,18 @@ def start_server(
         workers: Number of worker processes
     """
     logger = get_logger(__name__)
-    
+
     # Load model
     model = load_model_for_inference(checkpoint_path, config, device, precision)
-    
+
     # Create policy
     policy = VLAPolicy(model=model, device=device)
-    
+
     if server_type == "rest":
         # Default port for REST
         if port is None:
             port = 8000
-        
+
         logger.info(f"Starting REST server on {host}:{port}")
         server = RESTServer(
             host=host,
@@ -480,22 +480,22 @@ def start_server(
             device=device,
             enable_cors=enable_cors,
         )
-        
+
         # Setup graceful shutdown
         def signal_handler(sig, frame):
             logger.info("Shutting down server...")
             sys.exit(0)
-        
+
         signal.signal(signal.SIGINT, signal_handler)
         signal.signal(signal.SIGTERM, signal_handler)
-        
+
         server.start()
-    
+
     elif server_type == "grpc":
         # Default port for gRPC
         if port is None:
             port = 50051
-        
+
         logger.info(f"Starting gRPC server on {host}:{port}")
         server = GRPCServer(
             host=host,
@@ -503,16 +503,16 @@ def start_server(
             model_path=checkpoint_path,
             device=device,
         )
-        
+
         # Setup graceful shutdown
         def signal_handler(sig, frame):
             logger.info("Shutting down server...")
             server.stop()
             sys.exit(0)
-        
+
         signal.signal(signal.SIGINT, signal_handler)
         signal.signal(signal.SIGTERM, signal_handler)
-        
+
         server.start()
         server.wait_for_termination()
 
@@ -520,7 +520,7 @@ def start_server(
 def main():
     """Main inference entry point."""
     args = parse_args()
-    
+
     # Setup logging
     setup_logging(
         level=args.log_level,
@@ -528,12 +528,12 @@ def main():
         force_colors=True,
     )
     logger = get_logger(__name__)
-    
+
     try:
         logger.info("=" * 80)
         logger.info("LibroBot VLA Inference")
         logger.info("=" * 80)
-        
+
         # Load config if provided
         config = None
         if args.config:
@@ -541,7 +541,7 @@ def main():
                 raise FileNotFoundError(f"Config file not found: {args.config}")
             config = Config.from_yaml(args.config)
             logger.info(f"Loaded config from: {args.config}")
-        
+
         # Determine device
         if args.device:
             device = args.device
@@ -551,9 +551,9 @@ def main():
             device = "cuda"
         else:
             device = "cpu"
-        
+
         logger.info(f"Using device: {device}")
-        
+
         # Server mode
         if args.server:
             start_server(
@@ -568,7 +568,7 @@ def main():
                 workers=args.workers,
             )
             return
-        
+
         # Load model for single or batch inference
         model = load_model_for_inference(
             checkpoint_path=args.checkpoint,
@@ -576,18 +576,18 @@ def main():
             device=device,
             precision=args.precision
         )
-        
+
         # Compile model if requested
         if args.compile:
             logger.info("Compiling model with torch.compile...")
             model = torch.compile(model)
-        
+
         # Batch inference mode
         if args.batch_dir:
             batch_dir = Path(args.batch_dir)
             if not batch_dir.exists():
                 raise FileNotFoundError(f"Batch directory not found: {batch_dir}")
-            
+
             predictions = run_batch_inference(
                 model=model,
                 batch_dir=batch_dir,
@@ -595,25 +595,25 @@ def main():
                 device=device,
                 output_file=args.output_file
             )
-            
+
             logger.info(f"Processed {len(predictions)} images")
             return
-        
+
         # Single inference mode
         if not args.image and not args.text and not args.state:
             logger.error("For single inference, provide at least one of: --image, --text, --state")
             sys.exit(1)
-        
+
         # Load inputs
         image = None
         if args.image:
             image = load_image(args.image)
             logger.info(f"Loaded image: {args.image}")
-        
+
         text = args.text
         if text:
             logger.info(f"Text instruction: {text}")
-        
+
         state = None
         if args.state:
             # Try to load as JSON string or file
@@ -628,7 +628,7 @@ def main():
                 else:
                     raise ValueError(f"Invalid state: {args.state}")
             logger.info(f"Robot state shape: {state.shape}")
-        
+
         # Run inference
         logger.info("Running inference...")
         result = run_single_inference(
@@ -638,7 +638,7 @@ def main():
             state=state,
             device=device
         )
-        
+
         # Print result
         logger.info("=" * 80)
         logger.info("Inference Result:")
@@ -647,17 +647,17 @@ def main():
             logger.info(f"Predicted actions: {result['actions']}")
         else:
             logger.info("No actions predicted")
-        
+
         # Save result if output file specified
         if args.output_file:
             output_path = Path(args.output_file)
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            
+
             with open(output_path, "w") as f:
                 json.dump(result, f, indent=2)
-            
+
             logger.info(f"Saved result to: {output_path}")
-    
+
     except KeyboardInterrupt:
         logger.warning("Inference interrupted by user")
         sys.exit(1)

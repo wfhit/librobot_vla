@@ -6,21 +6,21 @@ import asyncio
 
 class BaseClient:
     """Base client for inference servers."""
-    
+
     def __init__(self, host: str = "localhost", port: int = 8000):
         self.host = host
         self.port = port
         self._connected = False
-    
+
     def connect(self) -> bool:
         """Connect to server."""
         self._connected = True
         return True
-    
+
     def disconnect(self) -> None:
         """Disconnect from server."""
         self._connected = False
-    
+
     def predict(
         self,
         images: Any,
@@ -29,7 +29,7 @@ class BaseClient:
     ) -> Dict[str, Any]:
         """Get prediction from server."""
         raise NotImplementedError
-    
+
     @property
     def is_connected(self) -> bool:
         return self._connected
@@ -37,7 +37,7 @@ class BaseClient:
 
 class RESTClient(BaseClient):
     """REST API client."""
-    
+
     def __init__(
         self,
         host: str = "localhost",
@@ -47,7 +47,7 @@ class RESTClient(BaseClient):
         super().__init__(host, port)
         self.timeout = timeout
         self.base_url = f"http://{host}:{port}"
-    
+
     def predict(
         self,
         images: Any,
@@ -58,30 +58,30 @@ class RESTClient(BaseClient):
         try:
             import requests
             import numpy as np
-            
+
             payload = {
                 "images": np.asarray(images).tolist(),
                 "instruction": instruction,
             }
             if proprioception is not None:
                 payload["proprioception"] = np.asarray(proprioception).tolist()
-            
+
             response = requests.post(
                 f"{self.base_url}/predict",
                 json=payload,
                 timeout=self.timeout,
             )
             response.raise_for_status()
-            
+
             result = response.json()
             result["actions"] = np.array(result["actions"])
             return result
-            
+
         except ImportError:
             return {"actions": [], "error": "requests required"}
         except Exception as e:
             return {"actions": [], "error": str(e)}
-    
+
     def health_check(self) -> bool:
         """Check server health."""
         try:
@@ -94,7 +94,7 @@ class RESTClient(BaseClient):
 
 class WebSocketClient(BaseClient):
     """WebSocket client for real-time inference."""
-    
+
     def __init__(
         self,
         host: str = "localhost",
@@ -103,7 +103,7 @@ class WebSocketClient(BaseClient):
         super().__init__(host, port)
         self.uri = f"ws://{host}:{port}"
         self._websocket = None
-    
+
     async def connect_async(self) -> bool:
         """Connect to WebSocket server."""
         try:
@@ -113,7 +113,7 @@ class WebSocketClient(BaseClient):
             return True
         except ImportError:
             return False
-    
+
     async def predict_async(
         self,
         images: Any,
@@ -123,24 +123,24 @@ class WebSocketClient(BaseClient):
         """Send prediction request asynchronously."""
         import json
         import numpy as np
-        
+
         if not self._websocket:
             return {"actions": [], "error": "Not connected"}
-        
+
         payload = {
             "images": np.asarray(images).tolist(),
             "instruction": instruction,
         }
         if proprioception is not None:
             payload["proprioception"] = np.asarray(proprioception).tolist()
-        
+
         await self._websocket.send(json.dumps(payload))
         response = await self._websocket.recv()
-        
+
         result = json.loads(response)
         result["actions"] = np.array(result.get("actions", []))
         return result
-    
+
     def predict(
         self,
         images: Any,
@@ -151,7 +151,7 @@ class WebSocketClient(BaseClient):
         return asyncio.get_event_loop().run_until_complete(
             self.predict_async(images, proprioception, instruction)
         )
-    
+
     async def disconnect_async(self) -> None:
         """Disconnect from server."""
         if self._websocket:
@@ -161,7 +161,7 @@ class WebSocketClient(BaseClient):
 
 class GRPCClient(BaseClient):
     """gRPC client for low-latency inference."""
-    
+
     def __init__(
         self,
         host: str = "localhost",
@@ -170,7 +170,7 @@ class GRPCClient(BaseClient):
         super().__init__(host, port)
         self._channel = None
         self._stub = None
-    
+
     def connect(self) -> bool:
         """Connect to gRPC server."""
         try:
@@ -180,7 +180,7 @@ class GRPCClient(BaseClient):
             return True
         except ImportError:
             return False
-    
+
     def predict(
         self,
         images: Any,
@@ -189,10 +189,10 @@ class GRPCClient(BaseClient):
     ) -> Dict[str, Any]:
         """Send prediction request."""
         import numpy as np
-        
+
         # In real implementation, would use generated stub
         return {"actions": np.zeros(7)}
-    
+
     def disconnect(self) -> None:
         """Disconnect from server."""
         if self._channel:

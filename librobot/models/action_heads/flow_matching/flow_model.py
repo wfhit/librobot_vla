@@ -10,10 +10,10 @@ class FlowMatchingHead(AbstractActionHead):
         self.velocity_net = nn.Sequential(
             nn.Linear(action_dim + input_dim + 1, hidden_dim),
             nn.SiLU(), nn.Linear(hidden_dim, action_dim))
-    
+
     def forward(self, embeddings: torch.Tensor, **kwargs) -> dict:
         return {'embeddings': embeddings}
-    
+
     def compute_loss(self, predictions: dict, targets: torch.Tensor, **kwargs) -> torch.Tensor:
         emb = predictions['embeddings']
         t = torch.rand(targets.size(0), 1, device=targets.device)
@@ -23,7 +23,7 @@ class FlowMatchingHead(AbstractActionHead):
         inp = torch.cat([xt, emb, t], dim=-1)
         pred_v = self.velocity_net(inp)
         return torch.nn.functional.mse_loss(pred_v, velocity)
-    
+
     def sample(self, embeddings: torch.Tensor, steps: int = 50, **kwargs) -> torch.Tensor:
         x = torch.randn(embeddings.size(0), self.action_dim, device=embeddings.device)
         dt = 1.0 / steps

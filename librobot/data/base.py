@@ -8,11 +8,11 @@ import numpy as np
 class AbstractDataset(ABC):
     """
     Abstract base class for robot learning datasets.
-    
+
     Provides a unified interface for loading and processing robot
     demonstration data for VLA model training.
     """
-    
+
     def __init__(
         self,
         data_path: str,
@@ -21,7 +21,7 @@ class AbstractDataset(ABC):
     ):
         """
         Initialize dataset.
-        
+
         Args:
             data_path: Path to dataset root directory
             split: Dataset split ("train", "val", "test")
@@ -30,20 +30,20 @@ class AbstractDataset(ABC):
         self.data_path = data_path
         self.split = split
         self.transform = transform
-    
+
     @abstractmethod
     def __len__(self) -> int:
         """Return the number of samples in the dataset."""
         pass
-    
+
     @abstractmethod
     def __getitem__(self, idx: int) -> Dict[str, Any]:
         """
         Get a sample from the dataset.
-        
+
         Args:
             idx: Sample index
-            
+
         Returns:
             Dictionary containing:
                 - 'images': Image tensor(s) [C, H, W] or [N_cameras, C, H, W]
@@ -53,12 +53,12 @@ class AbstractDataset(ABC):
                 - Optional additional fields
         """
         pass
-    
+
     @abstractmethod
     def get_statistics(self) -> Dict[str, Any]:
         """
         Get dataset statistics for normalization.
-        
+
         Returns:
             Dictionary containing:
                 - 'action_mean': Mean of actions
@@ -67,11 +67,11 @@ class AbstractDataset(ABC):
                 - 'state_std': Std of proprioceptive states
         """
         pass
-    
+
     def get_action_dim(self) -> int:
         """
         Get action dimension.
-        
+
         Returns:
             Action dimension
         """
@@ -82,11 +82,11 @@ class AbstractDataset(ABC):
         if hasattr(actions, 'shape'):
             return actions.shape[-1]
         return len(actions)
-    
+
     def get_state_dim(self) -> int:
         """
         Get proprioceptive state dimension.
-        
+
         Returns:
             State dimension
         """
@@ -97,7 +97,7 @@ class AbstractDataset(ABC):
         if hasattr(state, 'shape'):
             return state.shape[-1]
         return len(state)
-    
+
     def __iter__(self) -> Iterator[Dict[str, Any]]:
         """Iterate over the dataset."""
         for i in range(len(self)):
@@ -107,11 +107,11 @@ class AbstractDataset(ABC):
 class AbstractTokenizer(ABC):
     """
     Abstract base class for text tokenizers.
-    
+
     Provides a unified interface for tokenizing text instructions
     for VLA models.
     """
-    
+
     def __init__(
         self,
         vocab_size: int = 32000,
@@ -121,7 +121,7 @@ class AbstractTokenizer(ABC):
     ):
         """
         Initialize tokenizer.
-        
+
         Args:
             vocab_size: Vocabulary size
             max_length: Maximum sequence length
@@ -132,7 +132,7 @@ class AbstractTokenizer(ABC):
         self.max_length = max_length
         self.padding = padding
         self.truncation = truncation
-    
+
     @abstractmethod
     def encode(
         self,
@@ -142,19 +142,19 @@ class AbstractTokenizer(ABC):
     ) -> Dict[str, Any]:
         """
         Encode text to token IDs.
-        
+
         Args:
             text: Input text or list of texts
             return_tensors: Return tensor type ("pt", "np", None)
             **kwargs: Additional tokenization arguments
-            
+
         Returns:
             Dictionary containing:
                 - 'input_ids': Token IDs
                 - 'attention_mask': Attention mask
         """
         pass
-    
+
     @abstractmethod
     def decode(
         self,
@@ -164,17 +164,17 @@ class AbstractTokenizer(ABC):
     ) -> str:
         """
         Decode token IDs to text.
-        
+
         Args:
             token_ids: Token IDs to decode
             skip_special_tokens: Whether to skip special tokens
             **kwargs: Additional decoding arguments
-            
+
         Returns:
             Decoded text string
         """
         pass
-    
+
     @abstractmethod
     def batch_encode(
         self,
@@ -184,17 +184,17 @@ class AbstractTokenizer(ABC):
     ) -> Dict[str, Any]:
         """
         Batch encode multiple texts.
-        
+
         Args:
             texts: List of input texts
             return_tensors: Return tensor type
             **kwargs: Additional tokenization arguments
-            
+
         Returns:
             Dictionary containing batched token IDs and attention masks
         """
         pass
-    
+
     @abstractmethod
     def batch_decode(
         self,
@@ -204,17 +204,17 @@ class AbstractTokenizer(ABC):
     ) -> List[str]:
         """
         Batch decode multiple token ID sequences.
-        
+
         Args:
             token_ids_batch: Batch of token IDs
             skip_special_tokens: Whether to skip special tokens
             **kwargs: Additional decoding arguments
-            
+
         Returns:
             List of decoded text strings
         """
         pass
-    
+
     def __call__(
         self,
         text: Union[str, List[str]],
@@ -222,30 +222,30 @@ class AbstractTokenizer(ABC):
     ) -> Dict[str, Any]:
         """
         Tokenize text (alias for encode).
-        
+
         Args:
             text: Input text or list of texts
             **kwargs: Additional arguments
-            
+
         Returns:
             Tokenization output
         """
         if isinstance(text, list):
             return self.batch_encode(text, **kwargs)
         return self.encode(text, **kwargs)
-    
+
     @property
     @abstractmethod
     def pad_token_id(self) -> int:
         """Get padding token ID."""
         pass
-    
+
     @property
     @abstractmethod
     def eos_token_id(self) -> int:
         """Get end-of-sequence token ID."""
         pass
-    
+
     @property
     @abstractmethod
     def bos_token_id(self) -> int:
