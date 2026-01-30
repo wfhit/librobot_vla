@@ -4,8 +4,6 @@ import time
 from pathlib import Path
 from typing import Any, Optional, Union
 
-import numpy as np
-
 from librobot.collection.recording import CameraRecorder, EpisodeRecorder
 from librobot.collection.teleoperation import create_teleop
 
@@ -95,7 +93,7 @@ class DataCollector:
             print("Failed to setup connections")
             return 0
 
-        print(f"\nData Collection Setup:")
+        print("\nData Collection Setup:")
         print(f"  Robot: {type(self.robot).__name__}")
         print(f"  Teleoperation: {type(self.teleop).__name__}")
         print(f"  Output: {self.recorder.output_dir}")
@@ -267,7 +265,7 @@ class DataCollector:
             saved_path = self.recorder.save_episode(episode_data)
 
             duration = time.time() - start_time
-            print(f"\nEpisode stats:")
+            print("\nEpisode stats:")
             print(f"  Duration: {duration:.2f}s")
             print(f"  Steps: {step_count}")
             print(f"  Avg FPS: {step_count / duration:.1f}")

@@ -48,7 +48,7 @@ class SpaceMouseTeleop(AbstractTeleop):
             bool: True if spacemouse library can be imported
         """
         try:
-            import pyspacemouse
+            import pyspacemouse  # noqa: F401
 
             return True
         except ImportError:

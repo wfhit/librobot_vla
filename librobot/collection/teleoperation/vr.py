@@ -46,7 +46,7 @@ class VRTeleop(AbstractTeleop):
         """
         try:
             # Check for openvr or other VR libraries
-            import openvr
+            import openvr  # noqa: F401
 
             return True
         except ImportError:

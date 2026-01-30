@@ -1,7 +1,7 @@
 """HDF5 format converter."""
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 
@@ -26,7 +26,7 @@ class HDF5Converter(AbstractConverter):
     def _check_h5py_available(self) -> bool:
         """Check if h5py library is available."""
         try:
-            import h5py
+            import h5py  # noqa: F401
 
             return True
         except ImportError:

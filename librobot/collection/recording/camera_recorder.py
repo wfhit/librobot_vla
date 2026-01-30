@@ -1,8 +1,7 @@
 """Camera recording utilities for data collection."""
 
-import time
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 

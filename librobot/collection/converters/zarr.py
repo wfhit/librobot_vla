@@ -26,7 +26,7 @@ class ZarrConverter(AbstractConverter):
     def _check_zarr_available(self) -> bool:
         """Check if zarr library is available."""
         try:
-            import zarr
+            import zarr  # noqa: F401
 
             return True
         except ImportError:

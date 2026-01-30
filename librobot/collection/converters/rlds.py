@@ -3,8 +3,6 @@
 from pathlib import Path
 from typing import Any
 
-import numpy as np
-
 from librobot.collection.base import AbstractConverter
 from librobot.collection.converters.base import register_converter
 
@@ -26,7 +24,7 @@ class RLDSConverter(AbstractConverter):
     def _check_tfds_available(self) -> bool:
         """Check if tensorflow_datasets library is available."""
         try:
-            import tensorflow_datasets as tfds
+            import tensorflow_datasets as tfds  # noqa: F401
 
             return True
         except ImportError:
