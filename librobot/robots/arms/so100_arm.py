@@ -7,8 +7,8 @@ with gripper, supporting precise manipulation tasks with visual feedback.
 from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
-from .base import AbstractRobot
-from .registry import register_robot
+from ..base import AbstractRobot
+from ..registry import register_robot
 
 
 @register_robot(name="so100", aliases=["so100_arm", "so-100"])

@@ -1,9 +1,12 @@
-"""Humanoid robots."""
+"""Humanoid robot implementations."""
 
-from .humanoid_robots import BaseHumanoid, Figure01Robot, GR1Robot, UnitreeH1Robot
+from .base import Humanoid
+from .robots import Figure01Robot, GR1Robot, UnitreeH1Robot
 
 __all__ = [
-    'BaseHumanoid',
+    # Base
+    'Humanoid',
+    # Implementations
     'Figure01Robot',
     'GR1Robot',
     'UnitreeH1Robot',

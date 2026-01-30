@@ -1,56 +1,30 @@
-"""Humanoid robot implementations."""
+"""Humanoid robot implementations.
+
+Specific humanoid platform implementations that extend the base Humanoid template.
+Each implementation customizes joint counts, limits, and hardware interfaces.
+"""
 
 from typing import Any, Dict
 import numpy as np
 
-from ..base import AbstractRobot
+from .base import Humanoid
 from ..registry import register_robot
 
 
-class BaseHumanoid(AbstractRobot):
-    """Base class for humanoid robots."""
-    
-    def __init__(
-        self,
-        robot_id: str,
-        num_joints: int = 32,
-        has_hands: bool = True,
-        hand_dof: int = 12,
-    ):
-        super().__init__(robot_id)
-        self.num_joints = num_joints
-        self.has_hands = has_hands
-        self.hand_dof = hand_dof if has_hands else 0
-        self.action_dim = num_joints + hand_dof * 2  # Two hands
-        
-        self._joint_positions = np.zeros(num_joints)
-        self._joint_velocities = np.zeros(num_joints)
-        self._hand_positions = np.zeros(hand_dof * 2)
-        self._torso_pose = np.zeros(7)
-    
-    def get_action_space(self) -> Dict[str, Any]:
-        return {
-            "type": "continuous",
-            "shape": (self.action_dim,),
-            "low": -1.0,
-            "high": 1.0,
-        }
-    
-    def get_observation_space(self) -> Dict[str, Any]:
-        return {
-            "joint_positions": {"shape": (self.num_joints,)},
-            "joint_velocities": {"shape": (self.num_joints,)},
-            "torso_pose": {"shape": (7,)},
-            "hand_positions": {"shape": (self.hand_dof * 2,)},
-        }
-
-
 @register_robot(name="figure_01", aliases=["figure", "figure01"])
-class Figure01Robot(BaseHumanoid):
-    """Figure 01 humanoid robot."""
+class Figure01Robot(Humanoid):
+    """Figure 01 humanoid robot.
+    
+    Figure's humanoid robot with 43 joints and dexterous hands.
+    """
+    
+    NUM_JOINTS = 43
+    HAND_DOF = 12
     
     def __init__(self, robot_id: str = "figure_01"):
-        super().__init__(robot_id, num_joints=43, has_hands=True, hand_dof=12)
+        super().__init__(robot_id)
+        self._num_joints = self.NUM_JOINTS
+        self._hand_dof = self.HAND_DOF
     
     def connect(self, **kwargs) -> bool:
         self._is_connected = True
@@ -86,11 +60,19 @@ class Figure01Robot(BaseHumanoid):
 
 
 @register_robot(name="gr1", aliases=["fourier_gr1"])
-class GR1Robot(BaseHumanoid):
-    """Fourier GR-1 humanoid robot."""
+class GR1Robot(Humanoid):
+    """Fourier GR-1 humanoid robot.
+    
+    Fourier Intelligence's general-purpose humanoid with 40 joints.
+    """
+    
+    NUM_JOINTS = 40
+    HAND_DOF = 10
     
     def __init__(self, robot_id: str = "gr1"):
-        super().__init__(robot_id, num_joints=40, has_hands=True, hand_dof=10)
+        super().__init__(robot_id)
+        self._num_joints = self.NUM_JOINTS
+        self._hand_dof = self.HAND_DOF
     
     def connect(self, **kwargs) -> bool:
         self._is_connected = True
@@ -117,11 +99,19 @@ class GR1Robot(BaseHumanoid):
 
 
 @register_robot(name="unitree_h1", aliases=["h1", "unitree_humanoid"])
-class UnitreeH1Robot(BaseHumanoid):
-    """Unitree H1 humanoid robot."""
+class UnitreeH1Robot(Humanoid):
+    """Unitree H1 humanoid robot.
+    
+    Unitree's agile humanoid with 26 joints optimized for locomotion.
+    """
+    
+    NUM_JOINTS = 26
+    HAND_DOF = 6
     
     def __init__(self, robot_id: str = "unitree_h1"):
-        super().__init__(robot_id, num_joints=26, has_hands=True, hand_dof=6)
+        super().__init__(robot_id)
+        self._num_joints = self.NUM_JOINTS
+        self._hand_dof = self.HAND_DOF
     
     def connect(self, **kwargs) -> bool:
         self._is_connected = True

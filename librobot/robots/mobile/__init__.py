@@ -1,9 +1,12 @@
-"""Mobile robots."""
+"""Mobile robot implementations."""
 
-from .mobile_robots import BaseMobileRobot, LeKiwiRobot, DifferentialDriveRobot
+from .base import MobileRobot
+from .robots import LeKiwiRobot, DifferentialDriveRobot
 
 __all__ = [
-    'BaseMobileRobot',
+    # Base
+    'MobileRobot',
+    # Implementations
     'LeKiwiRobot',
     'DifferentialDriveRobot',
 ]

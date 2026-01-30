@@ -7,8 +7,8 @@ supporting autonomous operation with multiple camera views, GPS, and IMU sensors
 from typing import Any, Dict, List, Optional
 import numpy as np
 
-from .base import AbstractRobot
-from .registry import register_robot
+from ..base import AbstractRobot
+from ..registry import register_robot
 
 
 @register_robot(name="wheel_loader", aliases=["wheelloader", "loader"])

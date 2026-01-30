@@ -1,14 +1,14 @@
-"""Humanoid robot template implementation.
+"""Base class for humanoid robot implementations.
 
-This module provides a template interface for controlling humanoid robots,
+This module provides the base class for controlling humanoid robots,
 serving as a foundation for specific humanoid platform implementations.
 """
 
 from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
-from .base import AbstractRobot
-from .registry import register_robot
+from ..base import AbstractRobot
+from ..registry import register_robot
 
 
 @register_robot(name="humanoid", aliases=["humanoid_robot", "biped"])
