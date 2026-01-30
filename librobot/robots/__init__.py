@@ -6,9 +6,8 @@ Architecture:
     - <type>_robot.py: Specific robot implementations
 
     arms/
-        arm.py              -> Arm (base class)
-        arm_robot.py        -> FrankaArm, UR5Arm, xArmRobot, WidowXArm
-        so100_arm_robot.py  -> SO100Arm (comprehensive)
+        arm.py       -> Arm (base class)
+        arm_robot.py -> FrankaArm, UR5Arm, xArmRobot, WidowXArm, SO100Arm
 
     mobile/
         mobile.py       -> MobileRobot (base class)

@@ -16,7 +16,7 @@ class Arm(AbstractRobot):
     
     Provides common functionality for robotic arm implementations.
     For a comprehensive reference implementation with full features,
-    see SO100Arm in so100_arm_robot.py.
+    see SO100Arm in arm_robot.py.
     """
     
     def __init__(

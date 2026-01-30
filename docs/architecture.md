@@ -159,9 +159,8 @@ librobot_vla/
 │   │   ├── registry.py       # Robot registry
 │   │   │
 │   │   ├── arms/             # Robot arm interfaces
-│   │   │   ├── arm.py            # Arm base class
-│   │   │   ├── arm_robot.py      # Arm implementations (Franka, UR5, etc.)
-│   │   │   └── so100_arm_robot.py  # SO100 comprehensive implementation
+│   │   │   ├── arm.py        # Arm base class
+│   │   │   └── arm_robot.py  # Arm implementations (Franka, UR5, SO100, etc.)
 │   │   │
 │   │   ├── mobile/           # Mobile robot interfaces
 │   │   │   ├── mobile.py         # MobileRobot base class
