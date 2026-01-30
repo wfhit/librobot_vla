@@ -48,18 +48,21 @@ nvidia-smi
 # Create a folder for the runner
 mkdir actions-runner && cd actions-runner
 
-# Download the latest runner package
-curl -o actions-runner-linux-x64-2.313.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.313.0/actions-runner-linux-x64-2.313.0.tar.gz
+# Download the latest runner package (check https://github.com/actions/runner/releases for latest version)
+# Replace VERSION with the latest version number (e.g., 2.313.0)
+curl -o actions-runner-linux-x64-VERSION.tar.gz -L https://github.com/actions/runner/releases/download/vVERSION/actions-runner-linux-x64-VERSION.tar.gz
 
 # Extract the installer
-tar xzf ./actions-runner-linux-x64-2.313.0.tar.gz
+tar xzf ./actions-runner-linux-x64-VERSION.tar.gz
 
-# Configure the runner
-./config.sh --url https://github.com/wfhit/librobot_vla --token YOUR_TOKEN_HERE
+# Configure the runner (replace with your repository URL)
+./config.sh --url https://github.com/YOUR_ORG/YOUR_REPO --token YOUR_TOKEN_HERE
 
 # Run the runner
 ./run.sh
 ```
+
+> **Note**: The GitHub UI (Settings → Actions → Runners → New self-hosted runner) provides the exact commands with the latest version and your repository-specific token.
 
 ### Configure Runner Labels
 
@@ -73,7 +76,7 @@ During configuration, you'll be asked to add labels. Use labels to identify your
 
 Example:
 ```bash
-./config.sh --url https://github.com/wfhit/librobot_vla --token YOUR_TOKEN --labels self-hosted,linux,gpu,cuda
+./config.sh --url https://github.com/YOUR_ORG/YOUR_REPO --token YOUR_TOKEN --labels self-hosted,linux,gpu,cuda
 ```
 
 ## Step 3: Run as a Service (Recommended)
@@ -102,8 +105,8 @@ sudo ./svc.sh uninstall
 ### Windows (Service)
 
 ```powershell
-# Install as a Windows service
-.\config.cmd --url https://github.com/wfhit/librobot_vla --token YOUR_TOKEN
+# Install as a Windows service (replace with your repository URL)
+.\config.cmd --url https://github.com/YOUR_ORG/YOUR_REPO --token YOUR_TOKEN
 .\svc.cmd install
 .\svc.cmd start
 ```

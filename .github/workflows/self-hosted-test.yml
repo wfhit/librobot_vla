@@ -1,19 +1,18 @@
 name: Self-Hosted Tests
 
-# This workflow runs tests on self-hosted runners
+# Run tests on self-hosted runners
 # It is useful for testing on GPU hardware or custom robot environments
 #
 # To use this workflow:
 # 1. Set up a self-hosted runner (see docs/self_hosted_runner.md)
 # 2. Ensure the runner has the appropriate labels (self-hosted, linux, gpu)
 # 3. The workflow will automatically run when changes are pushed
+#
+# SECURITY NOTE: This workflow only runs on push events and manual dispatch
+# to prevent untrusted code from fork PRs running on self-hosted infrastructure
 
 on:
   push:
-    branches:
-      - main
-      - develop
-  pull_request:
     branches:
       - main
       - develop
@@ -33,6 +32,8 @@ jobs:
     # Common labels: self-hosted, linux, windows, macos, gpu, cuda
     runs-on: [self-hosted, linux]
     timeout-minutes: 60  # Prevent runaway jobs
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout code
@@ -90,6 +91,8 @@ jobs:
     name: GPU Tests
     runs-on: [self-hosted, linux, gpu]
     timeout-minutes: 120
+    permissions:
+      contents: read
     # Only run if manually triggered with gpu tests enabled, or on main branch push
     if: |
       (github.event_name == 'workflow_dispatch' && github.event.inputs.run_gpu_tests == 'true') ||
@@ -116,13 +119,16 @@ jobs:
           pip install --upgrade pip
           pip install -e ".[dev]"
           # Install GPU-specific dependencies
+          # Note: Adjust the CUDA version (cu118, cu121, etc.) based on your system's CUDA version
+          # Check your CUDA version with: nvcc --version
           pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 
       - name: Run GPU tests
+        continue-on-error: true  # Allow workflow to continue even if GPU tests fail
         run: |
           source venv/bin/activate
           # Run tests marked with gpu marker
-          pytest tests/ -v -m gpu --timeout=300 || true
+          pytest tests/ -v -m gpu --timeout=300
 
       - name: Run VLA inference test
         run: |
@@ -149,6 +155,8 @@ jobs:
     name: Robot Hardware Tests
     runs-on: [self-hosted, robot-hardware]
     timeout-minutes: 30
+    permissions:
+      contents: read
     # Only run on manual trigger - hardware tests should be explicitly requested
     if: github.event_name == 'workflow_dispatch'
     
@@ -171,10 +179,11 @@ jobs:
           # python -c "from librobot.robots import check_connection; check_connection()"
 
       - name: Run hardware tests
+        continue-on-error: true  # Allow workflow to continue even if hardware tests fail
         run: |
           source venv/bin/activate
           # Run tests marked with hardware marker
-          pytest tests/ -v -m hardware --timeout=60 || true
+          pytest tests/ -v -m hardware --timeout=60
 
       - name: Cleanup
         if: always()
