@@ -59,7 +59,7 @@ class WheelLoaderRobot(WheelLoader):
     
     Example:
         >>> # Basic usage with context manager
-        >>> with WheelLoader(robot_id="loader_001") as robot:
+        >>> with WheelLoaderRobot(robot_id="loader_001") as robot:
         ...     robot.connect(ip="192.168.1.100", port=5000)
         ...     
         ...     # Reset to safe initial state
@@ -82,7 +82,7 @@ class WheelLoaderRobot(WheelLoader):
         ...     robot.execute_action(action)
         
         >>> # Advanced usage with safety checks
-        >>> robot = WheelLoader(robot_id="loader_002")
+        >>> robot = WheelLoaderRobot(robot_id="loader_002")
         >>> robot.connect(ip="192.168.1.101")
         >>> state = robot.get_state()
         >>> if state['hydraulic_pressure'] < robot.min_hydraulic_pressure:

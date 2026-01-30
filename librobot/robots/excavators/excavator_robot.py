@@ -65,7 +65,7 @@ class ExcavatorRobot(Excavator):
     
     Example:
         >>> # Basic usage with context manager
-        >>> with Excavator(robot_id="excavator_001") as robot:
+        >>> with ExcavatorRobot(robot_id="excavator_001") as robot:
         ...     robot.connect(ip="192.168.1.100", port=5000)
         ...     
         ...     # Reset to safe initial state

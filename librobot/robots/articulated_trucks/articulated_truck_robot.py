@@ -60,7 +60,7 @@ class ArticulatedTruckRobot(ArticulatedTruck):
     
     Example:
         >>> # Basic usage with context manager
-        >>> with ArticulatedTruck(robot_id="truck_001") as robot:
+        >>> with ArticulatedTruckRobot(robot_id="truck_001") as robot:
         ...     robot.connect(ip="192.168.1.100", port=5000)
         ...     
         ...     # Reset to safe initial state
