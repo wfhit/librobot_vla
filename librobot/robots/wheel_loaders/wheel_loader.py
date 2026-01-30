@@ -4,7 +4,6 @@ This module provides the base class for wheel loader robot implementations.
 Specific wheel loader platforms should inherit from WheelLoaderRobot and override
 methods as needed for their hardware.
 """
-"""
 
 from typing import Any, Dict
 import numpy as np

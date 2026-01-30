@@ -155,8 +155,31 @@ librobot_vla/
 │   │   └── client.py         # Client interface
 │   │
 │   ├── robots/               # Robot interfaces
-│   │   ├── base.py           # Abstract robot
-│   │   └── implementations/  # Specific robots
+│   │   ├── base.py           # Abstract robot base class
+│   │   ├── registry.py       # Robot registry
+│   │   │
+│   │   ├── arms/             # Robot arm interfaces
+│   │   │   ├── arm.py        # Arm base class
+│   │   │   ├── arm_robot.py  # Arm implementations (Franka, UR5, etc.)
+│   │   │   └── so100_arm.py  # SO100 comprehensive implementation
+│   │   │
+│   │   ├── mobile/           # Mobile robot interfaces
+│   │   │   ├── mobile.py         # MobileRobot base class
+│   │   │   └── mobile_robot.py   # Mobile robot implementations
+│   │   │
+│   │   ├── mobile_manipulators/  # Mobile manipulator interfaces
+│   │   │   ├── mobile_manipulator.py       # MobileManipulator base class
+│   │   │   └── mobile_manipulator_robot.py # Implementations (Fetch, TIAGo)
+│   │   │
+│   │   ├── humanoids/        # Humanoid robot interfaces
+│   │   │   ├── humanoid.py       # Humanoid base class
+│   │   │   └── humanoid_robot.py # Humanoid implementations (Figure, GR1, H1)
+│   │   │
+│   │   ├── wheel_loaders/    # Wheel loader interfaces
+│   │   │   ├── wheel_loader.py       # WheelLoaderRobot base class
+│   │   │   └── wheel_loader_robot.py # WheelLoader comprehensive implementation
+│   │   │
+│   │   └── sensors/          # Sensor interfaces
 │   │
 │   └── utils/                # Shared utilities
 │       ├── config.py         # Configuration

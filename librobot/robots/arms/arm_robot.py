@@ -9,7 +9,7 @@ For the comprehensive reference implementation, see SO100Arm in so100_arm.py.
 from typing import Any, Dict
 import numpy as np
 
-from .base import Arm
+from .arm import Arm
 from ..registry import register_robot
 
 

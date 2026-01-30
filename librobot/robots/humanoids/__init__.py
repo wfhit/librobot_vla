@@ -1,7 +1,7 @@
 """Humanoid robot implementations."""
 
-from .base import Humanoid
-from .robots import Figure01Robot, GR1Robot, UnitreeH1Robot
+from .humanoid import Humanoid
+from .humanoid_robot import Figure01Robot, GR1Robot, UnitreeH1Robot
 
 __all__ = [
     # Base

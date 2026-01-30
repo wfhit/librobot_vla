@@ -7,7 +7,7 @@ Each implementation customizes joint counts, limits, and hardware interfaces.
 from typing import Any, Dict
 import numpy as np
 
-from .base import Humanoid
+from .humanoid import Humanoid
 from ..registry import register_robot
 
 
@@ -138,7 +138,6 @@ class UnitreeH1Robot(Humanoid):
 
 
 __all__ = [
-    'BaseHumanoid',
     'Figure01Robot',
     'GR1Robot',
     'UnitreeH1Robot',

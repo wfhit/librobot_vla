@@ -1,7 +1,7 @@
 """Mobile robot implementations."""
 
-from .base import MobileRobot
-from .robots import LeKiwiRobot, DifferentialDriveRobot
+from .mobile import MobileRobot
+from .mobile_robot import LeKiwiRobot, DifferentialDriveRobot
 
 __all__ = [
     # Base

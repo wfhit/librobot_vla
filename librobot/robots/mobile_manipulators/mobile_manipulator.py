@@ -4,7 +4,6 @@ This module provides the base class for all mobile manipulator implementations.
 Specific mobile manipulator platforms should inherit from MobileManipulator 
 and override methods as needed for their hardware.
 """
-"""
 
 from typing import Any, Dict
 import numpy as np

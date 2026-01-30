@@ -4,7 +4,6 @@ This module provides the base class for all robot arm implementations.
 Specific robot arm platforms should inherit from Arm and override
 methods as needed for their hardware.
 """
-"""
 
 from typing import Any, Dict
 import numpy as np

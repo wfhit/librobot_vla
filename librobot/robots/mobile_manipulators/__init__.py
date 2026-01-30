@@ -1,17 +1,12 @@
 """Mobile manipulator implementations."""
 
-from .base import MobileManipulator
-from .wheel_loader_base import WheelLoaderRobot
-from .robots import FetchRobot, TIAGoRobot
-from .wheel_loader import WheelLoader
+from .mobile_manipulator import MobileManipulator
+from .mobile_manipulator_robot import FetchRobot, TIAGoRobot
 
 __all__ = [
     # Base classes
     'MobileManipulator',
-    'WheelLoaderRobot',
-    # Comprehensive implementations
-    'WheelLoader',
-    # Other implementations
+    # Implementations
     'FetchRobot',
     'TIAGoRobot',
 ]
