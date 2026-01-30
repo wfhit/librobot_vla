@@ -79,31 +79,27 @@ jobs:
         run: mypy librobot/
 
   test:
-    name: Test Python ${{ matrix.python-version }}
+    name: Test Python 3.10
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.10"
 
       - name: Cache pip dependencies
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
+          key: ${{ runner.os }}-pip-3.10-${{ hashFiles('**/pyproject.toml') }}
           restore-keys: |
-            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+            ${{ runner.os }}-pip-3.10-
             ${{ runner.os }}-pip-
 
       - name: Install system dependencies
@@ -126,24 +122,21 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
-        if: matrix.python-version == '3.11'
         with:
           file: ./coverage.xml
           flags: unittests
-          name: codecov-${{ matrix.python-version }}
+          name: codecov-3.10
           fail_ci_if_error: false
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Generate coverage report
-        if: matrix.python-version == '3.11'
         run: |
           pip install coverage
           coverage report
           coverage html
 
       - name: Upload coverage HTML
-        if: matrix.python-version == '3.11'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report

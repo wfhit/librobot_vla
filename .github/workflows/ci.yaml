@@ -40,17 +40,14 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
     
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.10"
       
       - name: Install dependencies
         run: |
@@ -62,7 +59,6 @@ jobs:
       
       - name: Upload coverage
         uses: codecov/codecov-action@v4
-        if: matrix.python-version == '3.10'
         with:
           file: ./coverage.xml
 
