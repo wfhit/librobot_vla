@@ -179,6 +179,14 @@ librobot_vla/
 │   │   │   ├── wheel_loader.py       # WheelLoaderRobot base class
 │   │   │   └── wheel_loader_robot.py # WheelLoader comprehensive implementation
 │   │   │
+│   │   ├── excavators/       # Excavator interfaces
+│   │   │   ├── excavator.py       # ExcavatorRobot base class
+│   │   │   └── excavator_robot.py # Excavator comprehensive implementation
+│   │   │
+│   │   ├── articulated_trucks/  # Articulated truck interfaces
+│   │   │   ├── articulated_truck.py       # ArticulatedTruckRobot base class
+│   │   │   └── articulated_truck_robot.py # ArticulatedTruck comprehensive implementation
+│   │   │
 │   │   └── sensors/          # Sensor interfaces
 │   │
 │   └── utils/                # Shared utilities

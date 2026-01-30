@@ -25,6 +25,14 @@ Architecture:
     wheel_loaders/
         wheel_loader.py       -> WheelLoaderRobot (base class)
         wheel_loader_robot.py -> WheelLoader (comprehensive)
+
+    excavators/
+        excavator.py       -> ExcavatorRobot (base class)
+        excavator_robot.py -> Excavator (comprehensive)
+
+    articulated_trucks/
+        articulated_truck.py       -> ArticulatedTruckRobot (base class)
+        articulated_truck_robot.py -> ArticulatedTruck (comprehensive)
 """
 
 from .base import AbstractRobot
@@ -42,6 +50,8 @@ from . import mobile
 from . import mobile_manipulators
 from . import humanoids
 from . import wheel_loaders
+from . import excavators
+from . import articulated_trucks
 from . import sensors
 
 # Base classes
@@ -50,6 +60,8 @@ from .mobile import MobileRobot
 from .mobile_manipulators import MobileManipulator
 from .humanoids import Humanoid
 from .wheel_loaders import WheelLoaderRobot
+from .excavators import ExcavatorRobot
+from .articulated_trucks import ArticulatedTruckRobot
 
 # Robot implementations
 from .arms import SO100Arm, FrankaArm, UR5Arm, xArmRobot, WidowXArm
@@ -57,6 +69,8 @@ from .mobile import LeKiwiRobot, DifferentialDriveRobot
 from .mobile_manipulators import FetchRobot, TIAGoRobot
 from .humanoids import Figure01Robot, GR1Robot, UnitreeH1Robot
 from .wheel_loaders import WheelLoader
+from .excavators import Excavator
+from .articulated_trucks import ArticulatedTruck
 from .sensors import Camera, DepthCamera, ForceTorqueSensor, IMU, Lidar
 
 __all__ = [
@@ -74,6 +88,8 @@ __all__ = [
     'MobileManipulator',
     'Humanoid',
     'WheelLoaderRobot',
+    'ExcavatorRobot',
+    'ArticulatedTruckRobot',
     # Arms
     'SO100Arm',
     'FrankaArm',
@@ -92,6 +108,10 @@ __all__ = [
     'UnitreeH1Robot',
     # Wheel Loaders
     'WheelLoader',
+    # Excavators
+    'Excavator',
+    # Articulated Trucks
+    'ArticulatedTruck',
     # Sensors
     'Camera',
     'DepthCamera',
@@ -104,5 +124,7 @@ __all__ = [
     'mobile_manipulators',
     'humanoids',
     'wheel_loaders',
+    'excavators',
+    'articulated_trucks',
     'sensors',
 ]
