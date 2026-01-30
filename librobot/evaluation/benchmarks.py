@@ -28,6 +28,7 @@ class BenchmarkConfig:
         output_dir: Output directory for results
         seed: Random seed
     """
+
     name: str = "default"
     num_episodes: int = 50
     max_episode_steps: int = 500
@@ -111,7 +112,10 @@ class AbstractBenchmark(ABC):
 
             for episode_idx in range(self.config.num_episodes):
                 if verbose:
-                    print(f"\rTask: {task} | Episode: {episode_idx + 1}/{self.config.num_episodes}", end="")
+                    print(
+                        f"\rTask: {task} | Episode: {episode_idx + 1}/{self.config.num_episodes}",
+                        end="",
+                    )
 
                 result = self.evaluate_episode(policy, task)
                 task_results.append(result)
@@ -133,7 +137,9 @@ class AbstractBenchmark(ABC):
             }
 
             if verbose:
-                logger.info(f"Task '{task}': success_rate={success_rate:.2%}, avg_reward={avg_reward:.2f}")
+                logger.info(
+                    f"Task '{task}': success_rate={success_rate:.2%}, avg_reward={avg_reward:.2f}"
+                )
 
         # Compute overall metrics
         all_results["overall"] = {
@@ -207,9 +213,7 @@ class SimulationBenchmark(AbstractBenchmark):
 
             # Try to create environment
             self._env = gym.make(
-                self.env_name,
-                render_mode="rgb_array" if self.render else None,
-                **self.env_kwargs
+                self.env_name, render_mode="rgb_array" if self.render else None, **self.env_kwargs
             )
 
             logger.info(f"Environment '{self.env_name}' created successfully")
@@ -225,7 +229,7 @@ class SimulationBenchmark(AbstractBenchmark):
                     has_renderer=self.render,
                     has_offscreen_renderer=True,
                     use_camera_obs=True,
-                    **self.env_kwargs
+                    **self.env_kwargs,
                 )
                 logger.info(f"Robosuite environment '{self.env_name}' created successfully")
 
@@ -362,6 +366,7 @@ class LIBEROBenchmark(AbstractBenchmark):
         """Setup LIBERO environment."""
         try:
             import libero
+
             logger.info(f"LIBERO suite '{self.suite}' loaded")
         except ImportError:
             logger.warning("LIBERO not installed. Using placeholder.")
@@ -604,7 +609,12 @@ class BenchmarkSuite:
         filepath = output_dir / f"all_benchmarks_{int(time.time())}.json"
 
         with open(filepath, "w") as f:
-            json.dump(results, f, indent=2, default=lambda x: float(x) if isinstance(x, np.floating) else x)
+            json.dump(
+                results,
+                f,
+                indent=2,
+                default=lambda x: float(x) if isinstance(x, np.floating) else x,
+            )
 
         logger.info(f"All results saved to {filepath}")
         return str(filepath)
@@ -638,8 +648,7 @@ def create_benchmark(
 
     if benchmark_type not in benchmark_map:
         raise ValueError(
-            f"Unknown benchmark type: {benchmark_type}. "
-            f"Available: {list(benchmark_map.keys())}"
+            f"Unknown benchmark type: {benchmark_type}. " f"Available: {list(benchmark_map.keys())}"
         )
 
     return benchmark_map[benchmark_type](config, **kwargs)
@@ -650,16 +659,9 @@ def create_standard_suite() -> BenchmarkSuite:
     suite = BenchmarkSuite()
 
     # Add standard benchmarks
-    suite.add_benchmark(BridgeBenchmark(
-        BenchmarkConfig(num_episodes=50)
-    ))
-    suite.add_benchmark(SimplerBenchmark(
-        BenchmarkConfig(num_episodes=100)
-    ))
-    suite.add_benchmark(LIBEROBenchmark(
-        BenchmarkConfig(num_episodes=50),
-        suite="libero_90"
-    ))
+    suite.add_benchmark(BridgeBenchmark(BenchmarkConfig(num_episodes=50)))
+    suite.add_benchmark(SimplerBenchmark(BenchmarkConfig(num_episodes=100)))
+    suite.add_benchmark(LIBEROBenchmark(BenchmarkConfig(num_episodes=50), suite="libero_90"))
 
     return suite
 

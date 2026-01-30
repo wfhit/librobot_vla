@@ -53,7 +53,7 @@ class StateTokenizer:
         self.mean: Optional[np.ndarray] = None
         self.std: Optional[np.ndarray] = None
 
-    def fit(self, states: np.ndarray) -> 'StateTokenizer':
+    def fit(self, states: np.ndarray) -> "StateTokenizer":
         """
         Fit tokenizer to data for computing normalization statistics.
 
@@ -177,17 +177,13 @@ class StateTokenizer:
         attention_mask = np.ones_like(tokens)
 
         return {
-            'input_ids': tokens,
-            'attention_mask': attention_mask,
+            "input_ids": tokens,
+            "attention_mask": attention_mask,
         }
 
-    def __call__(
-        self,
-        state: Union[np.ndarray, list[float]],
-        **kwargs
-    ) -> np.ndarray:
+    def __call__(self, state: Union[np.ndarray, list[float]], **kwargs) -> np.ndarray:
         """Encode state (alias for encode)."""
         return self.encode(state, **kwargs)
 
 
-__all__ = ['StateTokenizer']
+__all__ = ["StateTokenizer"]

@@ -8,24 +8,24 @@ from .mse import ActionLoss, L1Loss, MSELoss, SmoothL1Loss
 
 __all__ = [
     # Base
-    'AbstractLoss',
+    "AbstractLoss",
     # Regression
-    'MSELoss',
-    'L1Loss',
-    'SmoothL1Loss',
-    'ActionLoss',
+    "MSELoss",
+    "L1Loss",
+    "SmoothL1Loss",
+    "ActionLoss",
     # Classification
-    'CrossEntropyLoss',
-    'FocalLoss',
-    'TokenLoss',
-    'BCELoss',
+    "CrossEntropyLoss",
+    "FocalLoss",
+    "TokenLoss",
+    "BCELoss",
     # Diffusion
-    'DiffusionLoss',
-    'DDPMLoss',
-    'ScoreMatchingLoss',
+    "DiffusionLoss",
+    "DDPMLoss",
+    "ScoreMatchingLoss",
     # Flow matching
-    'FlowMatchingLoss',
-    'RectifiedFlowLoss',
-    'OTCFMLoss',
-    'ConsistencyLoss',
+    "FlowMatchingLoss",
+    "RectifiedFlowLoss",
+    "OTCFMLoss",
+    "ConsistencyLoss",
 ]

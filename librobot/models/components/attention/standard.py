@@ -37,7 +37,7 @@ class StandardAttention(nn.Module):
         self.dim = dim
         self.num_heads = num_heads
         self.head_dim = dim // num_heads
-        self.scale = self.head_dim ** -0.5
+        self.scale = self.head_dim**-0.5
         self.causal = causal
 
         # QKV projection
@@ -73,8 +73,11 @@ class StandardAttention(nn.Module):
             q, k, v = qkv[0], qkv[1], qkv[2]
         else:
             # Cross-attention with cached key-value
-            q = nn.functional.linear(x, self.qkv.weight[:self.dim],
-                                     self.qkv.bias[:self.dim] if self.qkv.bias is not None else None)
+            q = nn.functional.linear(
+                x,
+                self.qkv.weight[: self.dim],
+                self.qkv.bias[: self.dim] if self.qkv.bias is not None else None,
+            )
             q = q.reshape(B, N, self.num_heads, self.head_dim).permute(0, 2, 1, 3)
             k, v = key_value
 
@@ -89,12 +92,12 @@ class StandardAttention(nn.Module):
             elif attention_mask.dim() == 3:
                 attention_mask = attention_mask.unsqueeze(1)
 
-            attn = attn.masked_fill(attention_mask == 0, float('-inf'))
+            attn = attn.masked_fill(attention_mask == 0, float("-inf"))
 
         # Apply causal mask
         if self.causal:
             causal_mask = torch.tril(torch.ones(N, N, device=x.device, dtype=torch.bool))
-            attn = attn.masked_fill(~causal_mask, float('-inf'))
+            attn = attn.masked_fill(~causal_mask, float("-inf"))
 
         attn = attn.softmax(dim=-1)
         attn = self.attn_drop(attn)
@@ -109,4 +112,4 @@ class StandardAttention(nn.Module):
         return x
 
     def extra_repr(self) -> str:
-        return f'dim={self.dim}, num_heads={self.num_heads}, causal={self.causal}'
+        return f"dim={self.dim}, num_heads={self.num_heads}, causal={self.causal}"

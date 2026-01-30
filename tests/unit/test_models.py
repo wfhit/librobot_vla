@@ -29,7 +29,7 @@ def sample_config():
         "intermediate_size": 3072,
         "dropout": 0.1,
         "action_dim": 7,
-        "state_dim": 14
+        "state_dim": 14,
     }
 
 
@@ -42,7 +42,7 @@ def batch_data(device):
         "observations": torch.randn(batch_size, seq_len, 3, 224, 224).to(device),
         "states": torch.randn(batch_size, seq_len, 14).to(device),
         "actions": torch.randn(batch_size, seq_len, 7).to(device),
-        "attention_mask": torch.ones(batch_size, seq_len).to(device)
+        "attention_mask": torch.ones(batch_size, seq_len).to(device),
     }
 
 

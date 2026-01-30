@@ -179,18 +179,18 @@ class Config:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             f.write(self.to_yaml())
 
     def __getattr__(self, name: str) -> Any:
         """Get attribute from configuration."""
-        if name.startswith('_'):
+        if name.startswith("_"):
             return object.__getattribute__(self, name)
         return getattr(self._config, name)
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Set attribute in configuration."""
-        if name.startswith('_'):
+        if name.startswith("_"):
             object.__setattr__(self, name, value)
         else:
             setattr(self._config, name, value)

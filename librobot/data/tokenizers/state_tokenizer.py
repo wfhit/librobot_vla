@@ -45,7 +45,7 @@ class StateTokenizer(nn.Module):
         quantiles: Optional[torch.Tensor] = None,
         vocab_size: Optional[int] = None,
         share_bins: bool = False,
-        **kwargs
+        **kwargs,
     ):
         super().__init__()
         self.state_dim = state_dim
@@ -73,7 +73,7 @@ class StateTokenizer(nn.Module):
             # TODO: Implement learned codebook (VQ-VAE style)
             # TODO: Setup learnable codebook vectors
             if vocab_size is None:
-                vocab_size = num_bins ** state_dim if not share_bins else num_bins
+                vocab_size = num_bins**state_dim if not share_bins else num_bins
             self.vocab_size = vocab_size
             # TODO: Initialize codebook
 
@@ -133,7 +133,7 @@ class StateTokenizer(nn.Module):
         if self.share_bins:
             return self.num_bins
         else:
-            return self.num_bins ** self.state_dim
+            return self.num_bins**self.state_dim
 
     def _uniform_tokenize(self, state: torch.Tensor) -> torch.Tensor:
         """
@@ -181,5 +181,5 @@ class StateTokenizer(nn.Module):
 
 
 __all__ = [
-    'StateTokenizer',
+    "StateTokenizer",
 ]

@@ -38,7 +38,7 @@ class FastTokenizer(nn.Module):
         base_tokenizer: nn.Module,
         use_cuda: bool = True,
         compile_mode: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__()
         self.base_tokenizer = base_tokenizer
@@ -81,11 +81,7 @@ class FastTokenizer(nn.Module):
         # TODO: Implement fast decoding
         raise NotImplementedError("FastTokenizer.decode not yet implemented")
 
-    def batch_tokenize(
-        self,
-        batch: torch.Tensor,
-        chunk_size: Optional[int] = None
-    ) -> torch.Tensor:
+    def batch_tokenize(self, batch: torch.Tensor, chunk_size: Optional[int] = None) -> torch.Tensor:
         """
         Tokenize large batch efficiently with optional chunking.
 
@@ -101,10 +97,7 @@ class FastTokenizer(nn.Module):
         raise NotImplementedError("FastTokenizer.batch_tokenize not yet implemented")
 
     def benchmark(
-        self,
-        input_shape: tuple,
-        num_iterations: int = 1000,
-        warmup_iterations: int = 100
+        self, input_shape: tuple, num_iterations: int = 1000, warmup_iterations: int = 100
     ) -> dict:
         """
         Benchmark tokenizer performance.
@@ -127,10 +120,7 @@ class FastTokenizer(nn.Module):
         raise NotImplementedError("FastTokenizer.benchmark not yet implemented")
 
     @staticmethod
-    def _vectorized_binning(
-        values: torch.Tensor,
-        bin_edges: torch.Tensor
-    ) -> torch.Tensor:
+    def _vectorized_binning(values: torch.Tensor, bin_edges: torch.Tensor) -> torch.Tensor:
         """
         Vectorized binning operation.
 
@@ -169,12 +159,7 @@ class CachedTokenizer(nn.Module):
         cache_size: Maximum number of inputs to cache
     """
 
-    def __init__(
-        self,
-        base_tokenizer: nn.Module,
-        cache_size: int = 10000,
-        **kwargs
-    ):
+    def __init__(self, base_tokenizer: nn.Module, cache_size: int = 10000, **kwargs):
         super().__init__()
         self.base_tokenizer = base_tokenizer
         self.cache_size = cache_size
@@ -212,10 +197,10 @@ class CachedTokenizer(nn.Module):
         total = self.cache_hits + self.cache_misses
         hit_rate = self.cache_hits / total if total > 0 else 0.0
         return {
-            'hits': self.cache_hits,
-            'misses': self.cache_misses,
-            'hit_rate': hit_rate,
-            'size': len(self.cache),
+            "hits": self.cache_hits,
+            "misses": self.cache_misses,
+            "hit_rate": hit_rate,
+            "size": len(self.cache),
         }
 
     def clear_cache(self):
@@ -226,6 +211,6 @@ class CachedTokenizer(nn.Module):
 
 
 __all__ = [
-    'FastTokenizer',
-    'CachedTokenizer',
+    "FastTokenizer",
+    "CachedTokenizer",
 ]

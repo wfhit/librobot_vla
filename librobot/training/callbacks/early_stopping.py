@@ -35,7 +35,7 @@ class EarlyStopping(AbstractCallback):
         self.verbose = verbose
 
         self.wait = 0
-        self.best_value = float('inf') if mode == 'min' else float('-inf')
+        self.best_value = float("inf") if mode == "min" else float("-inf")
         self.best_weights = None
         self.best_epoch = 0
         self.stopped_epoch = 0
@@ -43,7 +43,7 @@ class EarlyStopping(AbstractCallback):
     def on_train_begin(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Reset state at training start."""
         self.wait = 0
-        self.best_value = float('inf') if self.mode == 'min' else float('-inf')
+        self.best_value = float("inf") if self.mode == "min" else float("-inf")
         self.best_weights = None
         self.best_epoch = 0
 
@@ -75,7 +75,9 @@ class EarlyStopping(AbstractCallback):
 
                 if self.verbose:
                     print(f"\nEarly stopping at epoch {epoch + 1}")
-                    print(f"Best {self.monitor}: {self.best_value:.4f} at epoch {self.best_epoch + 1}")
+                    print(
+                        f"Best {self.monitor}: {self.best_value:.4f} at epoch {self.best_epoch + 1}"
+                    )
 
     def on_train_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Restore best weights if needed."""
@@ -86,7 +88,7 @@ class EarlyStopping(AbstractCallback):
 
     def _is_improvement(self, current: float) -> bool:
         """Check if current value is an improvement."""
-        if self.mode == 'min':
+        if self.mode == "min":
             return current < self.best_value - self.min_delta
         return current > self.best_value + self.min_delta
 
@@ -119,7 +121,7 @@ class LearningRateScheduler(AbstractCallback):
     def on_train_begin(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Store initial learning rate."""
         if self.trainer and self.trainer.optimizer:
-            self.initial_lr = self.trainer.optimizer.param_groups[0]['lr']
+            self.initial_lr = self.trainer.optimizer.param_groups[0]["lr"]
 
     def on_epoch_begin(self, epoch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """Update learning rate at epoch start."""
@@ -129,7 +131,7 @@ class LearningRateScheduler(AbstractCallback):
         new_lr = self._compute_lr(epoch)
 
         for param_group in self.trainer.optimizer.param_groups:
-            param_group['lr'] = new_lr
+            param_group["lr"] = new_lr
 
         if self.verbose:
             print(f"Learning rate: {new_lr:.2e}")
@@ -146,8 +148,10 @@ class LearningRateScheduler(AbstractCallback):
 
         if self.schedule_type == "cosine":
             import math
-            return self.min_lr + 0.5 * (self.initial_lr - self.min_lr) * \
-                   (1 + math.cos(math.pi * effective_epoch / max_epochs))
+
+            return self.min_lr + 0.5 * (self.initial_lr - self.min_lr) * (
+                1 + math.cos(math.pi * effective_epoch / max_epochs)
+            )
 
         elif self.schedule_type == "linear":
             return self.initial_lr - (self.initial_lr - self.min_lr) * effective_epoch / max_epochs
@@ -198,7 +202,7 @@ class GradientMonitor(AbstractCallback):
                     max_grad = max(max_grad, p.grad.data.abs().max().item())
                     num_params += 1
 
-            total_norm = total_norm ** 0.5
+            total_norm = total_norm**0.5
 
             if self.verbose:
                 print(f"Grad norm: {total_norm:.4f}, Max: {max_grad:.4f}")
@@ -208,7 +212,7 @@ class GradientMonitor(AbstractCallback):
 
 
 __all__ = [
-    'EarlyStopping',
-    'LearningRateScheduler',
-    'GradientMonitor',
+    "EarlyStopping",
+    "LearningRateScheduler",
+    "GradientMonitor",
 ]

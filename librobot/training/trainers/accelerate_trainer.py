@@ -108,19 +108,16 @@ class AccelerateTrainer(BaseTrainer):
                 mixed_precision=self.mixed_precision_mode,
                 log_with="tensorboard" if self.logging_dir else None,
                 project_dir=self.logging_dir,
-                **self.accelerate_config
+                **self.accelerate_config,
             )
 
             # Prepare model, optimizer, dataloaders
             if self.train_dataloader:
-                self.model, self.optimizer, self.train_dataloader = \
-                    self.accelerator.prepare(
-                        self.model, self.optimizer, self.train_dataloader
-                    )
-            else:
-                self.model, self.optimizer = self.accelerator.prepare(
-                    self.model, self.optimizer
+                self.model, self.optimizer, self.train_dataloader = self.accelerator.prepare(
+                    self.model, self.optimizer, self.train_dataloader
                 )
+            else:
+                self.model, self.optimizer = self.accelerator.prepare(self.model, self.optimizer)
 
             if self.val_dataloader:
                 self.val_dataloader = self.accelerator.prepare(self.val_dataloader)
@@ -144,11 +141,11 @@ class AccelerateTrainer(BaseTrainer):
             return 0.0
 
         for batch_idx, batch in enumerate(self.train_dataloader):
-            self._call_callbacks('on_batch_begin', batch=batch_idx)
+            self._call_callbacks("on_batch_begin", batch=batch_idx)
 
             # Training step
             result = self._train_step(batch)
-            loss = result.get('loss', 0)
+            loss = result.get("loss", 0)
             total_loss += loss
             num_batches += 1
 
@@ -158,7 +155,7 @@ class AccelerateTrainer(BaseTrainer):
             if self.global_step % self.log_interval == 0:
                 self._log_metrics(result)
 
-            self._call_callbacks('on_batch_end', batch=batch_idx, logs=result)
+            self._call_callbacks("on_batch_end", batch=batch_idx, logs=result)
 
             # Check max steps
             if self.max_steps and self.global_step >= self.max_steps:
@@ -177,8 +174,8 @@ class AccelerateTrainer(BaseTrainer):
                     outputs = self.model(**batch) if isinstance(batch, dict) else self.model(batch)
 
                     # Compute loss
-                    if isinstance(outputs, dict) and 'loss' in outputs:
-                        loss = outputs['loss']
+                    if isinstance(outputs, dict) and "loss" in outputs:
+                        loss = outputs["loss"]
                     elif self.loss_fn:
                         loss = self.loss_fn(outputs, batch)
                     else:
@@ -190,8 +187,7 @@ class AccelerateTrainer(BaseTrainer):
                     # Gradient clipping
                     if self.gradient_clip_val:
                         self.accelerator.clip_grad_norm_(
-                            self.model.parameters(),
-                            self.gradient_clip_val
+                            self.model.parameters(), self.gradient_clip_val
                         )
 
                     # Optimizer step
@@ -200,7 +196,7 @@ class AccelerateTrainer(BaseTrainer):
                         self.scheduler.step()
                     self.optimizer.zero_grad()
 
-                    return {'loss': loss.item()}
+                    return {"loss": loss.item()}
             else:
                 # Fallback without accelerate
                 return self._train_step_basic(batch)
@@ -215,14 +211,13 @@ class AccelerateTrainer(BaseTrainer):
 
             # Move batch to device
             if isinstance(batch, dict):
-                batch = {k: v.to(self.device) if hasattr(v, 'to') else v
-                        for k, v in batch.items()}
+                batch = {k: v.to(self.device) if hasattr(v, "to") else v for k, v in batch.items()}
 
             # Forward
             outputs = self.model(**batch) if isinstance(batch, dict) else self.model(batch)
 
-            if isinstance(outputs, dict) and 'loss' in outputs:
-                loss = outputs['loss']
+            if isinstance(outputs, dict) and "loss" in outputs:
+                loss = outputs["loss"]
             elif self.loss_fn:
                 loss = self.loss_fn(outputs, batch)
             else:
@@ -237,19 +232,16 @@ class AccelerateTrainer(BaseTrainer):
             # Step optimizer every N accumulation steps
             if (self.global_step + 1) % self.gradient_accumulation_steps == 0:
                 if self.gradient_clip_val:
-                    torch.nn.utils.clip_grad_norm_(
-                        self.model.parameters(),
-                        self.gradient_clip_val
-                    )
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.gradient_clip_val)
                 self.optimizer.step()
                 if self.scheduler:
                     self.scheduler.step()
                 self.optimizer.zero_grad()
 
-            return {'loss': loss.item() * self.gradient_accumulation_steps}
+            return {"loss": loss.item() * self.gradient_accumulation_steps}
 
         except ImportError:
-            return {'loss': 0.0}
+            return {"loss": 0.0}
 
     def _log_metrics(self, metrics: dict[str, Any]) -> None:
         """Log metrics using Accelerate's tracker."""
@@ -296,4 +288,4 @@ class AccelerateTrainer(BaseTrainer):
             print(*args, **kwargs)
 
 
-__all__ = ['AccelerateTrainer']
+__all__ = ["AccelerateTrainer"]

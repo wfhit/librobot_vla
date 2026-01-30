@@ -68,23 +68,18 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Export LibroBot VLA models to deployment formats",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__
+        epilog=__doc__,
     )
 
     # Required arguments
-    parser.add_argument(
-        "--checkpoint",
-        type=str,
-        required=True,
-        help="Path to model checkpoint"
-    )
+    parser.add_argument("--checkpoint", type=str, required=True, help="Path to model checkpoint")
     parser.add_argument(
         "--format",
         type=str,
         nargs="+",
         required=True,
         choices=["onnx", "torchscript", "tensorrt", "coreml", "openvino"],
-        help="Export format(s)"
+        help="Export format(s)",
     )
 
     # Configuration
@@ -92,21 +87,18 @@ def parse_args():
         "--config",
         type=str,
         default=None,
-        help="Path to configuration YAML file (optional if checkpoint contains config)"
+        help="Path to configuration YAML file (optional if checkpoint contains config)",
     )
 
     # Output
     parser.add_argument(
-        "--output",
-        type=str,
-        default=None,
-        help="Output file path (for single format export)"
+        "--output", type=str, default=None, help="Output file path (for single format export)"
     )
     parser.add_argument(
         "--output-dir",
         type=str,
         default="models/exports",
-        help="Output directory (for multiple format export)"
+        help="Output directory (for multiple format export)",
     )
 
     # Input specification
@@ -114,32 +106,22 @@ def parse_args():
         "--input-shape",
         type=str,
         default=None,
-        help="Input shape as comma-separated values (e.g., '1,3,224,224')"
+        help="Input shape as comma-separated values (e.g., '1,3,224,224')",
     )
-    parser.add_argument(
-        "--batch-size",
-        type=int,
-        default=1,
-        help="Batch size for exported model"
-    )
+    parser.add_argument("--batch-size", type=int, default=1, help="Batch size for exported model")
     parser.add_argument(
         "--dynamic-axes",
         nargs="+",
         default=None,
-        help="Dynamic axes for ONNX export (e.g., 'batch' 'sequence')"
+        help="Dynamic axes for ONNX export (e.g., 'batch' 'sequence')",
     )
 
     # ONNX-specific options
     parser.add_argument(
-        "--opset-version",
-        type=int,
-        default=14,
-        help="ONNX opset version (default: 14)"
+        "--opset-version", type=int, default=14, help="ONNX opset version (default: 14)"
     )
     parser.add_argument(
-        "--optimize-onnx",
-        action="store_true",
-        help="Optimize ONNX model with onnxoptimizer"
+        "--optimize-onnx", action="store_true", help="Optimize ONNX model with onnxoptimizer"
     )
 
     # TorchScript-specific options
@@ -148,37 +130,26 @@ def parse_args():
         type=str,
         default="trace",
         choices=["trace", "script"],
-        help="TorchScript export method (trace or script)"
+        help="TorchScript export method (trace or script)",
     )
 
     # Optimization
     parser.add_argument(
-        "--optimize",
-        action="store_true",
-        help="Apply optimization to exported model"
+        "--optimize", action="store_true", help="Apply optimization to exported model"
     )
     parser.add_argument(
-        "--quantize",
-        action="store_true",
-        help="Apply quantization to exported model"
+        "--quantize", action="store_true", help="Apply quantization to exported model"
     )
     parser.add_argument(
-        "--half-precision",
-        action="store_true",
-        help="Export model in half precision (FP16)"
+        "--half-precision", action="store_true", help="Export model in half precision (FP16)"
     )
 
     # Validation
     parser.add_argument(
-        "--validate",
-        action="store_true",
-        help="Validate exported model against original"
+        "--validate", action="store_true", help="Validate exported model against original"
     )
     parser.add_argument(
-        "--validation-samples",
-        type=int,
-        default=10,
-        help="Number of samples to use for validation"
+        "--validation-samples", type=int, default=10, help="Number of samples to use for validation"
     )
 
     # Device
@@ -187,7 +158,7 @@ def parse_args():
         type=str,
         default="cpu",
         choices=["cuda", "cpu"],
-        help="Device to use for export (default: cpu)"
+        help="Device to use for export (default: cpu)",
     )
 
     # Logging
@@ -196,22 +167,15 @@ def parse_args():
         type=str,
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Logging level"
+        help="Logging level",
     )
-    parser.add_argument(
-        "--log-file",
-        type=str,
-        default=None,
-        help="Path to log file"
-    )
+    parser.add_argument("--log-file", type=str, default=None, help="Path to log file")
 
     return parser.parse_args()
 
 
 def load_model_for_export(
-    checkpoint_path: str,
-    config: Optional[Config],
-    device: str
+    checkpoint_path: str, config: Optional[Config], device: str
 ) -> Tuple[nn.Module, Dict[str, Any]]:
     """
     Load model from checkpoint for export.
@@ -269,10 +233,7 @@ def load_model_for_export(
 
 
 def get_dummy_input(
-    model: nn.Module,
-    batch_size: int,
-    input_shape: Optional[str],
-    device: str
+    model: nn.Module, batch_size: int, input_shape: Optional[str], device: str
 ) -> Dict[str, torch.Tensor]:
     """
     Generate dummy input for model export.
@@ -314,7 +275,7 @@ def export_to_onnx(
     output_path: Path,
     opset_version: int,
     dynamic_axes: Optional[List[str]],
-    optimize: bool
+    optimize: bool,
 ) -> Dict[str, Any]:
     """
     Export model to ONNX format.
@@ -336,7 +297,9 @@ def export_to_onnx(
         import onnx
         import onnxruntime as ort
     except ImportError:
-        raise ImportError("ONNX export requires 'onnx' and 'onnxruntime'. Install with: pip install onnx onnxruntime")
+        raise ImportError(
+            "ONNX export requires 'onnx' and 'onnxruntime'. Install with: pip install onnx onnxruntime"
+        )
 
     logger.info(f"Exporting to ONNX (opset version {opset_version})...")
 
@@ -401,7 +364,7 @@ def export_to_torchscript(
     dummy_input: Dict[str, torch.Tensor],
     output_path: Path,
     method: str,
-    optimize: bool
+    optimize: bool,
 ) -> Dict[str, Any]:
     """
     Export model to TorchScript format.
@@ -461,9 +424,7 @@ def export_to_torchscript(
 
 
 def export_to_tensorrt(
-    model: nn.Module,
-    dummy_input: Dict[str, torch.Tensor],
-    output_path: Path
+    model: nn.Module, dummy_input: Dict[str, torch.Tensor], output_path: Path
 ) -> Dict[str, Any]:
     """
     Export model to TensorRT format.
@@ -481,7 +442,9 @@ def export_to_tensorrt(
     try:
         import torch_tensorrt
     except ImportError:
-        raise ImportError("TensorRT export requires 'torch_tensorrt'. Install from: https://github.com/pytorch/TensorRT")
+        raise ImportError(
+            "TensorRT export requires 'torch_tensorrt'. Install from: https://github.com/pytorch/TensorRT"
+        )
 
     logger.info("Exporting to TensorRT...")
     logger.warning("TensorRT export is experimental and may not work for all models")
@@ -515,7 +478,7 @@ def validate_export(
     export_format: str,
     dummy_input: Dict[str, torch.Tensor],
     num_samples: int,
-    device: str
+    device: str,
 ) -> Dict[str, float]:
     """
     Validate exported model against original.
@@ -540,9 +503,7 @@ def validate_export(
     with torch.no_grad():
         for i in range(num_samples):
             # Generate random input
-            test_input = {
-                k: torch.randn_like(v) for k, v in dummy_input.items()
-            }
+            test_input = {k: torch.randn_like(v) for k, v in dummy_input.items()}
 
             # Get original output
             original_output = original_model(test_input)
@@ -552,6 +513,7 @@ def validate_export(
             # Get exported output
             if export_format == "onnx":
                 import onnxruntime as ort
+
                 session = ort.InferenceSession(str(exported_path))
                 input_feed = {k: v.cpu().numpy() for k, v in test_input.items()}
                 exported_output = session.run(None, input_feed)[0]
@@ -589,7 +551,7 @@ def save_export_metadata(
     output_dir: Path,
     model_metadata: Dict[str, Any],
     export_metadata: List[Dict[str, Any]],
-    config: Optional[Config]
+    config: Optional[Config],
 ):
     """
     Save export metadata to file.
@@ -650,9 +612,7 @@ def main():
 
         # Load model
         model, model_metadata = load_model_for_export(
-            checkpoint_path=args.checkpoint,
-            config=config,
-            device=args.device
+            checkpoint_path=args.checkpoint, config=config, device=args.device
         )
 
         # Apply half precision if requested
@@ -665,7 +625,7 @@ def main():
             model=model,
             batch_size=args.batch_size,
             input_shape=args.input_shape,
-            device=args.device
+            device=args.device,
         )
 
         # Export to each format
@@ -701,7 +661,7 @@ def main():
                         output_path=output_path,
                         opset_version=args.opset_version,
                         dynamic_axes=args.dynamic_axes,
-                        optimize=args.optimize or args.optimize_onnx
+                        optimize=args.optimize or args.optimize_onnx,
                     )
 
                 elif export_format == "torchscript":
@@ -710,14 +670,12 @@ def main():
                         dummy_input=dummy_input,
                         output_path=output_path,
                         method=args.torchscript_method,
-                        optimize=args.optimize
+                        optimize=args.optimize,
                     )
 
                 elif export_format == "tensorrt":
                     metadata = export_to_tensorrt(
-                        model=model,
-                        dummy_input=dummy_input,
-                        output_path=output_path
+                        model=model, dummy_input=dummy_input, output_path=output_path
                     )
 
                 else:
@@ -735,7 +693,7 @@ def main():
                         export_format=export_format,
                         dummy_input=dummy_input,
                         num_samples=args.validation_samples,
-                        device=args.device
+                        device=args.device,
                     )
                     metadata["validation"] = validation_metrics
 
@@ -750,7 +708,7 @@ def main():
                 output_dir=output_dir,
                 model_metadata=model_metadata,
                 export_metadata=export_metadata_list,
-                config=config
+                config=config,
             )
 
         logger.info("=" * 80)
@@ -758,7 +716,9 @@ def main():
         logger.info("=" * 80)
 
         for metadata in export_metadata_list:
-            logger.info(f"{metadata['format']}: {metadata['output_path']} ({metadata['file_size_mb']} MB)")
+            logger.info(
+                f"{metadata['format']}: {metadata['output_path']} ({metadata['file_size_mb']} MB)"
+            )
 
     except KeyboardInterrupt:
         logger.warning("Export interrupted by user")

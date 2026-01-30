@@ -5,7 +5,7 @@ from .tokenizer_encoder import TokenizerStateEncoder
 from .transformer_encoder import TransformerStateEncoder
 
 __all__ = [
-    'MLPStateEncoder',
-    'TransformerStateEncoder',
-    'TokenizerStateEncoder',
+    "MLPStateEncoder",
+    "TransformerStateEncoder",
+    "TokenizerStateEncoder",
 ]

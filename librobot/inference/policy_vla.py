@@ -45,11 +45,7 @@ class BasePolicy(ABC):
             self._is_loaded = True
 
     @abstractmethod
-    def predict(
-        self,
-        observation: dict[str, Any],
-        **kwargs
-    ) -> dict[str, Any]:
+    def predict(self, observation: dict[str, Any], **kwargs) -> dict[str, Any]:
         """
         Run inference on observation.
 
@@ -68,10 +64,7 @@ class BasePolicy(ABC):
         pass
 
     def load_checkpoint(
-        self,
-        checkpoint_path: Union[str, Path],
-        strict: bool = True,
-        **kwargs
+        self, checkpoint_path: Union[str, Path], strict: bool = True, **kwargs
     ) -> None:
         """
         Load model checkpoint.
@@ -107,11 +100,7 @@ class BasePolicy(ABC):
         logger.info("Checkpoint loaded successfully")
 
     @torch.no_grad()
-    def __call__(
-        self,
-        observation: dict[str, Any],
-        **kwargs
-    ) -> dict[str, Any]:
+    def __call__(self, observation: dict[str, Any], **kwargs) -> dict[str, Any]:
         """
         Convenient call interface for prediction.
 
@@ -188,21 +177,19 @@ class VLAPolicy(BasePolicy):
 
         if use_kv_cache:
             from .kv_cache import KVCache
+
             self.kv_cache = KVCache()
 
         if use_action_buffer:
             from .action_buffer import ActionBuffer
+
             self.action_buffer = ActionBuffer(
-                buffer_size=action_horizon,
-                smoothing_method="exponential"
+                buffer_size=action_horizon, smoothing_method="exponential"
             )
 
     @torch.no_grad()
     def predict(
-        self,
-        observation: dict[str, Any],
-        return_logits: bool = False,
-        **kwargs
+        self, observation: dict[str, Any], return_logits: bool = False, **kwargs
     ) -> dict[str, Any]:
         """
         Predict actions from observation.
@@ -246,9 +233,7 @@ class VLAPolicy(BasePolicy):
         # Forward pass
         if self.use_kv_cache and self.kv_cache is not None:
             outputs = self.model(
-                **batch_inputs,
-                past_key_values=self.kv_cache.get(),
-                use_cache=True
+                **batch_inputs, past_key_values=self.kv_cache.get(), use_cache=True
             )
             self.kv_cache.update(outputs.get("past_key_values"))
         else:
@@ -266,7 +251,7 @@ class VLAPolicy(BasePolicy):
             "metadata": {
                 "action_horizon": self.action_horizon,
                 "device": str(self.device),
-            }
+            },
         }
 
         if return_logits:
@@ -390,11 +375,7 @@ class EnsemblePolicy(BasePolicy):
         self._is_loaded = all(p.is_loaded for p in policies)
 
     @torch.no_grad()
-    def predict(
-        self,
-        observation: dict[str, Any],
-        **kwargs
-    ) -> dict[str, Any]:
+    def predict(self, observation: dict[str, Any], **kwargs) -> dict[str, Any]:
         """
         Run ensemble prediction.
 
@@ -433,7 +414,7 @@ class EnsemblePolicy(BasePolicy):
             "metadata": {
                 "num_policies": len(self.policies),
                 "aggregation": self.aggregation,
-            }
+            },
         }
 
     def reset(self) -> None:

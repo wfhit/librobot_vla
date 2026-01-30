@@ -22,6 +22,7 @@ def mock_registry():
 @pytest.fixture
 def sample_model_class():
     """Create a sample model class for testing registration."""
+
     class SampleModel:
         def __init__(self, config):
             self.config = config
@@ -62,13 +63,9 @@ class TestRegistry:
         component_name = "nonexistent_model"
         assert component_name not in mock_registry
 
-    @pytest.mark.parametrize("component_type", [
-        "model",
-        "encoder",
-        "action_head",
-        "policy",
-        "dataset"
-    ])
+    @pytest.mark.parametrize(
+        "component_type", ["model", "encoder", "action_head", "policy", "dataset"]
+    )
     def test_register_multiple_component_types(self, component_type, mock_registry):
         """Test registering different types of components."""
         # TODO: Implement multi-type component registration
@@ -132,11 +129,14 @@ class TestRegistryFactory:
         # TODO: Implement config-based instantiation
         pass
 
-    @pytest.mark.parametrize("config", [
-        {"param1": "value1"},
-        {"param1": "value1", "param2": 42},
-        {"nested": {"param": "value"}},
-    ])
+    @pytest.mark.parametrize(
+        "config",
+        [
+            {"param1": "value1"},
+            {"param1": "value1", "param2": 42},
+            {"nested": {"param": "value"}},
+        ],
+    )
     def test_create_instance_with_various_configs(self, config):
         """Test creating instances with various configurations."""
         # TODO: Implement parametrized config instantiation

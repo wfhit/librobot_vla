@@ -57,7 +57,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Train LibroBot VLA models",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__
+        epilog=__doc__,
     )
 
     # Configuration
@@ -65,27 +65,24 @@ def parse_args():
         "--config",
         type=str,
         default="configs/defaults.yaml",
-        help="Path to configuration YAML file"
+        help="Path to configuration YAML file",
     )
     parser.add_argument(
         "--override",
         nargs="+",
         default=[],
-        help="Override config values (e.g., training.max_epochs=100 model.hidden_size=768)"
+        help="Override config values (e.g., training.max_epochs=100 model.hidden_size=768)",
     )
 
     # Checkpointing
     parser.add_argument(
-        "--resume",
-        type=str,
-        default=None,
-        help="Path to checkpoint to resume training from"
+        "--resume", type=str, default=None, help="Path to checkpoint to resume training from"
     )
     parser.add_argument(
         "--output-dir",
         type=str,
         default=None,
-        help="Directory for outputs (checkpoints, logs). Overrides config value."
+        help="Directory for outputs (checkpoints, logs). Overrides config value.",
     )
 
     # Logging
@@ -94,31 +91,23 @@ def parse_args():
         type=str,
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Logging level"
+        help="Logging level",
     )
     parser.add_argument(
         "--log-file",
         type=str,
         default=None,
-        help="Path to log file (default: output_dir/train.log)"
+        help="Path to log file (default: output_dir/train.log)",
     )
-    parser.add_argument(
-        "--no-wandb",
-        action="store_true",
-        help="Disable Weights & Biases logging"
-    )
-    parser.add_argument(
-        "--no-tensorboard",
-        action="store_true",
-        help="Disable TensorBoard logging"
-    )
+    parser.add_argument("--no-wandb", action="store_true", help="Disable Weights & Biases logging")
+    parser.add_argument("--no-tensorboard", action="store_true", help="Disable TensorBoard logging")
 
     # Reproducibility
     parser.add_argument(
         "--seed",
         type=int,
         default=None,
-        help="Random seed for reproducibility. Overrides config value."
+        help="Random seed for reproducibility. Overrides config value.",
     )
 
     # Device
@@ -127,19 +116,17 @@ def parse_args():
         type=str,
         default=None,
         choices=["cuda", "cpu", "mps"],
-        help="Device to use for training. Auto-detected if not specified."
+        help="Device to use for training. Auto-detected if not specified.",
     )
 
     # Validation
     parser.add_argument(
-        "--validate-only",
-        action="store_true",
-        help="Only run validation, don't train"
+        "--validate-only", action="store_true", help="Only run validation, don't train"
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Run a few iterations to verify setup without full training"
+        help="Run a few iterations to verify setup without full training",
     )
 
     return parser.parse_args()
@@ -237,7 +224,9 @@ def setup_training(config: Config, args):
     model = build_model(config.get("model", {}))
     logger.info(f"Model created: {model.__class__.__name__}")
     logger.info(f"Total parameters: {sum(p.numel() for p in model.parameters()):,}")
-    logger.info(f"Trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}")
+    logger.info(
+        f"Trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
+    )
 
     # Build datasets
     logger.info("Loading datasets...")
@@ -257,8 +246,16 @@ def setup_training(config: Config, args):
         shuffle=True,
         num_workers=dataloader_config.get("num_workers", 4),
         pin_memory=dataloader_config.get("pin_memory", True),
-        persistent_workers=dataloader_config.get("persistent_workers", True) if dataloader_config.get("num_workers", 4) > 0 else False,
-        prefetch_factor=dataloader_config.get("prefetch_factor", 2) if dataloader_config.get("num_workers", 4) > 0 else None,
+        persistent_workers=(
+            dataloader_config.get("persistent_workers", True)
+            if dataloader_config.get("num_workers", 4) > 0
+            else False
+        ),
+        prefetch_factor=(
+            dataloader_config.get("prefetch_factor", 2)
+            if dataloader_config.get("num_workers", 4) > 0
+            else None
+        ),
     )
 
     val_dataloader = None
@@ -269,7 +266,11 @@ def setup_training(config: Config, args):
             shuffle=False,
             num_workers=dataloader_config.get("num_workers", 4),
             pin_memory=dataloader_config.get("pin_memory", True),
-            persistent_workers=dataloader_config.get("persistent_workers", True) if dataloader_config.get("num_workers", 4) > 0 else False,
+            persistent_workers=(
+                dataloader_config.get("persistent_workers", True)
+                if dataloader_config.get("num_workers", 4) > 0
+                else False
+            ),
         )
 
     # Build trainer config

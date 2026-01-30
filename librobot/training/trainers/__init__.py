@@ -5,7 +5,7 @@ from .base_trainer import BaseTrainer
 from .deepspeed_trainer import DeepSpeedTrainer
 
 __all__ = [
-    'BaseTrainer',
-    'AccelerateTrainer',
-    'DeepSpeedTrainer',
+    "BaseTrainer",
+    "AccelerateTrainer",
+    "DeepSpeedTrainer",
 ]

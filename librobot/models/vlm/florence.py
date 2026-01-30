@@ -91,7 +91,7 @@ class PatchEmbed(nn.Module):
         self.img_size = img_size
         self.patch_size = patch_size
         self.grid_size = img_size // patch_size
-        self.num_patches = self.grid_size ** 2
+        self.num_patches = self.grid_size**2
 
         self.proj = nn.Conv2d(in_chans, embed_dim, kernel_size=patch_size, stride=patch_size)
         self.norm = nn.LayerNorm(embed_dim)
@@ -121,7 +121,7 @@ class WindowAttention(nn.Module):
         self.window_size = window_size
         self.num_heads = num_heads
         self.head_dim = dim // num_heads
-        self.scale = self.head_dim ** -0.5
+        self.scale = self.head_dim**-0.5
 
         self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
         self.attn_drop = nn.Dropout(attn_drop)
@@ -134,7 +134,7 @@ class WindowAttention(nn.Module):
         )
 
         coords = torch.stack(
-            torch.meshgrid([torch.arange(window_size), torch.arange(window_size)], indexing='ij')
+            torch.meshgrid([torch.arange(window_size), torch.arange(window_size)], indexing="ij")
         )
         coords_flatten = torch.flatten(coords, 1)
         relative_coords = coords_flatten[:, :, None] - coords_flatten[:, None, :]
@@ -157,12 +157,12 @@ class WindowAttention(nn.Module):
         # Add relative position bias
         relative_position_bias = self.relative_position_bias_table[
             self.relative_position_index.view(-1)
-        ].view(self.window_size ** 2, self.window_size ** 2, -1)
+        ].view(self.window_size**2, self.window_size**2, -1)
         relative_position_bias = relative_position_bias.permute(2, 0, 1).contiguous()
         attn = attn + relative_position_bias.unsqueeze(0)
 
         if mask is not None:
-            attn = attn.masked_fill(mask == 0, float('-inf'))
+            attn = attn.masked_fill(mask == 0, float("-inf"))
 
         attn = F.softmax(attn, dim=-1)
         attn = self.attn_drop(attn)
@@ -188,9 +188,7 @@ class DaViTBlock(nn.Module):
     ):
         super().__init__()
         self.norm1 = nn.LayerNorm(dim)
-        self.attn = WindowAttention(
-            dim, window_size, num_heads, qkv_bias, attn_drop, drop
-        )
+        self.attn = WindowAttention(dim, window_size, num_heads, qkv_bias, attn_drop, drop)
         self.norm2 = nn.LayerNorm(dim)
 
         mlp_hidden_dim = int(dim * mlp_ratio)
@@ -224,10 +222,12 @@ class DaViTStage(nn.Module):
         downsample: bool = False,
     ):
         super().__init__()
-        self.blocks = nn.ModuleList([
-            DaViTBlock(dim, num_heads, window_size, mlp_ratio, qkv_bias, drop, attn_drop)
-            for _ in range(depth)
-        ])
+        self.blocks = nn.ModuleList(
+            [
+                DaViTBlock(dim, num_heads, window_size, mlp_ratio, qkv_bias, drop, attn_drop)
+                for _ in range(depth)
+            ]
+        )
 
         if downsample:
             self.downsample = nn.Sequential(
@@ -244,7 +244,7 @@ class DaViTStage(nn.Module):
         if self.downsample is not None:
             # Reshape for spatial downsampling
             B, N, C = x.shape
-            H = W = int(N ** 0.5)
+            H = W = int(N**0.5)
             x = x.view(B, H, W, C)
 
             # 2x2 pooling
@@ -306,7 +306,7 @@ class FlorenceDecoderAttention(nn.Module):
         super().__init__()
         self.num_heads = config.num_attention_heads
         self.head_dim = config.hidden_size // config.num_attention_heads
-        self.scale = self.head_dim ** -0.5
+        self.scale = self.head_dim**-0.5
 
         self.q_proj = nn.Linear(config.hidden_size, config.hidden_size)
         self.k_proj = nn.Linear(config.hidden_size, config.hidden_size)
@@ -346,7 +346,7 @@ class FlorenceDecoderAttention(nn.Module):
 
         if is_causal:
             causal_mask = torch.tril(torch.ones(L, L, device=attn.device, dtype=torch.bool))
-            attn = attn.masked_fill(~causal_mask, float('-inf'))
+            attn = attn.masked_fill(~causal_mask, float("-inf"))
 
         if attention_mask is not None:
             attn = attn + attention_mask
@@ -420,9 +420,9 @@ class FlorenceDecoder(nn.Module):
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size)
         self.embed_positions = nn.Embedding(config.max_position_embeddings, config.hidden_size)
 
-        self.layers = nn.ModuleList([
-            FlorenceDecoderLayer(config) for _ in range(config.num_hidden_layers)
-        ])
+        self.layers = nn.ModuleList(
+            [FlorenceDecoderLayer(config) for _ in range(config.num_hidden_layers)]
+        )
 
         self.norm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -531,10 +531,7 @@ class Florence2(AbstractVLM):
         return self.vision_proj(vision_features)
 
     def encode_text(
-        self,
-        text: Union[str, list[str]],
-        tokenizer: Optional[Any] = None,
-        **kwargs
+        self, text: Union[str, list[str]], tokenizer: Optional[Any] = None, **kwargs
     ) -> torch.Tensor:
         """
         Encode text to embeddings.
@@ -568,7 +565,7 @@ class Florence2(AbstractVLM):
         labels: Optional[torch.Tensor] = None,
         task: Optional[str] = None,
         return_dict: bool = True,
-        **kwargs
+        **kwargs,
     ) -> dict[str, torch.Tensor]:
         """
         Forward pass.
@@ -601,7 +598,9 @@ class Florence2(AbstractVLM):
                 task_embed = self.task_embeddings(
                     torch.tensor([task_id], device=encoder_hidden_states.device)
                 )
-                encoder_hidden_states = torch.cat([task_embed.unsqueeze(0), encoder_hidden_states], dim=1)
+                encoder_hidden_states = torch.cat(
+                    [task_embed.unsqueeze(0), encoder_hidden_states], dim=1
+                )
 
         # Decode text
         hidden_states = self.decoder(
@@ -644,7 +643,7 @@ class Florence2(AbstractVLM):
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
         task: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ) -> torch.Tensor:
         """
         Generate text autoregressively.
@@ -671,7 +670,9 @@ class Florence2(AbstractVLM):
                 task_embed = self.task_embeddings(
                     torch.tensor([task_id], device=encoder_hidden_states.device)
                 )
-                encoder_hidden_states = torch.cat([task_embed.unsqueeze(0), encoder_hidden_states], dim=1)
+                encoder_hidden_states = torch.cat(
+                    [task_embed.unsqueeze(0), encoder_hidden_states], dim=1
+                )
 
         # Initialize with start token if no input
         if input_ids is None:
@@ -689,7 +690,7 @@ class Florence2(AbstractVLM):
             # Apply top-k filtering
             if top_k is not None:
                 indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1, None]
-                logits[indices_to_remove] = float('-inf')
+                logits[indices_to_remove] = float("-inf")
 
             # Apply top-p (nucleus) filtering
             if top_p is not None:
@@ -701,7 +702,7 @@ class Florence2(AbstractVLM):
                 indices_to_remove = sorted_indices_to_remove.scatter(
                     1, sorted_indices, sorted_indices_to_remove
                 )
-                logits[indices_to_remove] = float('-inf')
+                logits[indices_to_remove] = float("-inf")
 
             # Sample next token
             probs = F.softmax(logits, dim=-1)

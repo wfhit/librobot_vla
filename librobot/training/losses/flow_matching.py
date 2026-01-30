@@ -1,6 +1,5 @@
 """Flow matching loss functions."""
 
-
 import torch
 import torch.nn.functional as F
 
@@ -27,16 +26,13 @@ class FlowMatchingLoss(AbstractLoss):
         self.sigma = sigma
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
         """Compute flow matching loss."""
         # Predicted velocity
-        v_pred = predictions.get('velocity', predictions.get('v_pred'))
+        v_pred = predictions.get("velocity", predictions.get("v_pred"))
         # Target velocity (x1 - x0 for optimal transport)
-        v_target = targets.get('velocity', targets.get('v_target'))
+        v_target = targets.get("velocity", targets.get("v_target"))
 
         if v_pred is None or v_target is None:
             return torch.tensor(0.0)
@@ -61,14 +57,11 @@ class RectifiedFlowLoss(AbstractLoss):
         self.loss_type = loss_type
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
-        v_pred = predictions.get('velocity')
-        x0 = targets.get('x0')  # Noise
-        x1 = targets.get('x1')  # Target
+        v_pred = predictions.get("velocity")
+        x0 = targets.get("x0")  # Noise
+        x1 = targets.get("x1")  # Target
 
         if v_pred is None or x0 is None or x1 is None:
             return torch.tensor(0.0)
@@ -98,15 +91,12 @@ class OTCFMLoss(AbstractLoss):
         self.sigma = sigma
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
-        v_pred = predictions.get('velocity')
-        x0 = targets.get('x0')
-        x1 = targets.get('x1')
-        targets.get('t')
+        v_pred = predictions.get("velocity")
+        x0 = targets.get("x0")
+        x1 = targets.get("x1")
+        targets.get("t")
 
         if v_pred is None or x0 is None or x1 is None:
             return torch.tensor(0.0)
@@ -130,14 +120,11 @@ class ConsistencyLoss(AbstractLoss):
         self.loss_type = loss_type
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
         # f(x_t, t) should equal f(x_s, s) for any s, t on the same trajectory
-        f_t = predictions.get('consistency_output')
-        f_s = targets.get('consistency_target')
+        f_t = predictions.get("consistency_output")
+        f_s = targets.get("consistency_target")
 
         if f_t is None or f_s is None:
             return torch.tensor(0.0)
@@ -148,8 +135,8 @@ class ConsistencyLoss(AbstractLoss):
 
 
 __all__ = [
-    'FlowMatchingLoss',
-    'RectifiedFlowLoss',
-    'OTCFMLoss',
-    'ConsistencyLoss',
+    "FlowMatchingLoss",
+    "RectifiedFlowLoss",
+    "OTCFMLoss",
+    "ConsistencyLoss",
 ]

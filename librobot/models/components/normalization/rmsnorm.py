@@ -1,6 +1,5 @@
 """RMSNorm (Root Mean Square Normalization)."""
 
-
 import torch
 import torch.nn as nn
 
@@ -35,7 +34,7 @@ class RMSNorm(nn.Module):
         if elementwise_affine:
             self.weight = nn.Parameter(torch.ones(dim))
         else:
-            self.register_parameter('weight', None)
+            self.register_parameter("weight", None)
 
     def _norm(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -67,4 +66,4 @@ class RMSNorm(nn.Module):
         return output
 
     def extra_repr(self) -> str:
-        return f'dim={self.dim}, eps={self.eps}, elementwise_affine={self.elementwise_affine}'
+        return f"dim={self.dim}, eps={self.eps}, elementwise_affine={self.elementwise_affine}"

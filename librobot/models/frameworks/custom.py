@@ -143,6 +143,7 @@ class CustomVLA(AbstractVLA):
         if action_head is None:
             # Build default action head (simple MLP)
             from ..action_heads.mlp_oft import MLPActionHead
+
             action_head = MLPActionHead(
                 input_dim=hidden_dim,
                 action_dim=action_dim,
@@ -183,9 +184,9 @@ class CustomVLA(AbstractVLA):
         """Get vision encoder output dimension."""
         if self.vision_encoder is None:
             return 0
-        if hasattr(self.vision_encoder, 'output_dim'):
+        if hasattr(self.vision_encoder, "output_dim"):
             return self.vision_encoder.output_dim
-        elif hasattr(self.vision_encoder, 'embed_dim'):
+        elif hasattr(self.vision_encoder, "embed_dim"):
             return self.vision_encoder.embed_dim
         else:
             return self.hidden_dim
@@ -270,7 +271,7 @@ class CustomVLA(AbstractVLA):
         text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> dict[str, torch.Tensor]:
         """
         Forward pass of custom VLA.
@@ -291,7 +292,7 @@ class CustomVLA(AbstractVLA):
         # Encode vision and language
         if self.use_vlm:
             vlm_outputs = self.vlm(images, text=text, **kwargs)
-            vlm_embeddings = vlm_outputs['embeddings']
+            vlm_embeddings = vlm_outputs["embeddings"]
 
             # Pool if needed
             if vlm_embeddings.dim() == 3:
@@ -310,9 +311,7 @@ class CustomVLA(AbstractVLA):
             state_features = None
 
         # Process and combine features
-        combined_features = self._process_features(
-            vision_features, text_features, state_features
-        )
+        combined_features = self._process_features(vision_features, text_features, state_features)
 
         # Project to action head input
         action_input = self.feature_proj(combined_features)
@@ -325,22 +324,22 @@ class CustomVLA(AbstractVLA):
             loss = self.action_head.compute_loss(action_outputs, actions)
 
             return {
-                'actions': action_outputs.get('actions', action_outputs.get('logits')),
-                'loss': loss,
-                'action_input': action_input,
+                "actions": action_outputs.get("actions", action_outputs.get("logits")),
+                "loss": loss,
+                "action_input": action_input,
                 **action_outputs,
             }
         else:
             # Inference mode
             # Try to sample if available, otherwise use direct output
-            if hasattr(self.action_head, 'sample'):
+            if hasattr(self.action_head, "sample"):
                 predicted_actions = self.action_head.sample(action_input)
             else:
-                predicted_actions = action_outputs.get('actions', action_outputs.get('logits'))
+                predicted_actions = action_outputs.get("actions", action_outputs.get("logits"))
 
             return {
-                'actions': predicted_actions,
-                'action_input': action_input,
+                "actions": predicted_actions,
+                "action_input": action_input,
                 **action_outputs,
             }
 
@@ -349,7 +348,7 @@ class CustomVLA(AbstractVLA):
         images: torch.Tensor,
         text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> torch.Tensor:
         """
         Predict actions for inference.
@@ -366,19 +365,12 @@ class CustomVLA(AbstractVLA):
         self.eval()
         with torch.no_grad():
             outputs = self.forward(
-                images=images,
-                text=text,
-                proprioception=proprioception,
-                actions=None,
-                **kwargs
+                images=images, text=text, proprioception=proprioception, actions=None, **kwargs
             )
-            return outputs['actions']
+            return outputs["actions"]
 
     def compute_loss(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
@@ -393,9 +385,9 @@ class CustomVLA(AbstractVLA):
         """
         losses = {}
 
-        if 'loss' in predictions:
-            losses['action_loss'] = predictions['loss']
-            losses['total_loss'] = predictions['loss']
+        if "loss" in predictions:
+            losses["action_loss"] = predictions["loss"]
+            losses["total_loss"] = predictions["loss"]
 
         return losses
 
@@ -407,16 +399,16 @@ class CustomVLA(AbstractVLA):
             Dictionary containing configuration
         """
         config = {
-            'type': 'CustomVLA',
-            'action_dim': self.action_dim,
-            'state_dim': self.state_dim,
-            'hidden_dim': self.hidden_dim,
-            'use_vlm': self.use_vlm,
+            "type": "CustomVLA",
+            "action_dim": self.action_dim,
+            "state_dim": self.state_dim,
+            "hidden_dim": self.hidden_dim,
+            "use_vlm": self.use_vlm,
         }
 
         # Add VLM config if available
         if self.use_vlm and self.vlm is not None:
-            config['vlm_config'] = self.vlm.config
+            config["vlm_config"] = self.vlm.config
 
         # Add custom config
         config.update(self.custom_config)

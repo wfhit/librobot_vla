@@ -21,6 +21,7 @@ logger = get_logger(__name__)
 
 class HealthResponse(BaseModel):
     """Health check response model."""
+
     status: str = Field(..., description="Server status")
     model_loaded: bool = Field(..., description="Whether model is loaded")
     device: str = Field(..., description="Device model is on")
@@ -29,9 +30,9 @@ class HealthResponse(BaseModel):
 
 class PredictRequest(BaseModel):
     """Prediction request model."""
+
     image: Optional[Union[list[list[list[float]]], str]] = Field(
-        None,
-        description="Image as nested list or base64 string"
+        None, description="Image as nested list or base64 string"
     )
     text: Optional[str] = Field(None, description="Text instruction")
     state: Optional[list[float]] = Field(None, description="Robot state")
@@ -40,6 +41,7 @@ class PredictRequest(BaseModel):
 
 class PredictResponse(BaseModel):
     """Prediction response model."""
+
     actions: list[list[float]] = Field(..., description="Predicted actions")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
     inference_time: float = Field(..., description="Inference time in seconds")
@@ -47,6 +49,7 @@ class PredictResponse(BaseModel):
 
 class ServerInfo(BaseModel):
     """Server information model."""
+
     name: str = Field(..., description="Server name")
     version: str = Field(..., description="Server version")
     host: str = Field(..., description="Server host")
@@ -108,6 +111,7 @@ class RESTServer(AbstractServer):
 
         # Setup logging middleware
         if self.log_requests:
+
             @self.app.middleware("http")
             async def log_requests_middleware(request: Request, call_next):
                 start_time = time.time()
@@ -172,8 +176,7 @@ class RESTServer(AbstractServer):
             """
             if self.policy is None:
                 raise HTTPException(
-                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                    detail="Model not loaded"
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Model not loaded"
                 )
 
             try:
@@ -212,7 +215,7 @@ class RESTServer(AbstractServer):
                 logger.error(f"Prediction error: {e}", exc_info=True)
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f"Prediction failed: {str(e)}"
+                    detail=f"Prediction failed: {str(e)}",
                 )
 
         @self.app.post("/reset")
@@ -220,8 +223,7 @@ class RESTServer(AbstractServer):
             """Reset policy state."""
             if self.policy is None:
                 raise HTTPException(
-                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                    detail="Model not loaded"
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Model not loaded"
                 )
 
             self.policy.reset()
@@ -236,7 +238,7 @@ class RESTServer(AbstractServer):
                 content={
                     "detail": "Internal server error",
                     "error": str(exc),
-                }
+                },
             )
 
     async def start(self) -> None:
@@ -267,11 +269,7 @@ class RESTServer(AbstractServer):
         self._is_running = False
         logger.info("REST server stopped")
 
-    async def predict(
-        self,
-        request: dict[str, Any],
-        **kwargs
-    ) -> dict[str, Any]:
+    async def predict(self, request: dict[str, Any], **kwargs) -> dict[str, Any]:
         """
         Handle prediction request.
 
@@ -290,12 +288,7 @@ class RESTServer(AbstractServer):
 
         # Run prediction (in thread pool to avoid blocking)
         loop = asyncio.get_event_loop()
-        result = await loop.run_in_executor(
-            None,
-            self.policy.predict,
-            observation,
-            return_logits
-        )
+        result = await loop.run_in_executor(None, self.policy.predict, observation, return_logits)
 
         return result
 
@@ -359,7 +352,7 @@ def create_server(
     port: int = 8000,
     model_path: Optional[str] = None,
     device: Optional[str] = None,
-    **kwargs
+    **kwargs,
 ) -> RESTServer:
     """
     Factory function to create REST server.
@@ -378,13 +371,7 @@ def create_server(
         >>> server = create_server(port=8000, model_path="model.pt")
         >>> server.run()
     """
-    return RESTServer(
-        host=host,
-        port=port,
-        model_path=model_path,
-        device=device,
-        **kwargs
-    )
+    return RESTServer(host=host, port=port, model_path=model_path, device=device, **kwargs)
 
 
 if __name__ == "__main__":

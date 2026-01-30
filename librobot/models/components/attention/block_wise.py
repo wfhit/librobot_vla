@@ -39,7 +39,7 @@ class BlockWiseAttention(nn.Module):
         self.dim = dim
         self.num_heads = num_heads
         self.head_dim = dim // num_heads
-        self.scale = self.head_dim ** -0.5
+        self.scale = self.head_dim**-0.5
         self.block_size = block_size
         self.use_global = use_global
 
@@ -110,7 +110,7 @@ class BlockWiseAttention(nn.Module):
                 mask_block = attention_mask[:, start_idx:end_idx]
                 mask_k = attention_mask[:, :k_end]
                 attn_mask = mask_block.unsqueeze(1).unsqueeze(2) * mask_k.unsqueeze(1).unsqueeze(3)
-                attn = attn.masked_fill(attn_mask == 0, float('-inf'))
+                attn = attn.masked_fill(attn_mask == 0, float("-inf"))
 
             attn = attn.softmax(dim=-1)
             attn = self.attn_drop(attn)
@@ -137,4 +137,4 @@ class BlockWiseAttention(nn.Module):
         return x
 
     def extra_repr(self) -> str:
-        return f'dim={self.dim}, num_heads={self.num_heads}, block_size={self.block_size}'
+        return f"dim={self.dim}, num_heads={self.num_heads}, block_size={self.block_size}"

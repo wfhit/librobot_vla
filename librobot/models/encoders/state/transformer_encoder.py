@@ -38,7 +38,7 @@ class TransformerStateEncoder(AbstractEncoder):
         num_heads: int = 8,
         ffn_dim: int = 1024,
         dropout: float = 0.1,
-        activation: str = 'gelu',
+        activation: str = "gelu",
         use_pos_encoding: bool = True,
         max_seq_len: int = 512,
     ):
@@ -66,24 +66,23 @@ class TransformerStateEncoder(AbstractEncoder):
             self.pos_encoding = None
 
         # Transformer layers
-        self.layers = nn.ModuleList([
-            TransformerEncoderLayer(
-                d_model=output_dim,
-                num_heads=num_heads,
-                ffn_dim=ffn_dim,
-                dropout=dropout,
-                activation=activation,
-            )
-            for _ in range(num_layers)
-        ])
+        self.layers = nn.ModuleList(
+            [
+                TransformerEncoderLayer(
+                    d_model=output_dim,
+                    num_heads=num_heads,
+                    ffn_dim=ffn_dim,
+                    dropout=dropout,
+                    activation=activation,
+                )
+                for _ in range(num_layers)
+            ]
+        )
 
         self.norm = LayerNorm(output_dim)
 
     def forward(
-        self,
-        inputs: torch.Tensor,
-        attention_mask: Optional[torch.Tensor] = None,
-        **kwargs
+        self, inputs: torch.Tensor, attention_mask: Optional[torch.Tensor] = None, **kwargs
     ) -> torch.Tensor:
         """
         Encode state sequence.
@@ -123,16 +122,16 @@ class TransformerStateEncoder(AbstractEncoder):
     def config(self) -> dict[str, Any]:
         """Get encoder configuration."""
         return {
-            'type': 'TransformerStateEncoder',
-            'input_dim': self.input_dim,
-            'output_dim': self.output_dim,
-            'num_layers': self.num_layers,
-            'num_heads': self.num_heads,
-            'ffn_dim': self.ffn_dim,
-            'dropout': self.dropout_rate,
-            'activation': self.activation_name,
-            'use_pos_encoding': self.use_pos_encoding,
-            'max_seq_len': self.max_seq_len,
+            "type": "TransformerStateEncoder",
+            "input_dim": self.input_dim,
+            "output_dim": self.output_dim,
+            "num_layers": self.num_layers,
+            "num_heads": self.num_heads,
+            "ffn_dim": self.ffn_dim,
+            "dropout": self.dropout_rate,
+            "activation": self.activation_name,
+            "use_pos_encoding": self.use_pos_encoding,
+            "max_seq_len": self.max_seq_len,
         }
 
 
@@ -145,7 +144,7 @@ class TransformerEncoderLayer(nn.Module):
         num_heads: int,
         ffn_dim: int,
         dropout: float = 0.1,
-        activation: str = 'gelu',
+        activation: str = "gelu",
     ):
         super().__init__()
 
@@ -160,7 +159,7 @@ class TransformerEncoderLayer(nn.Module):
         # Feedforward network
         self.ffn = nn.Sequential(
             nn.Linear(d_model, ffn_dim),
-            nn.GELU() if activation == 'gelu' else nn.ReLU(),
+            nn.GELU() if activation == "gelu" else nn.ReLU(),
             nn.Dropout(dropout),
             nn.Linear(ffn_dim, d_model),
             nn.Dropout(dropout),

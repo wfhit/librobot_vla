@@ -1,4 +1,5 @@
 """Base flow matching model."""
+
 import torch
 import torch.nn as nn
 
@@ -7,17 +8,20 @@ from ..base import AbstractActionHead
 
 class FlowMatchingHead(AbstractActionHead):
     """Flow matching action head."""
+
     def __init__(self, input_dim: int, action_dim: int, hidden_dim: int = 256):
         super().__init__(input_dim, action_dim)
         self.velocity_net = nn.Sequential(
             nn.Linear(action_dim + input_dim + 1, hidden_dim),
-            nn.SiLU(), nn.Linear(hidden_dim, action_dim))
+            nn.SiLU(),
+            nn.Linear(hidden_dim, action_dim),
+        )
 
     def forward(self, embeddings: torch.Tensor, **kwargs) -> dict:
-        return {'embeddings': embeddings}
+        return {"embeddings": embeddings}
 
     def compute_loss(self, predictions: dict, targets: torch.Tensor, **kwargs) -> torch.Tensor:
-        emb = predictions['embeddings']
+        emb = predictions["embeddings"]
         t = torch.rand(targets.size(0), 1, device=targets.device)
         x0 = torch.randn_like(targets)
         xt = (1 - t) * x0 + t * targets

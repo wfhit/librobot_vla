@@ -22,30 +22,15 @@ from unittest.mock import Mock, patch
 def system_config():
     """Create complete system configuration."""
     return {
-        "model": {
-            "name": "vla_model",
-            "hidden_size": 512,
-            "num_layers": 8,
-            "action_dim": 7
-        },
-        "training": {
-            "num_epochs": 3,
-            "batch_size": 8,
-            "learning_rate": 1e-4
-        },
-        "inference": {
-            "batch_size": 1,
-            "device": "cuda" if torch.cuda.is_available() else "cpu"
-        },
+        "model": {"name": "vla_model", "hidden_size": 512, "num_layers": 8, "action_dim": 7},
+        "training": {"num_epochs": 3, "batch_size": 8, "learning_rate": 1e-4},
+        "inference": {"batch_size": 1, "device": "cuda" if torch.cuda.is_available() else "cpu"},
         "robot": {
             "robot_type": "franka",
             "control_frequency": 20,
-            "home_position": [0, -0.785, 0, -2.356, 0, 1.571, 0.785]
+            "home_position": [0, -0.785, 0, -2.356, 0, 1.571, 0.785],
         },
-        "data": {
-            "dataset_path": "/path/to/dataset",
-            "num_workers": 4
-        }
+        "data": {"dataset_path": "/path/to/dataset", "num_workers": 4},
     }
 
 

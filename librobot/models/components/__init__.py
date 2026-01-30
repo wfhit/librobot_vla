@@ -36,26 +36,26 @@ from .positional import (
 
 __all__ = [
     # Submodules
-    'attention',
-    'positional',
-    'normalization',
+    "attention",
+    "positional",
+    "normalization",
     # Activations
-    'GELU',
-    'SwiGLU',
-    'GeGLU',
-    'Mish',
-    'QuickGELU',
+    "GELU",
+    "SwiGLU",
+    "GeGLU",
+    "Mish",
+    "QuickGELU",
     # Attention
-    'StandardAttention',
-    'FlashAttention',
-    'BlockWiseAttention',
-    'SlidingWindowAttention',
+    "StandardAttention",
+    "FlashAttention",
+    "BlockWiseAttention",
+    "SlidingWindowAttention",
     # Positional
-    'SinusoidalPositionalEncoding',
-    'RotaryPositionEmbedding',
-    'ALiBiPositionalBias',
+    "SinusoidalPositionalEncoding",
+    "RotaryPositionEmbedding",
+    "ALiBiPositionalBias",
     # Normalization
-    'LayerNorm',
-    'RMSNorm',
-    'GroupNorm',
+    "LayerNorm",
+    "RMSNorm",
+    "GroupNorm",
 ]

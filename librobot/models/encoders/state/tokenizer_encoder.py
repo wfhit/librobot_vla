@@ -56,16 +56,13 @@ class TokenizerStateEncoder(AbstractEncoder):
 
         # EMA parameters for codebook updates
         if use_ema:
-            self.register_buffer('ema_cluster_size', torch.zeros(num_tokens))
-            self.register_buffer('ema_weight', self.codebook.weight.data.clone())
+            self.register_buffer("ema_cluster_size", torch.zeros(num_tokens))
+            self.register_buffer("ema_weight", self.codebook.weight.data.clone())
             self.ema_decay = 0.99
             self.ema_epsilon = 1e-5
 
     def forward(
-        self,
-        inputs: torch.Tensor,
-        return_indices: bool = False,
-        **kwargs
+        self, inputs: torch.Tensor, return_indices: bool = False, **kwargs
     ) -> torch.Tensor | tuple:
         """
         Encode state through tokenization.
@@ -122,8 +119,8 @@ class TokenizerStateEncoder(AbstractEncoder):
 
         # Calculate distances to codebook vectors
         distances = (
-            torch.sum(z_flattened ** 2, dim=1, keepdim=True)
-            + torch.sum(self.codebook.weight ** 2, dim=1)
+            torch.sum(z_flattened**2, dim=1, keepdim=True)
+            + torch.sum(self.codebook.weight**2, dim=1)
             - 2 * torch.matmul(z_flattened, self.codebook.weight.t())
         )
 
@@ -160,14 +157,16 @@ class TokenizerStateEncoder(AbstractEncoder):
             encodings = torch.zeros(indices.shape[0], self.num_tokens, device=z.device)
             encodings.scatter_(1, indices.unsqueeze(1), 1)
 
-            self.ema_cluster_size = self.ema_cluster_size * self.ema_decay + \
-                                   (1 - self.ema_decay) * torch.sum(encodings, 0)
+            self.ema_cluster_size = self.ema_cluster_size * self.ema_decay + (
+                1 - self.ema_decay
+            ) * torch.sum(encodings, 0)
 
             # Laplace smoothing
             n = torch.sum(self.ema_cluster_size)
             self.ema_cluster_size = (
                 (self.ema_cluster_size + self.ema_epsilon)
-                / (n + self.num_tokens * self.ema_epsilon) * n
+                / (n + self.num_tokens * self.ema_epsilon)
+                * n
             )
 
             # Update embeddings
@@ -189,11 +188,11 @@ class TokenizerStateEncoder(AbstractEncoder):
     def config(self) -> dict[str, Any]:
         """Get encoder configuration."""
         return {
-            'type': 'TokenizerStateEncoder',
-            'input_dim': self.input_dim,
-            'output_dim': self.output_dim,
-            'num_tokens': self.num_tokens,
-            'hidden_dim': self.hidden_dim,
-            'commitment_cost': self.commitment_cost,
-            'use_ema': self.use_ema,
+            "type": "TokenizerStateEncoder",
+            "input_dim": self.input_dim,
+            "output_dim": self.output_dim,
+            "num_tokens": self.num_tokens,
+            "hidden_dim": self.hidden_dim,
+            "commitment_cost": self.commitment_cost,
+            "use_ema": self.use_ema,
         }

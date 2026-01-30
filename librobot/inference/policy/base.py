@@ -28,7 +28,7 @@ class BasePolicy:
         self.device = device
 
         # Put model in eval mode
-        if hasattr(model, 'eval'):
+        if hasattr(model, "eval"):
             model.eval()
 
     def __call__(
@@ -83,36 +83,36 @@ class BasePolicy:
         inputs = {}
 
         # Process images
-        if 'images' in observation:
-            images = observation['images']
+        if "images" in observation:
+            images = observation["images"]
             if isinstance(images, np.ndarray):
                 images = torch.from_numpy(images).float()
             if images.dim() == 3:
                 images = images.unsqueeze(0)  # Add batch dim
-            inputs['images'] = images.to(self.device)
+            inputs["images"] = images.to(self.device)
 
         # Process proprioception
-        if 'proprioception' in observation:
-            state = observation['proprioception']
+        if "proprioception" in observation:
+            state = observation["proprioception"]
             if isinstance(state, np.ndarray):
                 state = torch.from_numpy(state).float()
             if state.dim() == 1:
                 state = state.unsqueeze(0)
-            inputs['proprioception'] = state.to(self.device)
+            inputs["proprioception"] = state.to(self.device)
 
         # Add instruction
-        inputs['text'] = instruction
+        inputs["text"] = instruction
 
         return inputs
 
     def _extract_action(self, outputs: dict[str, Any]) -> Any:
         """Extract action from model outputs."""
         if isinstance(outputs, dict):
-            if 'actions' in outputs:
-                return outputs['actions'][0]  # First in batch
-            if 'action' in outputs:
-                return outputs['action'][0]
-        return outputs[0] if hasattr(outputs, '__getitem__') else outputs
+            if "actions" in outputs:
+                return outputs["actions"][0]  # First in batch
+            if "action" in outputs:
+                return outputs["action"][0]
+        return outputs[0] if hasattr(outputs, "__getitem__") else outputs
 
     def reset(self) -> None:
         """Reset policy state (for recurrent policies)."""
@@ -141,7 +141,7 @@ class BasePolicy:
             "metadata": {
                 "action_dim": self.action_dim,
                 "action_horizon": self.action_horizon,
-            }
+            },
         }
 
 
@@ -172,7 +172,7 @@ class DiffusionPolicy(BasePolicy):
                 inputs = self._prepare_inputs(observation, instruction)
 
                 # Sample from diffusion
-                if hasattr(self.model, 'sample'):
+                if hasattr(self.model, "sample"):
                     actions = self.model.sample(
                         **inputs,
                         num_steps=self.num_inference_steps,
@@ -214,7 +214,7 @@ class AutoregressivePolicy(BasePolicy):
             with torch.no_grad():
                 inputs = self._prepare_inputs(observation, instruction)
 
-                if hasattr(self.model, 'generate_action'):
+                if hasattr(self.model, "generate_action"):
                     action = self.model.generate_action(
                         **inputs,
                         temperature=self.temperature,
@@ -268,8 +268,8 @@ class EnsemblePolicy(BasePolicy):
 
 
 __all__ = [
-    'BasePolicy',
-    'DiffusionPolicy',
-    'AutoregressivePolicy',
-    'EnsemblePolicy',
+    "BasePolicy",
+    "DiffusionPolicy",
+    "AutoregressivePolicy",
+    "EnsemblePolicy",
 ]

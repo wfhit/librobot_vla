@@ -45,18 +45,20 @@ class Figure01Robot(Humanoid):
         }
 
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
-        self._joint_positions = action[:self.num_joints]
+        self._joint_positions = action[: self.num_joints]
         if self.has_hands:
-            self._hand_positions = action[self.num_joints:]
+            self._hand_positions = action[self.num_joints :]
         return True
 
     def get_observation(self) -> dict[str, Any]:
         return {
-            "proprioception": np.concatenate([
-                self._joint_positions,
-                self._joint_velocities,
-                self._hand_positions,
-            ]),
+            "proprioception": np.concatenate(
+                [
+                    self._joint_positions,
+                    self._joint_velocities,
+                    self._hand_positions,
+                ]
+            ),
         }
 
 
@@ -92,7 +94,7 @@ class GR1Robot(Humanoid):
         }
 
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
-        self._joint_positions = action[:self.num_joints]
+        self._joint_positions = action[: self.num_joints]
         return True
 
     def get_observation(self) -> dict[str, Any]:
@@ -131,7 +133,7 @@ class UnitreeH1Robot(Humanoid):
         }
 
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
-        self._joint_positions = action[:self.num_joints]
+        self._joint_positions = action[: self.num_joints]
         return True
 
     def get_observation(self) -> dict[str, Any]:
@@ -139,7 +141,7 @@ class UnitreeH1Robot(Humanoid):
 
 
 __all__ = [
-    'Figure01Robot',
-    'GR1Robot',
-    'UnitreeH1Robot',
+    "Figure01Robot",
+    "GR1Robot",
+    "UnitreeH1Robot",
 ]

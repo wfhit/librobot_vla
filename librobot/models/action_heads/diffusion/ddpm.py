@@ -1,6 +1,5 @@
 """DDPM (Denoising Diffusion Probabilistic Models) action head."""
 
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -21,7 +20,7 @@ class DDPMActionHead(AbstractActionHead):
         action_dim: int,
         hidden_dim: int = 256,
         num_timesteps: int = 100,
-        beta_schedule: str = 'cosine',
+        beta_schedule: str = "cosine",
     ):
         super().__init__(input_dim, action_dim)
         self.hidden_dim = hidden_dim
@@ -37,19 +36,19 @@ class DDPMActionHead(AbstractActionHead):
         )
 
         # Noise schedule
-        if beta_schedule == 'linear':
+        if beta_schedule == "linear":
             betas = torch.linspace(1e-4, 0.02, num_timesteps)
-        elif beta_schedule == 'cosine':
+        elif beta_schedule == "cosine":
             betas = self._cosine_beta_schedule(num_timesteps)
 
         alphas = 1.0 - betas
         alphas_cumprod = torch.cumprod(alphas, dim=0)
 
-        self.register_buffer('betas', betas)
-        self.register_buffer('alphas', alphas)
-        self.register_buffer('alphas_cumprod', alphas_cumprod)
-        self.register_buffer('sqrt_alphas_cumprod', torch.sqrt(alphas_cumprod))
-        self.register_buffer('sqrt_one_minus_alphas_cumprod', torch.sqrt(1.0 - alphas_cumprod))
+        self.register_buffer("betas", betas)
+        self.register_buffer("alphas", alphas)
+        self.register_buffer("alphas_cumprod", alphas_cumprod)
+        self.register_buffer("sqrt_alphas_cumprod", torch.sqrt(alphas_cumprod))
+        self.register_buffer("sqrt_one_minus_alphas_cumprod", torch.sqrt(1.0 - alphas_cumprod))
 
     def _cosine_beta_schedule(self, timesteps: int, s: float = 0.008):
         steps = timesteps + 1
@@ -60,10 +59,12 @@ class DDPMActionHead(AbstractActionHead):
         return torch.clip(betas, 0.0001, 0.9999)
 
     def forward(self, embeddings: torch.Tensor, **kwargs) -> dict[str, torch.Tensor]:
-        return {'embeddings': embeddings}
+        return {"embeddings": embeddings}
 
-    def compute_loss(self, predictions: dict[str, torch.Tensor], targets: torch.Tensor, **kwargs) -> torch.Tensor:
-        embeddings = predictions['embeddings']
+    def compute_loss(
+        self, predictions: dict[str, torch.Tensor], targets: torch.Tensor, **kwargs
+    ) -> torch.Tensor:
+        embeddings = predictions["embeddings"]
         batch_size = embeddings.size(0)
 
         # Sample timesteps
@@ -71,8 +72,10 @@ class DDPMActionHead(AbstractActionHead):
 
         # Add noise
         noise = torch.randn_like(targets)
-        noisy_actions = self.sqrt_alphas_cumprod[t].view(-1, 1) * targets + \
-                       self.sqrt_one_minus_alphas_cumprod[t].view(-1, 1) * noise
+        noisy_actions = (
+            self.sqrt_alphas_cumprod[t].view(-1, 1) * targets
+            + self.sqrt_one_minus_alphas_cumprod[t].view(-1, 1) * noise
+        )
 
         # Predict noise
         t_normalized = t.float() / self.num_timesteps
@@ -101,7 +104,9 @@ class DDPMActionHead(AbstractActionHead):
             else:
                 noise = torch.zeros_like(actions)
 
-            actions = (actions - beta / torch.sqrt(1 - alpha_cumprod) * predicted_noise) / torch.sqrt(alpha)
+            actions = (
+                actions - beta / torch.sqrt(1 - alpha_cumprod) * predicted_noise
+            ) / torch.sqrt(alpha)
             actions = actions + torch.sqrt(beta) * noise
 
         return actions

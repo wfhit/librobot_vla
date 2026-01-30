@@ -62,7 +62,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Evaluate LibroBot VLA models",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__
+        epilog=__doc__,
     )
 
     # Required arguments
@@ -70,51 +70,37 @@ def parse_args():
         "--checkpoint",
         type=str,
         required=True,
-        help="Path to checkpoint file(s). Supports glob patterns (e.g., checkpoints/*.pt)"
+        help="Path to checkpoint file(s). Supports glob patterns (e.g., checkpoints/*.pt)",
     )
-    parser.add_argument(
-        "--config",
-        type=str,
-        required=True,
-        help="Path to configuration YAML file"
-    )
+    parser.add_argument("--config", type=str, required=True, help="Path to configuration YAML file")
 
     # Data
     parser.add_argument(
         "--test-data",
         type=str,
         default=None,
-        help="Path to test dataset. If not specified, uses config value."
+        help="Path to test dataset. If not specified, uses config value.",
     )
     parser.add_argument(
         "--batch-size",
         type=int,
         default=None,
-        help="Batch size for evaluation. If not specified, uses config value."
+        help="Batch size for evaluation. If not specified, uses config value.",
     )
-    parser.add_argument(
-        "--num-workers",
-        type=int,
-        default=4,
-        help="Number of data loading workers"
-    )
+    parser.add_argument("--num-workers", type=int, default=4, help="Number of data loading workers")
 
     # Output
     parser.add_argument(
         "--output-dir",
         type=str,
         default="results/evaluation",
-        help="Directory for evaluation outputs"
+        help="Directory for evaluation outputs",
     )
     parser.add_argument(
-        "--save-predictions",
-        action="store_true",
-        help="Save model predictions to file"
+        "--save-predictions", action="store_true", help="Save model predictions to file"
     )
     parser.add_argument(
-        "--save-visualizations",
-        action="store_true",
-        help="Save visualizations of predictions"
+        "--save-visualizations", action="store_true", help="Save visualizations of predictions"
     )
 
     # Logging
@@ -123,14 +109,9 @@ def parse_args():
         type=str,
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Logging level"
+        help="Logging level",
     )
-    parser.add_argument(
-        "--log-file",
-        type=str,
-        default=None,
-        help="Path to log file"
-    )
+    parser.add_argument("--log-file", type=str, default=None, help="Path to log file")
 
     # Device
     parser.add_argument(
@@ -138,23 +119,18 @@ def parse_args():
         type=str,
         default=None,
         choices=["cuda", "cpu", "mps"],
-        help="Device to use for evaluation"
+        help="Device to use for evaluation",
     )
 
     # Reproducibility
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility"
-    )
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
 
     # Metrics
     parser.add_argument(
         "--metrics",
         nargs="+",
         default=None,
-        help="Specific metrics to compute (default: all available metrics)"
+        help="Specific metrics to compute (default: all available metrics)",
     )
 
     return parser.parse_args()
@@ -209,7 +185,7 @@ def load_checkpoint_for_eval(checkpoint_path: str, model: nn.Module, device: str
 def compute_metrics(
     predictions: List[Dict[str, Any]],
     targets: List[Dict[str, Any]],
-    metric_names: Optional[List[str]] = None
+    metric_names: Optional[List[str]] = None,
 ) -> Dict[str, float]:
     """
     Compute evaluation metrics.
@@ -270,7 +246,7 @@ def evaluate_model(
     dataloader: DataLoader,
     loss_fn: Optional[nn.Module],
     device: str,
-    save_predictions: bool = False
+    save_predictions: bool = False,
 ) -> tuple[Dict[str, float], List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Run evaluation on dataset.
@@ -298,8 +274,9 @@ def evaluate_model(
         for batch_idx, batch in enumerate(tqdm(dataloader, desc="Evaluating")):
             # Move batch to device
             if isinstance(batch, dict):
-                batch = {k: v.to(device) if isinstance(v, torch.Tensor) else v 
-                        for k, v in batch.items()}
+                batch = {
+                    k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in batch.items()
+                }
             elif isinstance(batch, (list, tuple)):
                 batch = [x.to(device) if isinstance(x, torch.Tensor) else x for x in batch]
 
@@ -324,17 +301,23 @@ def evaluate_model(
                         pred_actions = outputs
 
                     if pred_actions is not None:
-                        predictions.extend([
-                            {"actions": pred_actions[i].cpu().numpy()}
-                            for i in range(pred_actions.shape[0])
-                        ])
+                        predictions.extend(
+                            [
+                                {"actions": pred_actions[i].cpu().numpy()}
+                                for i in range(pred_actions.shape[0])
+                            ]
+                        )
 
                     # Extract target actions
-                    target_actions = batch.get("actions", batch[-1]) if isinstance(batch, dict) else batch[-1]
-                    targets.extend([
-                        {"actions": target_actions[i].cpu().numpy()}
-                        for i in range(target_actions.shape[0])
-                    ])
+                    target_actions = (
+                        batch.get("actions", batch[-1]) if isinstance(batch, dict) else batch[-1]
+                    )
+                    targets.extend(
+                        [
+                            {"actions": target_actions[i].cpu().numpy()}
+                            for i in range(target_actions.shape[0])
+                        ]
+                    )
 
             except Exception as e:
                 logger.error(f"Error processing batch {batch_idx}: {e}")
@@ -354,7 +337,7 @@ def save_evaluation_results(
     metrics: Dict[str, float],
     predictions: Optional[List[Dict[str, Any]]],
     checkpoint_metadata: Dict[str, Any],
-    config: Config
+    config: Config,
 ):
     """
     Save evaluation results to disk.
@@ -518,15 +501,13 @@ def main():
                 dataloader=test_dataloader,
                 loss_fn=loss_fn,
                 device=device,
-                save_predictions=args.save_predictions
+                save_predictions=args.save_predictions,
             )
 
             # Compute additional metrics from predictions
             if predictions and targets:
                 additional_metrics = compute_metrics(
-                    predictions=predictions,
-                    targets=targets,
-                    metric_names=args.metrics
+                    predictions=predictions, targets=targets, metric_names=args.metrics
                 )
                 eval_metrics.update(additional_metrics)
 
@@ -543,7 +524,7 @@ def main():
                 metrics=eval_metrics,
                 predictions=predictions if args.save_predictions else None,
                 checkpoint_metadata=checkpoint_metadata,
-                config=config
+                config=config,
             )
 
             logger.info(f"Results saved to: {output_dir}")

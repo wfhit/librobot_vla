@@ -91,7 +91,9 @@ class Timer:
                 timer_name = name or func.__name__
                 with Timer(timer_name, verbose):
                     return func(*args, **kwargs)
+
             return wrapper
+
         return decorator_wrapper
 
 
@@ -173,12 +175,12 @@ class TimerRegistry:
             for name, timings in self._timings.items():
                 if timings:
                     stats[name] = {
-                        'mean': float(np.mean(timings)),
-                        'std': float(np.std(timings)),
-                        'min': float(np.min(timings)),
-                        'max': float(np.max(timings)),
-                        'total': float(np.sum(timings)),
-                        'count': len(timings),
+                        "mean": float(np.mean(timings)),
+                        "std": float(np.std(timings)),
+                        "min": float(np.min(timings)),
+                        "max": float(np.max(timings)),
+                        "total": float(np.sum(timings)),
+                        "count": len(timings),
                     }
 
         return stats
@@ -196,18 +198,20 @@ class TimerRegistry:
             print("No timings recorded")
             return
 
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("Timing Statistics")
-        print("="*80)
+        print("=" * 80)
         print(f"{'Name':<30} {'Count':>8} {'Mean':>12} {'Std':>12} {'Min':>12} {'Max':>12}")
-        print("-"*80)
+        print("-" * 80)
 
         for name in sorted(stats.keys()):
             timing_stat = stats[name]
-            print(f"{name:<30} {timing_stat['count']:>8} {timing_stat['mean']:>12.4f}s {timing_stat['std']:>12.4f}s "
-                  f"{timing_stat['min']:>12.4f}s {timing_stat['max']:>12.4f}s")
+            print(
+                f"{name:<30} {timing_stat['count']:>8} {timing_stat['mean']:>12.4f}s {timing_stat['std']:>12.4f}s "
+                f"{timing_stat['min']:>12.4f}s {timing_stat['max']:>12.4f}s"
+            )
 
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")
 
 
 _global_registry = TimerRegistry()

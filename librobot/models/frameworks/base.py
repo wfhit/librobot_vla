@@ -26,7 +26,7 @@ class AbstractVLA(ABC, nn.Module):
         text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> dict[str, torch.Tensor]:
         """
         Forward pass of the VLA framework.
@@ -52,7 +52,7 @@ class AbstractVLA(ABC, nn.Module):
         images: torch.Tensor,
         text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> torch.Tensor:
         """
         Predict actions for inference.
@@ -70,10 +70,7 @@ class AbstractVLA(ABC, nn.Module):
 
     @abstractmethod
     def compute_loss(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
@@ -102,25 +99,25 @@ class AbstractVLA(ABC, nn.Module):
 
     def freeze_backbone(self) -> None:
         """Freeze VLM backbone parameters."""
-        if hasattr(self, 'vlm'):
+        if hasattr(self, "vlm"):
             for param in self.vlm.parameters():
                 param.requires_grad = False
 
     def unfreeze_backbone(self) -> None:
         """Unfreeze VLM backbone parameters."""
-        if hasattr(self, 'vlm'):
+        if hasattr(self, "vlm"):
             for param in self.vlm.parameters():
                 param.requires_grad = True
 
     def freeze_head(self) -> None:
         """Freeze action head parameters."""
-        if hasattr(self, 'action_head'):
+        if hasattr(self, "action_head"):
             for param in self.action_head.parameters():
                 param.requires_grad = False
 
     def unfreeze_head(self) -> None:
         """Unfreeze action head parameters."""
-        if hasattr(self, 'action_head'):
+        if hasattr(self, "action_head"):
             for param in self.action_head.parameters():
                 param.requires_grad = True
 

@@ -12,7 +12,7 @@ def demo_vlm(model_name: str, img_size: int = 224):
 
     # Create model (without pretrained weights for demo)
     config = {
-        'use_flash_attn': False,  # Disable for compatibility
+        "use_flash_attn": False,  # Disable for compatibility
     }
 
     print(f"Creating {model_name}...")
@@ -75,9 +75,9 @@ def demo_vlm(model_name: str, img_size: int = 224):
 
 def main():
     """Run demonstrations for all VLMs."""
-    print("="*60)
+    print("=" * 60)
     print("VLM (Vision-Language Model) Implementation Demo")
-    print("="*60)
+    print("=" * 60)
 
     # List all available VLMs
     vlms = list_vlms()
@@ -87,11 +87,11 @@ def main():
 
     # Demo each VLM (using smaller variants for speed)
     models_to_demo = [
-        ('qwen2-vl-2b', 224),
-        ('florence-2-base', 224),
-        ('paligemma-3b', 224),
-        ('internvl2-2b', 224),
-        ('llava-v1.5-7b', 336),
+        ("qwen2-vl-2b", 224),
+        ("florence-2-base", 224),
+        ("paligemma-3b", 224),
+        ("internvl2-2b", 224),
+        ("llava-v1.5-7b", 336),
     ]
 
     for model_name, img_size in models_to_demo:
@@ -100,11 +100,12 @@ def main():
         except Exception as e:
             print(f"\n❌ Error demonstrating {model_name}: {e}")
             import traceback
+
             traceback.print_exc()
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("Demo complete!")
-    print("="*60)
+    print("=" * 60)
 
 
 if __name__ == "__main__":

@@ -34,7 +34,7 @@ class LSTMHistoryEncoder(AbstractEncoder):
         hidden_dim: int = 256,
         dropout: float = 0.0,
         bidirectional: bool = False,
-        pooling: str = 'last',
+        pooling: str = "last",
     ):
         super().__init__(output_dim)
         self.input_dim = input_dim
@@ -59,10 +59,7 @@ class LSTMHistoryEncoder(AbstractEncoder):
         self.output_proj = nn.Linear(lstm_output_dim, output_dim)
 
     def forward(
-        self,
-        inputs: torch.Tensor,
-        lengths: Optional[torch.Tensor] = None,
-        **kwargs
+        self, inputs: torch.Tensor, lengths: Optional[torch.Tensor] = None, **kwargs
     ) -> torch.Tensor:
         """
         Encode history with LSTM.
@@ -93,7 +90,7 @@ class LSTMHistoryEncoder(AbstractEncoder):
             output, (hidden, cell) = self.lstm(inputs)
 
         # Pool LSTM outputs
-        if self.pooling_method == 'last':
+        if self.pooling_method == "last":
             if lengths is not None:
                 # Get last valid timestep for each sequence
                 indices = (lengths - 1).long().unsqueeze(1).unsqueeze(2)
@@ -102,18 +99,22 @@ class LSTMHistoryEncoder(AbstractEncoder):
             else:
                 pooled = output[:, -1]
 
-        elif self.pooling_method == 'mean':
+        elif self.pooling_method == "mean":
             if lengths is not None:
                 # Masked mean
-                mask = torch.arange(seq_len, device=inputs.device).unsqueeze(0) < lengths.unsqueeze(1)
+                mask = torch.arange(seq_len, device=inputs.device).unsqueeze(0) < lengths.unsqueeze(
+                    1
+                )
                 pooled = (output * mask.unsqueeze(-1)).sum(dim=1) / lengths.unsqueeze(1)
             else:
                 pooled = output.mean(dim=1)
 
-        elif self.pooling_method == 'max':
+        elif self.pooling_method == "max":
             if lengths is not None:
-                mask = torch.arange(seq_len, device=inputs.device).unsqueeze(0) < lengths.unsqueeze(1)
-                output = output.masked_fill(~mask.unsqueeze(-1), float('-inf'))
+                mask = torch.arange(seq_len, device=inputs.device).unsqueeze(0) < lengths.unsqueeze(
+                    1
+                )
+                output = output.masked_fill(~mask.unsqueeze(-1), float("-inf"))
             pooled = output.max(dim=1)[0]
 
         else:
@@ -135,12 +136,12 @@ class LSTMHistoryEncoder(AbstractEncoder):
     def config(self) -> dict[str, Any]:
         """Get encoder configuration."""
         return {
-            'type': 'LSTMHistoryEncoder',
-            'input_dim': self.input_dim,
-            'output_dim': self.output_dim,
-            'num_layers': self.num_layers,
-            'hidden_dim': self.hidden_dim,
-            'dropout': self.dropout_rate,
-            'bidirectional': self.bidirectional,
-            'pooling': self.pooling_method,
+            "type": "LSTMHistoryEncoder",
+            "input_dim": self.input_dim,
+            "output_dim": self.output_dim,
+            "num_layers": self.num_layers,
+            "hidden_dim": self.hidden_dim,
+            "dropout": self.dropout_rate,
+            "bidirectional": self.bidirectional,
+            "pooling": self.pooling_method,
         }

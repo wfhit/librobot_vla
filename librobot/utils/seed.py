@@ -28,7 +28,7 @@ def set_seed(seed: int, deterministic: bool = False, benchmark: bool = True) -> 
 
     # Note: PYTHONHASHSEED must be set before Python starts to take effect
     # Setting it here only affects subprocesses
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
 
     if deterministic:
         torch.backends.cudnn.deterministic = True
@@ -46,10 +46,10 @@ def get_random_state() -> dict:
         dict: Dictionary containing random states for random, numpy, and torch
     """
     return {
-        'random': random.getstate(),
-        'numpy': np.random.get_state(),
-        'torch': torch.get_rng_state(),
-        'torch_cuda': torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
+        "random": random.getstate(),
+        "numpy": np.random.get_state(),
+        "torch": torch.get_rng_state(),
+        "torch_cuda": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
     }
 
 
@@ -60,12 +60,12 @@ def set_random_state(state: dict) -> None:
     Args:
         state: Dictionary containing random states (from get_random_state)
     """
-    random.setstate(state['random'])
-    np.random.set_state(state['numpy'])
-    torch.set_rng_state(state['torch'])
+    random.setstate(state["random"])
+    np.random.set_state(state["numpy"])
+    torch.set_rng_state(state["torch"])
 
-    if state.get('torch_cuda') is not None and torch.cuda.is_available():
-        torch.cuda.set_rng_state_all(state['torch_cuda'])
+    if state.get("torch_cuda") is not None and torch.cuda.is_available():
+        torch.cuda.set_rng_state_all(state["torch_cuda"])
 
 
 def make_deterministic(seed: Optional[int] = None) -> int:
@@ -79,7 +79,7 @@ def make_deterministic(seed: Optional[int] = None) -> int:
         int: The seed that was used
     """
     if seed is None:
-        seed = int.from_bytes(os.urandom(4), byteorder='big')
+        seed = int.from_bytes(os.urandom(4), byteorder="big")
 
     set_seed(seed, deterministic=True, benchmark=False)
     return seed

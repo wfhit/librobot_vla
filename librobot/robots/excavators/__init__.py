@@ -5,7 +5,7 @@ from .excavator_robot import ExcavatorRobot
 
 __all__ = [
     # Base
-    'Excavator',
+    "Excavator",
     # Implementations
-    'ExcavatorRobot',
+    "ExcavatorRobot",
 ]

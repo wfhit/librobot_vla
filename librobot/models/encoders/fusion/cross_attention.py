@@ -46,14 +46,16 @@ class CrossAttentionFusion(nn.Module):
         self.context_proj = nn.Linear(context_dim, output_dim)
 
         # Cross-attention layers
-        self.cross_attn_layers = nn.ModuleList([
-            CrossAttentionLayer(
-                d_model=output_dim,
-                num_heads=num_heads,
-                dropout=dropout,
-            )
-            for _ in range(num_layers)
-        ])
+        self.cross_attn_layers = nn.ModuleList(
+            [
+                CrossAttentionLayer(
+                    d_model=output_dim,
+                    num_heads=num_heads,
+                    dropout=dropout,
+                )
+                for _ in range(num_layers)
+            ]
+        )
 
         self.norm = LayerNorm(output_dim)
 
@@ -63,7 +65,7 @@ class CrossAttentionFusion(nn.Module):
         context: torch.Tensor,
         query_mask: Optional[torch.Tensor] = None,
         context_mask: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> torch.Tensor:
         """
         Fuse query and context via cross-attention.
@@ -94,12 +96,12 @@ class CrossAttentionFusion(nn.Module):
     def get_config(self) -> dict[str, Any]:
         """Get fusion configuration."""
         return {
-            'type': 'CrossAttentionFusion',
-            'query_dim': self.query_dim,
-            'context_dim': self.context_dim,
-            'output_dim': self.output_dim,
-            'num_heads': self.num_heads,
-            'num_layers': self.num_layers,
+            "type": "CrossAttentionFusion",
+            "query_dim": self.query_dim,
+            "context_dim": self.context_dim,
+            "output_dim": self.output_dim,
+            "num_heads": self.num_heads,
+            "num_layers": self.num_layers,
         }
 
 
@@ -155,13 +157,17 @@ class CrossAttentionLayer(nn.Module):
         q_proj = self.cross_attn.qkv.weight[:C].t()
         q_bias = self.cross_attn.qkv.bias[:C] if self.cross_attn.qkv.bias is not None else None
         q_out = nn.functional.linear(q_norm, q_proj, q_bias)
-        q_out = q_out.reshape(B, N_q, self.cross_attn.num_heads, self.cross_attn.head_dim).permute(0, 2, 1, 3)
+        q_out = q_out.reshape(B, N_q, self.cross_attn.num_heads, self.cross_attn.head_dim).permute(
+            0, 2, 1, 3
+        )
 
         # Compute K,V from context
         kv_proj = self.cross_attn.qkv.weight[C:].t()
         kv_bias = self.cross_attn.qkv.bias[C:] if self.cross_attn.qkv.bias is not None else None
         kv_out = nn.functional.linear(context, kv_proj, kv_bias)
-        kv_out = kv_out.reshape(B, N_c, 2, self.cross_attn.num_heads, self.cross_attn.head_dim).permute(2, 0, 3, 1, 4)
+        kv_out = kv_out.reshape(
+            B, N_c, 2, self.cross_attn.num_heads, self.cross_attn.head_dim
+        ).permute(2, 0, 3, 1, 4)
         k_out, v_out = kv_out[0], kv_out[1]
 
         # Attention
@@ -169,7 +175,7 @@ class CrossAttentionLayer(nn.Module):
 
         if context_mask is not None:
             context_mask = context_mask.unsqueeze(1).unsqueeze(2)
-            attn = attn.masked_fill(context_mask == 0, float('-inf'))
+            attn = attn.masked_fill(context_mask == 0, float("-inf"))
 
         attn = attn.softmax(dim=-1)
         attn = self.cross_attn.attn_drop(attn)

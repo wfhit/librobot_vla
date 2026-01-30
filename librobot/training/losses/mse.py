@@ -27,17 +27,14 @@ class MSELoss(AbstractLoss):
         super().__init__(weight=weight)
         self.reduction = reduction
         self.mask_key = mask_key
-        self.mse = nn.MSELoss(reduction='none')
+        self.mse = nn.MSELoss(reduction="none")
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
         """Compute MSE loss."""
-        pred = predictions.get('actions', predictions.get('pred'))
-        target = targets.get('actions', targets.get('target'))
+        pred = predictions.get("actions", predictions.get("pred"))
+        target = targets.get("actions", targets.get("target"))
 
         if pred is None or target is None:
             return torch.tensor(0.0, device=next(iter(predictions.values())).device)
@@ -67,13 +64,10 @@ class L1Loss(AbstractLoss):
         self.l1 = nn.L1Loss(reduction=reduction)
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
-        pred = predictions.get('actions', predictions.get('pred'))
-        target = targets.get('actions', targets.get('target'))
+        pred = predictions.get("actions", predictions.get("pred"))
+        target = targets.get("actions", targets.get("target"))
 
         if pred is None or target is None:
             return torch.tensor(0.0)
@@ -95,13 +89,10 @@ class SmoothL1Loss(AbstractLoss):
         self.beta = beta
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
-        pred = predictions.get('actions', predictions.get('pred'))
-        target = targets.get('actions', targets.get('target'))
+        pred = predictions.get("actions", predictions.get("pred"))
+        target = targets.get("actions", targets.get("target"))
 
         if pred is None or target is None:
             return torch.tensor(0.0)
@@ -147,13 +138,10 @@ class ActionLoss(AbstractLoss):
             self.loss_fn = F.smooth_l1_loss
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
-        pred = predictions.get('actions')
-        target = targets.get('actions')
+        pred = predictions.get("actions")
+        target = targets.get("actions")
 
         if pred is None or target is None:
             return torch.tensor(0.0)
@@ -187,8 +175,8 @@ class ActionLoss(AbstractLoss):
 
 
 __all__ = [
-    'MSELoss',
-    'L1Loss',
-    'SmoothL1Loss',
-    'ActionLoss',
+    "MSELoss",
+    "L1Loss",
+    "SmoothL1Loss",
+    "ActionLoss",
 ]

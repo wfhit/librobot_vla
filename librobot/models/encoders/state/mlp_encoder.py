@@ -30,9 +30,9 @@ class MLPStateEncoder(AbstractEncoder):
         input_dim: int,
         output_dim: int,
         hidden_dims: list[int] = [256, 256],
-        activation: str = 'relu',
+        activation: str = "relu",
         dropout: float = 0.0,
-        norm: Optional[str] = 'layer',
+        norm: Optional[str] = "layer",
         residual: bool = False,
     ):
         super().__init__(output_dim)
@@ -53,18 +53,18 @@ class MLPStateEncoder(AbstractEncoder):
 
             # Normalization (except last layer)
             if i < len(dims) - 2 and norm is not None:
-                if norm == 'layer':
+                if norm == "layer":
                     layers.append(nn.LayerNorm(dims[i + 1]))
-                elif norm == 'batch':
+                elif norm == "batch":
                     layers.append(nn.BatchNorm1d(dims[i + 1]))
 
             # Activation (except last layer)
             if i < len(dims) - 2:
-                if activation == 'relu':
+                if activation == "relu":
                     layers.append(nn.ReLU(inplace=True))
-                elif activation == 'gelu':
+                elif activation == "gelu":
                     layers.append(nn.GELU())
-                elif activation == 'silu':
+                elif activation == "silu":
                     layers.append(nn.SiLU(inplace=True))
                 else:
                     raise ValueError(f"Unknown activation: {activation}")
@@ -81,11 +81,7 @@ class MLPStateEncoder(AbstractEncoder):
         else:
             self.residual_proj = None
 
-    def forward(
-        self,
-        inputs: torch.Tensor,
-        **kwargs
-    ) -> torch.Tensor:
+    def forward(self, inputs: torch.Tensor, **kwargs) -> torch.Tensor:
         """
         Encode state to embeddings.
 
@@ -135,12 +131,12 @@ class MLPStateEncoder(AbstractEncoder):
     def config(self) -> dict[str, Any]:
         """Get encoder configuration."""
         return {
-            'type': 'MLPStateEncoder',
-            'input_dim': self.input_dim,
-            'output_dim': self.output_dim,
-            'hidden_dims': self.hidden_dims,
-            'activation': self.activation_name,
-            'dropout': self.dropout_rate,
-            'norm': self.norm_type,
-            'residual': self.use_residual,
+            "type": "MLPStateEncoder",
+            "input_dim": self.input_dim,
+            "output_dim": self.output_dim,
+            "hidden_dims": self.hidden_dims,
+            "activation": self.activation_name,
+            "dropout": self.dropout_rate,
+            "norm": self.norm_type,
+            "residual": self.use_residual,
         }

@@ -92,8 +92,8 @@ class KVCache:
                     # Truncate if exceeds max_length
                     if self.max_length is not None:
                         if concat_k.shape[-2] > self.max_length:
-                            concat_k = concat_k[..., -self.max_length:, :]
-                            concat_v = concat_v[..., -self.max_length:, :]
+                            concat_k = concat_k[..., -self.max_length :, :]
+                            concat_v = concat_v[..., -self.max_length :, :]
 
                     updated_cache.append((concat_k, concat_v))
                 else:
@@ -142,10 +142,7 @@ class KVCache:
         self.device = torch.device(device) if isinstance(device, str) else device
 
         if self._cache is not None:
-            self._cache = [
-                (k.to(self.device), v.to(self.device))
-                for k, v in self._cache
-            ]
+            self._cache = [(k.to(self.device), v.to(self.device)) for k, v in self._cache]
 
         return self
 
@@ -321,12 +318,22 @@ class StaticKVCache:
 
         # Pre-allocate cache tensors
         self._keys = torch.zeros(
-            num_layers, batch_size, num_heads, max_length, head_dim,
-            device=self.device, dtype=self.dtype
+            num_layers,
+            batch_size,
+            num_heads,
+            max_length,
+            head_dim,
+            device=self.device,
+            dtype=self.dtype,
         )
         self._values = torch.zeros(
-            num_layers, batch_size, num_heads, max_length, head_dim,
-            device=self.device, dtype=self.dtype
+            num_layers,
+            batch_size,
+            num_heads,
+            max_length,
+            head_dim,
+            device=self.device,
+            dtype=self.dtype,
         )
 
         self._current_pos = 0
@@ -370,8 +377,8 @@ class StaticKVCache:
             values: Value tensor to store
         """
         seq_len = keys.shape[-2]
-        self._keys[layer_idx, :, :, position:position+seq_len, :] = keys
-        self._values[layer_idx, :, :, position:position+seq_len, :] = values
+        self._keys[layer_idx, :, :, position : position + seq_len, :] = keys
+        self._values[layer_idx, :, :, position : position + seq_len, :] = values
         self._current_pos = max(self._current_pos, position + seq_len)
 
     def clear(self) -> None:

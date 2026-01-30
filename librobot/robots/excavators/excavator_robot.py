@@ -179,13 +179,14 @@ class ExcavatorRobot(Excavator):
     def get_state(self) -> dict[str, np.ndarray]:
         """Get current excavator state."""
         return {
-            'track_state': np.array([self._left_track_speed, self._right_track_speed]),
-            'arm_state': np.array([self._swing_angle, self._boom_angle,
-                                   self._arm_angle, self._bucket_angle]),
-            'hydraulic_state': np.array([self._hydraulic_pressure]),
-            'engine_state': np.array([self._engine_rpm, self._fuel_level]),
-            'position': np.array([self._latitude, self._longitude, self._altitude]),
-            'orientation': self._orientation.copy(),
+            "track_state": np.array([self._left_track_speed, self._right_track_speed]),
+            "arm_state": np.array(
+                [self._swing_angle, self._boom_angle, self._arm_angle, self._bucket_angle]
+            ),
+            "hydraulic_state": np.array([self._hydraulic_pressure]),
+            "engine_state": np.array([self._engine_rpm, self._fuel_level]),
+            "position": np.array([self._latitude, self._longitude, self._altitude]),
+            "orientation": self._orientation.copy(),
         }
 
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
@@ -218,39 +219,39 @@ class ExcavatorRobot(Excavator):
     def get_observation(self) -> dict[str, Any]:
         """Get current observation from excavator sensors."""
         observation = {
-            'proprioception': {
-                'left_track_speed': self._left_track_speed,
-                'right_track_speed': self._right_track_speed,
-                'swing_angle': self._swing_angle,
-                'boom_angle': self._boom_angle,
-                'arm_angle': self._arm_angle,
-                'bucket_angle': self._bucket_angle,
-                'hydraulic_pressure': self._hydraulic_pressure,
-                'engine_rpm': self._engine_rpm,
-                'fuel_level': self._fuel_level,
+            "proprioception": {
+                "left_track_speed": self._left_track_speed,
+                "right_track_speed": self._right_track_speed,
+                "swing_angle": self._swing_angle,
+                "boom_angle": self._boom_angle,
+                "arm_angle": self._arm_angle,
+                "bucket_angle": self._bucket_angle,
+                "hydraulic_pressure": self._hydraulic_pressure,
+                "engine_rpm": self._engine_rpm,
+                "fuel_level": self._fuel_level,
             }
         }
 
         if self.camera_enabled:
-            observation['images'] = {
-                'front': np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
-                'rear': np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
-                'left': np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
-                'bucket': np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
+            observation["images"] = {
+                "front": np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
+                "rear": np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
+                "left": np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
+                "bucket": np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
             }
 
         if self.gps_enabled:
-            observation['gps'] = {
-                'latitude': self._latitude,
-                'longitude': self._longitude,
-                'altitude': self._altitude,
+            observation["gps"] = {
+                "latitude": self._latitude,
+                "longitude": self._longitude,
+                "altitude": self._altitude,
             }
 
         if self.imu_enabled:
-            observation['imu'] = {
-                'linear_acceleration': self._linear_acceleration.copy(),
-                'angular_velocity': self._angular_velocity.copy(),
-                'orientation': self._orientation.copy(),
+            observation["imu"] = {
+                "linear_acceleration": self._linear_acceleration.copy(),
+                "angular_velocity": self._angular_velocity.copy(),
+                "orientation": self._orientation.copy(),
             }
 
         return observation
@@ -258,63 +259,55 @@ class ExcavatorRobot(Excavator):
     def get_action_space(self) -> dict[str, Any]:
         """Get action space specification."""
         return {
-            'shape': (7,),
-            'dtype': np.float32,
-            'bounds': {
-                'low': np.array([-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 0.0]),
-                'high': np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
+            "shape": (7,),
+            "dtype": np.float32,
+            "bounds": {
+                "low": np.array([-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 0.0]),
+                "high": np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
             },
-            'names': [
-                'left_track',
-                'right_track',
-                'swing',
-                'boom',
-                'arm',
-                'bucket',
-                'throttle'
-            ],
+            "names": ["left_track", "right_track", "swing", "boom", "arm", "bucket", "throttle"],
         }
 
     def get_observation_space(self) -> dict[str, Any]:
         """Get observation space specification."""
         obs_space = {
-            'proprioception': {
-                'shape': (9,),
-                'dtype': np.float32,
-                'names': [
-                    'left_track_speed',
-                    'right_track_speed',
-                    'swing_angle',
-                    'boom_angle',
-                    'arm_angle',
-                    'bucket_angle',
-                    'hydraulic_pressure',
-                    'engine_rpm',
-                    'fuel_level'
+            "proprioception": {
+                "shape": (9,),
+                "dtype": np.float32,
+                "names": [
+                    "left_track_speed",
+                    "right_track_speed",
+                    "swing_angle",
+                    "boom_angle",
+                    "arm_angle",
+                    "bucket_angle",
+                    "hydraulic_pressure",
+                    "engine_rpm",
+                    "fuel_level",
                 ],
             }
         }
 
         if self.camera_enabled:
-            obs_space['images'] = {
-                'front': {'shape': (*self.CAMERA_RESOLUTION, 3), 'dtype': np.uint8},
-                'rear': {'shape': (*self.CAMERA_RESOLUTION, 3), 'dtype': np.uint8},
-                'left': {'shape': (*self.CAMERA_RESOLUTION, 3), 'dtype': np.uint8},
-                'bucket': {'shape': (*self.CAMERA_RESOLUTION, 3), 'dtype': np.uint8},
+            obs_space["images"] = {
+                "front": {"shape": (*self.CAMERA_RESOLUTION, 3), "dtype": np.uint8},
+                "rear": {"shape": (*self.CAMERA_RESOLUTION, 3), "dtype": np.uint8},
+                "left": {"shape": (*self.CAMERA_RESOLUTION, 3), "dtype": np.uint8},
+                "bucket": {"shape": (*self.CAMERA_RESOLUTION, 3), "dtype": np.uint8},
             }
 
         if self.gps_enabled:
-            obs_space['gps'] = {
-                'shape': (3,),
-                'dtype': np.float64,
-                'names': ['latitude', 'longitude', 'altitude'],
+            obs_space["gps"] = {
+                "shape": (3,),
+                "dtype": np.float64,
+                "names": ["latitude", "longitude", "altitude"],
             }
 
         if self.imu_enabled:
-            obs_space['imu'] = {
-                'linear_acceleration': {'shape': (3,), 'dtype': np.float32},
-                'angular_velocity': {'shape': (3,), 'dtype': np.float32},
-                'orientation': {'shape': (4,), 'dtype': np.float32},
+            obs_space["imu"] = {
+                "linear_acceleration": {"shape": (3,), "dtype": np.float32},
+                "angular_velocity": {"shape": (3,), "dtype": np.float32},
+                "orientation": {"shape": (4,), "dtype": np.float32},
             }
 
         return obs_space
@@ -326,4 +319,4 @@ class ExcavatorRobot(Excavator):
         print(f"[{self.robot_id}] EMERGENCY STOP activated")
 
 
-__all__ = ['ExcavatorRobot']
+__all__ = ["ExcavatorRobot"]

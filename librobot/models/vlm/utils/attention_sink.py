@@ -1,10 +1,12 @@
 """Attention sink for streaming inference."""
+
 import torch
 import torch.nn as nn
 
 
 class AttentionSink(nn.Module):
     """Attention sink tokens for streaming."""
+
     def __init__(self, num_sink_tokens: int = 4, window_size: int = 1024):
         super().__init__()
         self.num_sink_tokens = num_sink_tokens
@@ -16,12 +18,12 @@ class AttentionSink(nn.Module):
             return k, v
 
         # Keep sink tokens and recent window
-        k_sink = k[:, :, :self.num_sink_tokens]
-        k_window = k[:, :, -(self.window_size):]
+        k_sink = k[:, :, : self.num_sink_tokens]
+        k_window = k[:, :, -(self.window_size) :]
         k = torch.cat([k_sink, k_window], dim=2)
 
-        v_sink = v[:, :, :self.num_sink_tokens]
-        v_window = v[:, :, -(self.window_size):]
+        v_sink = v[:, :, : self.num_sink_tokens]
+        v_window = v[:, :, -(self.window_size) :]
         v = torch.cat([v_sink, v_window], dim=2)
 
         return k, v

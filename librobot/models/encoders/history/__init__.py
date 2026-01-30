@@ -6,8 +6,8 @@ from .temporal_conv import TemporalConvEncoder
 from .transformer_encoder import TransformerHistoryEncoder
 
 __all__ = [
-    'MLPHistoryEncoder',
-    'LSTMHistoryEncoder',
-    'TransformerHistoryEncoder',
-    'TemporalConvEncoder',
+    "MLPHistoryEncoder",
+    "LSTMHistoryEncoder",
+    "TransformerHistoryEncoder",
+    "TemporalConvEncoder",
 ]

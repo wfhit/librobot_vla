@@ -24,6 +24,7 @@ class ExperimentConfig:
         log_dir: Local directory for logs
         offline: Run in offline mode (no network)
     """
+
     project_name: str = "librobot-vla"
     experiment_name: Optional[str] = None
     tags: list[str] = field(default_factory=list)
@@ -178,6 +179,7 @@ class WandbTracker(AbstractExperimentTracker):
             return
 
         import wandb
+
         wandb.log(metrics, step=step, commit=commit)
 
     def log_params(self, params: dict[str, Any]) -> None:
@@ -186,6 +188,7 @@ class WandbTracker(AbstractExperimentTracker):
             return
 
         import wandb
+
         wandb.config.update(params)
 
     def log_artifact(
@@ -294,12 +297,14 @@ class WandbTracker(AbstractExperimentTracker):
             return
 
         import wandb
+
         wandb.watch(model, log=log, log_freq=log_freq)
 
     def finish(self) -> None:
         """Finish W&B run."""
         if self._is_initialized and self._run is not None:
             import wandb
+
             wandb.finish()
             self._is_initialized = False
             logger.info("W&B run finished")
@@ -408,6 +413,7 @@ class MLflowTracker(AbstractExperimentTracker):
             return
 
         import mlflow
+
         mlflow.log_params(self._flatten_dict(params))
 
     def log_artifact(
@@ -455,6 +461,7 @@ class MLflowTracker(AbstractExperimentTracker):
         with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
             try:
                 from PIL import Image
+
                 if isinstance(image, np.ndarray):
                     img = Image.fromarray(image.astype(np.uint8))
                 else:
@@ -525,6 +532,7 @@ class MLflowTracker(AbstractExperimentTracker):
         """Finish MLflow run."""
         if self._is_initialized and self._run is not None:
             import mlflow
+
             mlflow.end_run()
             self._is_initialized = False
             logger.info("MLflow run finished")
@@ -668,7 +676,9 @@ def create_tracker(
         **{k: v for k, v in kwargs.items() if k in ExperimentConfig.__dataclass_fields__},
     )
 
-    tracker_kwargs = {k: v for k, v in kwargs.items() if k not in ExperimentConfig.__dataclass_fields__}
+    tracker_kwargs = {
+        k: v for k, v in kwargs.items() if k not in ExperimentConfig.__dataclass_fields__
+    }
 
     if backend == "wandb":
         return WandbTracker(exp_config, **tracker_kwargs)

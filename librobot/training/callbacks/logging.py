@@ -66,7 +66,7 @@ class LoggingCallback(AbstractCallback):
 
         # Log at intervals
         if self.verbose and self._batch_count % self.log_interval == 0:
-            loss = logs.get('loss', 0)
+            loss = logs.get("loss", 0)
             print(f"  Batch {batch}: loss = {loss:.4f}")
 
     def on_epoch_end(self, epoch: int, logs: Optional[dict[str, Any]] = None) -> None:
@@ -99,7 +99,7 @@ class LoggingCallback(AbstractCallback):
     def _save_history(self) -> None:
         """Save training history to file."""
         history_path = self.log_dir / "training_history.json"
-        with open(history_path, 'w') as f:
+        with open(history_path, "w") as f:
             json.dump(self.history, f, indent=2)
 
 
@@ -126,6 +126,7 @@ class TensorBoardCallback(AbstractCallback):
         """Initialize TensorBoard writer."""
         try:
             from torch.utils.tensorboard import SummaryWriter
+
             self.writer = SummaryWriter(self.log_dir)
         except ImportError:
             print("TensorBoard not available")
@@ -141,7 +142,7 @@ class TensorBoardCallback(AbstractCallback):
         if global_step % self.log_interval == 0:
             for key, value in logs.items():
                 if isinstance(value, (int, float)):
-                    self.writer.add_scalar(f'train/{key}', value, global_step)
+                    self.writer.add_scalar(f"train/{key}", value, global_step)
 
     def on_validation_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Log validation metrics."""
@@ -153,7 +154,7 @@ class TensorBoardCallback(AbstractCallback):
 
         for key, value in logs.items():
             if isinstance(value, (int, float)):
-                self.writer.add_scalar(f'val/{key}', value, global_step)
+                self.writer.add_scalar(f"val/{key}", value, global_step)
 
     def on_train_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Close TensorBoard writer."""
@@ -189,6 +190,7 @@ class WandBCallback(AbstractCallback):
         """Initialize W&B run."""
         try:
             import wandb
+
             self._wandb = wandb
             wandb.init(
                 project=self.project,
@@ -207,8 +209,10 @@ class WandBCallback(AbstractCallback):
         global_step = self.trainer.global_step if self.trainer else batch
 
         if global_step % self.log_interval == 0:
-            self._wandb.log({f'train/{k}': v for k, v in logs.items()
-                           if isinstance(v, (int, float))}, step=global_step)
+            self._wandb.log(
+                {f"train/{k}": v for k, v in logs.items() if isinstance(v, (int, float))},
+                step=global_step,
+            )
 
     def on_validation_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Log validation metrics."""
@@ -217,8 +221,10 @@ class WandBCallback(AbstractCallback):
 
         logs = logs or {}
         global_step = self.trainer.global_step if self.trainer else 0
-        self._wandb.log({f'val/{k}': v for k, v in logs.items()
-                       if isinstance(v, (int, float))}, step=global_step)
+        self._wandb.log(
+            {f"val/{k}": v for k, v in logs.items() if isinstance(v, (int, float))},
+            step=global_step,
+        )
 
     def on_train_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Finish W&B run."""
@@ -227,7 +233,7 @@ class WandBCallback(AbstractCallback):
 
 
 __all__ = [
-    'LoggingCallback',
-    'TensorBoardCallback',
-    'WandBCallback',
+    "LoggingCallback",
+    "TensorBoardCallback",
+    "WandBCallback",
 ]

@@ -16,7 +16,7 @@ class GELU(nn.Module):
         approximate: Whether to use tanh approximation (faster but less accurate)
     """
 
-    def __init__(self, approximate: str = 'none'):
+    def __init__(self, approximate: str = "none"):
         super().__init__()
         self.approximate = approximate
 
@@ -109,19 +109,19 @@ def get_activation(name: str, **kwargs) -> nn.Module:
     name = name.lower()
 
     activations = {
-        'relu': nn.ReLU,
-        'gelu': GELU,
-        'silu': nn.SiLU,
-        'swish': nn.SiLU,  # SiLU and Swish are the same
-        'mish': Mish,
-        'tanh': nn.Tanh,
-        'sigmoid': nn.Sigmoid,
-        'softplus': nn.Softplus,
-        'leaky_relu': nn.LeakyReLU,
-        'elu': nn.ELU,
-        'prelu': nn.PReLU,
-        'quickgelu': QuickGELU,
-        'identity': nn.Identity,
+        "relu": nn.ReLU,
+        "gelu": GELU,
+        "silu": nn.SiLU,
+        "swish": nn.SiLU,  # SiLU and Swish are the same
+        "mish": Mish,
+        "tanh": nn.Tanh,
+        "sigmoid": nn.Sigmoid,
+        "softplus": nn.Softplus,
+        "leaky_relu": nn.LeakyReLU,
+        "elu": nn.ELU,
+        "prelu": nn.PReLU,
+        "quickgelu": QuickGELU,
+        "identity": nn.Identity,
     }
 
     if name not in activations:
@@ -133,10 +133,10 @@ def get_activation(name: str, **kwargs) -> nn.Module:
 
 
 __all__ = [
-    'GELU',
-    'SwiGLU',
-    'GeGLU',
-    'Mish',
-    'QuickGELU',
-    'get_activation',
+    "GELU",
+    "SwiGLU",
+    "GeGLU",
+    "Mish",
+    "QuickGELU",
+    "get_activation",
 ]

@@ -6,8 +6,8 @@ from .serve import serve_cli
 from .train import train_cli
 
 __all__ = [
-    'train_cli',
-    'evaluate_cli',
-    'serve_cli',
-    'collect_cli',
+    "train_cli",
+    "evaluate_cli",
+    "serve_cli",
+    "collect_cli",
 ]

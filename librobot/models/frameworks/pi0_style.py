@@ -68,8 +68,8 @@ class Pi0VLA(AbstractVLA):
         elif not fine_tune_vlm:
             # Partial freeze: keep most layers frozen
             for name, param in self.vlm.named_parameters():
-                if 'layer' in name:
-                    layer_num = int(name.split('.')[1]) if name.split('.')[1].isdigit() else 0
+                if "layer" in name:
+                    layer_num = int(name.split(".")[1]) if name.split(".")[1].isdigit() else 0
                     if layer_num < 20:  # Freeze early layers
                         param.requires_grad = False
 
@@ -94,18 +94,20 @@ class Pi0VLA(AbstractVLA):
         )
 
         # Block-wise attention transformer for processing combined sequence
-        self.transformer = nn.ModuleList([
-            nn.TransformerEncoderLayer(
-                d_model=hidden_dim,
-                nhead=8,
-                dim_feedforward=hidden_dim * 4,
-                dropout=0.1,
-                activation='gelu',
-                batch_first=True,
-                norm_first=True,
-            )
-            for _ in range(4)
-        ])
+        self.transformer = nn.ModuleList(
+            [
+                nn.TransformerEncoderLayer(
+                    d_model=hidden_dim,
+                    nhead=8,
+                    dim_feedforward=hidden_dim * 4,
+                    dropout=0.1,
+                    activation="gelu",
+                    batch_first=True,
+                    norm_first=True,
+                )
+                for _ in range(4)
+            ]
+        )
 
         # Flow matching action head
         self.action_head = FlowMatchingHead(
@@ -123,7 +125,7 @@ class Pi0VLA(AbstractVLA):
         text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> dict[str, torch.Tensor]:
         """
         Forward pass of π0 VLA.
@@ -145,7 +147,7 @@ class Pi0VLA(AbstractVLA):
 
         # Extract VLM features
         vlm_outputs = self.vlm(images, text=text, **kwargs)
-        vlm_embeddings = vlm_outputs['embeddings']  # [batch, seq_len, vlm_dim]
+        vlm_embeddings = vlm_outputs["embeddings"]  # [batch, seq_len, vlm_dim]
 
         # Project VLM embeddings
         vlm_features = self.vlm_proj(vlm_embeddings)  # [batch, seq_len, hidden_dim]
@@ -188,21 +190,19 @@ class Pi0VLA(AbstractVLA):
                 total_loss = total_loss + 0.1 * vq_loss  # Weight VQ loss
 
             return {
-                'actions': self.action_head.sample(action_token, steps=self.flow_steps),
-                'loss': total_loss,
-                'action_loss': action_loss,
-                'vq_loss': vq_loss if vq_loss is not None else torch.tensor(0.0),
-                'action_token': action_token,
+                "actions": self.action_head.sample(action_token, steps=self.flow_steps),
+                "loss": total_loss,
+                "action_loss": action_loss,
+                "vq_loss": vq_loss if vq_loss is not None else torch.tensor(0.0),
+                "action_token": action_token,
             }
         else:
             # Inference mode: sample actions
-            predicted_actions = self.action_head.sample(
-                action_token, steps=self.flow_steps
-            )
+            predicted_actions = self.action_head.sample(action_token, steps=self.flow_steps)
 
             return {
-                'actions': predicted_actions,
-                'action_token': action_token,
+                "actions": predicted_actions,
+                "action_token": action_token,
             }
 
     def predict_action(
@@ -210,7 +210,7 @@ class Pi0VLA(AbstractVLA):
         images: torch.Tensor,
         text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> torch.Tensor:
         """
         Predict actions for inference.
@@ -227,19 +227,12 @@ class Pi0VLA(AbstractVLA):
         self.eval()
         with torch.no_grad():
             outputs = self.forward(
-                images=images,
-                text=text,
-                proprioception=proprioception,
-                actions=None,
-                **kwargs
+                images=images, text=text, proprioception=proprioception, actions=None, **kwargs
             )
-            return outputs['actions']
+            return outputs["actions"]
 
     def compute_loss(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
@@ -255,16 +248,16 @@ class Pi0VLA(AbstractVLA):
         losses = {}
 
         # Action loss
-        if 'action_loss' in predictions:
-            losses['action_loss'] = predictions['action_loss']
+        if "action_loss" in predictions:
+            losses["action_loss"] = predictions["action_loss"]
 
         # VQ loss
-        if 'vq_loss' in predictions:
-            losses['vq_loss'] = predictions['vq_loss']
+        if "vq_loss" in predictions:
+            losses["vq_loss"] = predictions["vq_loss"]
 
         # Total loss
-        if 'loss' in predictions:
-            losses['total_loss'] = predictions['loss']
+        if "loss" in predictions:
+            losses["total_loss"] = predictions["loss"]
 
         return losses
 
@@ -276,11 +269,11 @@ class Pi0VLA(AbstractVLA):
             Dictionary containing configuration
         """
         return {
-            'type': 'Pi0VLA',
-            'vlm_config': self.vlm.config,
-            'action_dim': self.action_dim,
-            'state_dim': self.state_dim,
-            'hidden_dim': self.hidden_dim,
-            'num_state_tokens': self.num_state_tokens,
-            'flow_steps': self.flow_steps,
+            "type": "Pi0VLA",
+            "vlm_config": self.vlm.config,
+            "action_dim": self.action_dim,
+            "state_dim": self.state_dim,
+            "hidden_dim": self.hidden_dim,
+            "num_state_tokens": self.num_state_tokens,
+            "flow_steps": self.flow_steps,
         }

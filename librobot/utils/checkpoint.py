@@ -46,7 +46,7 @@ class Checkpoint:
         self.metric_name = metric_name
         self.mode = mode
 
-        self.best_metric = float('inf') if mode == 'min' else float('-inf')
+        self.best_metric = float("inf") if mode == "min" else float("-inf")
         self.checkpoints: list[Path] = []
 
         # Load existing checkpoint list
@@ -81,23 +81,23 @@ class Checkpoint:
         """
         # Prepare checkpoint data
         checkpoint_data = {
-            'model_state_dict': model.state_dict(),
-            'epoch': epoch,
-            'step': step,
-            'timestamp': datetime.now().isoformat(),
+            "model_state_dict": model.state_dict(),
+            "epoch": epoch,
+            "step": step,
+            "timestamp": datetime.now().isoformat(),
         }
 
         if optimizer is not None:
-            checkpoint_data['optimizer_state_dict'] = optimizer.state_dict()
+            checkpoint_data["optimizer_state_dict"] = optimizer.state_dict()
 
         if scheduler is not None:
-            checkpoint_data['scheduler_state_dict'] = scheduler.state_dict()
+            checkpoint_data["scheduler_state_dict"] = scheduler.state_dict()
 
         if metrics is not None:
-            checkpoint_data['metrics'] = metrics
+            checkpoint_data["metrics"] = metrics
 
         if metadata is not None:
-            checkpoint_data['metadata'] = metadata
+            checkpoint_data["metadata"] = metadata
 
         # Generate filename
         if filename is None:
@@ -115,21 +115,24 @@ class Checkpoint:
         self.checkpoints.append(filepath)
 
         # Save metadata separately for easy inspection
-        metadata_path = filepath.with_suffix('.json')
-        with open(metadata_path, 'w') as f:
-            json.dump({
-                'epoch': epoch,
-                'step': step,
-                'metrics': metrics,
-                'timestamp': checkpoint_data['timestamp'],
-            }, f, indent=2)
+        metadata_path = filepath.with_suffix(".json")
+        with open(metadata_path, "w") as f:
+            json.dump(
+                {
+                    "epoch": epoch,
+                    "step": step,
+                    "metrics": metrics,
+                    "timestamp": checkpoint_data["timestamp"],
+                },
+                f,
+                indent=2,
+            )
 
         # Check if this is the best checkpoint
         if self.save_best and metrics and self.metric_name in metrics:
             metric_value = metrics[self.metric_name]
-            is_best = (
-                (self.mode == 'min' and metric_value < self.best_metric) or
-                (self.mode == 'max' and metric_value > self.best_metric)
+            is_best = (self.mode == "min" and metric_value < self.best_metric) or (
+                self.mode == "max" and metric_value > self.best_metric
             )
 
             if is_best:
@@ -179,14 +182,14 @@ class Checkpoint:
         checkpoint_data = torch.load(filepath, map_location=map_location, weights_only=False)
 
         # Load states into provided objects
-        if model is not None and 'model_state_dict' in checkpoint_data:
-            model.load_state_dict(checkpoint_data['model_state_dict'])
+        if model is not None and "model_state_dict" in checkpoint_data:
+            model.load_state_dict(checkpoint_data["model_state_dict"])
 
-        if optimizer is not None and 'optimizer_state_dict' in checkpoint_data:
-            optimizer.load_state_dict(checkpoint_data['optimizer_state_dict'])
+        if optimizer is not None and "optimizer_state_dict" in checkpoint_data:
+            optimizer.load_state_dict(checkpoint_data["optimizer_state_dict"])
 
-        if scheduler is not None and 'scheduler_state_dict' in checkpoint_data:
-            scheduler.load_state_dict(checkpoint_data['scheduler_state_dict'])
+        if scheduler is not None and "scheduler_state_dict" in checkpoint_data:
+            scheduler.load_state_dict(checkpoint_data["scheduler_state_dict"])
 
         return checkpoint_data
 
@@ -247,9 +250,9 @@ class Checkpoint:
 
         for checkpoint_path in self.checkpoints:
             if checkpoint_path.exists():
-                metadata_path = checkpoint_path.with_suffix('.json')
+                metadata_path = checkpoint_path.with_suffix(".json")
 
-                info = {'path': str(checkpoint_path)}
+                info = {"path": str(checkpoint_path)}
 
                 if metadata_path.exists():
                     with open(metadata_path) as f:
@@ -272,14 +275,14 @@ class Checkpoint:
                 old_checkpoint.unlink()
 
             # Remove metadata file
-            metadata_path = old_checkpoint.with_suffix('.json')
+            metadata_path = old_checkpoint.with_suffix(".json")
             if metadata_path.exists():
                 metadata_path.unlink()
 
     def _save_checkpoint_list(self) -> None:
         """Save list of checkpoints to file."""
         list_path = self.save_dir / ".checkpoint_list.json"
-        with open(list_path, 'w') as f:
+        with open(list_path, "w") as f:
             json.dump([str(p) for p in self.checkpoints], f, indent=2)
 
     def _load_checkpoint_list(self) -> None:
@@ -295,7 +298,7 @@ def save_checkpoint(
     path: Union[str, Path],
     model: nn.Module,
     optimizer: Optional[torch.optim.Optimizer] = None,
-    **kwargs
+    **kwargs,
 ) -> None:
     """
     Quick function to save a checkpoint.
@@ -306,13 +309,10 @@ def save_checkpoint(
         optimizer: Optimizer to save
         **kwargs: Additional data to save
     """
-    checkpoint_data = {
-        'model_state_dict': model.state_dict(),
-        **kwargs
-    }
+    checkpoint_data = {"model_state_dict": model.state_dict(), **kwargs}
 
     if optimizer is not None:
-        checkpoint_data['optimizer_state_dict'] = optimizer.state_dict()
+        checkpoint_data["optimizer_state_dict"] = optimizer.state_dict()
 
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -343,10 +343,10 @@ def load_checkpoint(
     """
     checkpoint_data = torch.load(path, map_location=map_location, weights_only=False)
 
-    if model is not None and 'model_state_dict' in checkpoint_data:
-        model.load_state_dict(checkpoint_data['model_state_dict'])
+    if model is not None and "model_state_dict" in checkpoint_data:
+        model.load_state_dict(checkpoint_data["model_state_dict"])
 
-    if optimizer is not None and 'optimizer_state_dict' in checkpoint_data:
-        optimizer.load_state_dict(checkpoint_data['optimizer_state_dict'])
+    if optimizer is not None and "optimizer_state_dict" in checkpoint_data:
+        optimizer.load_state_dict(checkpoint_data["optimizer_state_dict"])
 
     return checkpoint_data

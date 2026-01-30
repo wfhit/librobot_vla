@@ -8,8 +8,8 @@ from .action_buffer import (
 )
 
 __all__ = [
-    'ActionBuffer',
-    'ActionSmoothingBuffer',
-    'HistoryBuffer',
-    'ActionChunkBuffer',
+    "ActionBuffer",
+    "ActionSmoothingBuffer",
+    "HistoryBuffer",
+    "ActionChunkBuffer",
 ]

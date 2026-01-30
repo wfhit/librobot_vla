@@ -14,9 +14,9 @@ from .base import AutoregressivePolicy, BasePolicy, DiffusionPolicy, EnsemblePol
 VLAPolicy = BasePolicy
 
 __all__ = [
-    'BasePolicy',
-    'DiffusionPolicy',
-    'AutoregressivePolicy',
-    'EnsemblePolicy',
-    'VLAPolicy',
+    "BasePolicy",
+    "DiffusionPolicy",
+    "AutoregressivePolicy",
+    "EnsemblePolicy",
+    "VLAPolicy",
 ]

@@ -42,11 +42,7 @@ class AbstractCallback(ABC):
         """
         pass
 
-    def on_epoch_begin(
-        self,
-        epoch: int,
-        logs: Optional[dict[str, Any]] = None
-    ) -> None:
+    def on_epoch_begin(self, epoch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """
         Called at the beginning of an epoch.
 
@@ -56,11 +52,7 @@ class AbstractCallback(ABC):
         """
         pass
 
-    def on_epoch_end(
-        self,
-        epoch: int,
-        logs: Optional[dict[str, Any]] = None
-    ) -> None:
+    def on_epoch_end(self, epoch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """
         Called at the end of an epoch.
 
@@ -70,11 +62,7 @@ class AbstractCallback(ABC):
         """
         pass
 
-    def on_batch_begin(
-        self,
-        batch: int,
-        logs: Optional[dict[str, Any]] = None
-    ) -> None:
+    def on_batch_begin(self, batch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """
         Called at the beginning of a training batch.
 
@@ -84,11 +72,7 @@ class AbstractCallback(ABC):
         """
         pass
 
-    def on_batch_end(
-        self,
-        batch: int,
-        logs: Optional[dict[str, Any]] = None
-    ) -> None:
+    def on_batch_end(self, batch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """
         Called at the end of a training batch.
 
@@ -98,10 +82,7 @@ class AbstractCallback(ABC):
         """
         pass
 
-    def on_validation_begin(
-        self,
-        logs: Optional[dict[str, Any]] = None
-    ) -> None:
+    def on_validation_begin(self, logs: Optional[dict[str, Any]] = None) -> None:
         """
         Called at the beginning of validation.
 
@@ -110,10 +91,7 @@ class AbstractCallback(ABC):
         """
         pass
 
-    def on_validation_end(
-        self,
-        logs: Optional[dict[str, Any]] = None
-    ) -> None:
+    def on_validation_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """
         Called at the end of validation.
 
@@ -129,4 +107,4 @@ class AbstractCallback(ABC):
         Returns:
             Dictionary containing configuration
         """
-        return {'type': self.__class__.__name__}
+        return {"type": self.__class__.__name__}

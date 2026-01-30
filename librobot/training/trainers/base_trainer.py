@@ -75,7 +75,7 @@ class BaseTrainer(ABC):
         # Training state
         self.current_epoch = 0
         self.global_step = 0
-        self.best_val_loss = float('inf')
+        self.best_val_loss = float("inf")
         self._stop_training = False
 
         # Metrics tracking
@@ -93,7 +93,7 @@ class BaseTrainer(ABC):
         Returns:
             Training history dictionary
         """
-        self._call_callbacks('on_train_begin')
+        self._call_callbacks("on_train_begin")
 
         try:
             for epoch in range(self.current_epoch, self.max_epochs):
@@ -101,7 +101,7 @@ class BaseTrainer(ABC):
                     break
 
                 self.current_epoch = epoch
-                self._call_callbacks('on_epoch_begin', epoch=epoch)
+                self._call_callbacks("on_epoch_begin", epoch=epoch)
 
                 # Training epoch
                 self._train_epoch()
@@ -114,16 +114,16 @@ class BaseTrainer(ABC):
                     if val_loss < self.best_val_loss:
                         self.best_val_loss = val_loss
                         if self.checkpoint_dir:
-                            self.save_checkpoint('best.pt')
+                            self.save_checkpoint("best.pt")
 
-                self._call_callbacks('on_epoch_end', epoch=epoch)
+                self._call_callbacks("on_epoch_end", epoch=epoch)
 
                 # Check max steps
                 if self.max_steps and self.global_step >= self.max_steps:
                     break
 
         finally:
-            self._call_callbacks('on_train_end')
+            self._call_callbacks("on_train_end")
 
         return self.get_training_history()
 
@@ -158,13 +158,14 @@ class BaseTrainer(ABC):
             Average validation loss
         """
         self.model.eval()
-        self._call_callbacks('on_validation_begin')
+        self._call_callbacks("on_validation_begin")
 
         total_loss = 0
         num_batches = 0
 
         try:
             import torch
+
             with torch.no_grad():
                 for batch in self.val_dataloader:
                     loss = self._validate_step(batch)
@@ -174,7 +175,7 @@ class BaseTrainer(ABC):
             pass
 
         avg_loss = total_loss / max(num_batches, 1)
-        self._call_callbacks('on_validation_end', logs={'val_loss': avg_loss})
+        self._call_callbacks("on_validation_end", logs={"val_loss": avg_loss})
 
         self.model.train()
         return avg_loss
@@ -191,7 +192,7 @@ class BaseTrainer(ABC):
         """
         # Default implementation - override for custom validation
         result = self._train_step(batch)
-        return result.get('loss', 0)
+        return result.get("loss", 0)
 
     def _call_callbacks(self, method: str, **kwargs) -> None:
         """Call callback method on all callbacks."""
@@ -215,15 +216,16 @@ class BaseTrainer(ABC):
 
         try:
             import torch
+
             checkpoint = {
-                'epoch': self.current_epoch,
-                'global_step': self.global_step,
-                'model_state_dict': self.model.state_dict(),
-                'optimizer_state_dict': self.optimizer.state_dict(),
-                'best_val_loss': self.best_val_loss,
+                "epoch": self.current_epoch,
+                "global_step": self.global_step,
+                "model_state_dict": self.model.state_dict(),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+                "best_val_loss": self.best_val_loss,
             }
             if self.scheduler:
-                checkpoint['scheduler_state_dict'] = self.scheduler.state_dict()
+                checkpoint["scheduler_state_dict"] = self.scheduler.state_dict()
             torch.save(checkpoint, path)
         except ImportError:
             pass
@@ -237,14 +239,15 @@ class BaseTrainer(ABC):
         """
         try:
             import torch
+
             checkpoint = torch.load(path, map_location=self.device)
-            self.model.load_state_dict(checkpoint['model_state_dict'])
-            self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-            self.current_epoch = checkpoint.get('epoch', 0)
-            self.global_step = checkpoint.get('global_step', 0)
-            self.best_val_loss = checkpoint.get('best_val_loss', float('inf'))
-            if self.scheduler and 'scheduler_state_dict' in checkpoint:
-                self.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+            self.model.load_state_dict(checkpoint["model_state_dict"])
+            self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+            self.current_epoch = checkpoint.get("epoch", 0)
+            self.global_step = checkpoint.get("global_step", 0)
+            self.best_val_loss = checkpoint.get("best_val_loss", float("inf"))
+            if self.scheduler and "scheduler_state_dict" in checkpoint:
+                self.scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
         except (ImportError, FileNotFoundError):
             pass
 
@@ -256,11 +259,11 @@ class BaseTrainer(ABC):
             Dictionary with training metrics
         """
         return {
-            'train_metrics': self.train_metrics,
-            'val_metrics': self.val_metrics,
-            'best_val_loss': self.best_val_loss,
-            'total_epochs': self.current_epoch + 1,
-            'total_steps': self.global_step,
+            "train_metrics": self.train_metrics,
+            "val_metrics": self.val_metrics,
+            "best_val_loss": self.best_val_loss,
+            "total_epochs": self.current_epoch + 1,
+            "total_steps": self.global_step,
         }
 
     def stop_training(self) -> None:
@@ -268,4 +271,4 @@ class BaseTrainer(ABC):
         self._stop_training = True
 
 
-__all__ = ['BaseTrainer']
+__all__ = ["BaseTrainer"]

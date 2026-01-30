@@ -7,11 +7,12 @@ import pkgutil
 import threading
 from typing import Any, Callable, Optional, TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class RegistryError(Exception):
     """Exception raised for registry-related errors."""
+
     pass
 
 
@@ -66,7 +67,7 @@ class Registry:
         obj: Optional[type] = None,
         aliases: Optional[list[str]] = None,
         force: bool = False,
-        **metadata
+        **metadata,
     ) -> Callable:
         """
         Register a class or function.
@@ -97,11 +98,12 @@ class Registry:
             >>> class Model:
             ...     pass
         """
+
         def decorator(obj_to_register: type) -> type:
             # Determine registration name
             reg_name = name
             if reg_name is None:
-                if hasattr(obj_to_register, '__name__'):
+                if hasattr(obj_to_register, "__name__"):
                     reg_name = obj_to_register.__name__
                 else:
                     raise RegistryError(f"Cannot infer name for {obj_to_register}")
@@ -119,10 +121,10 @@ class Registry:
 
                 # Store metadata
                 self._metadata[reg_name] = {
-                    'name': reg_name,
-                    'type': type(obj_to_register).__name__,
-                    'module': getattr(obj_to_register, '__module__', None),
-                    **metadata
+                    "name": reg_name,
+                    "type": type(obj_to_register).__name__,
+                    "module": getattr(obj_to_register, "__module__", None),
+                    **metadata,
                 }
 
                 # Register aliases
@@ -265,7 +267,7 @@ class Registry:
         self,
         package_name: str,
         base_class: Optional[type] = None,
-        exclude: Optional[set[str]] = None
+        exclude: Optional[set[str]] = None,
     ) -> int:
         """
         Auto-discover and register classes from a package.
@@ -289,15 +291,14 @@ class Registry:
             return count
 
         # Get package path
-        if hasattr(package, '__path__'):
+        if hasattr(package, "__path__"):
             package_path = package.__path__
         else:
             return count
 
         # Walk through package
         for importer, modname, ispkg in pkgutil.walk_packages(
-            path=package_path,
-            prefix=package_name + '.'
+            path=package_path, prefix=package_name + "."
         ):
             try:
                 module = importlib.import_module(modname)
@@ -349,7 +350,7 @@ class Registry:
     def __repr__(self) -> str:
         """String representation."""
         with self._lock:
-            names = ', '.join(self._registry.keys())
+            names = ", ".join(self._registry.keys())
             return f"Registry('{self.name}', {len(self._registry)} items: [{names}])"
 
 
@@ -423,11 +424,11 @@ def build_from_config(config: dict[str, Any], registry: Registry, **kwargs) -> A
     if not isinstance(config, dict):
         raise TypeError(f"Config must be dict, got {type(config)}")
 
-    if 'type' not in config:
+    if "type" not in config:
         raise KeyError("Config must have 'type' key")
 
     config = config.copy()
-    obj_type = config.pop('type')
+    obj_type = config.pop("type")
 
     # Merge kwargs with config
     config.update(kwargs)

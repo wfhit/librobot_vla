@@ -37,14 +37,11 @@ class CrossEntropyLoss(AbstractLoss):
         )
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
         """Compute cross-entropy loss."""
-        logits = predictions.get('logits', predictions.get('action_logits'))
-        labels = targets.get('labels', targets.get('action_tokens'))
+        logits = predictions.get("logits", predictions.get("action_logits"))
+        labels = targets.get("labels", targets.get("action_tokens"))
 
         if logits is None or labels is None:
             return torch.tensor(0.0)
@@ -80,13 +77,10 @@ class FocalLoss(AbstractLoss):
         self.reduction = reduction
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
-        logits = predictions.get('logits')
-        labels = targets.get('labels')
+        logits = predictions.get("logits")
+        labels = targets.get("labels")
 
         if logits is None or labels is None:
             return torch.tensor(0.0)
@@ -97,11 +91,11 @@ class FocalLoss(AbstractLoss):
             labels = labels.reshape(-1)
 
         # Compute cross-entropy
-        ce_loss = F.cross_entropy(logits, labels, reduction='none')
+        ce_loss = F.cross_entropy(logits, labels, reduction="none")
 
         # Compute focal weight
         pt = torch.exp(-ce_loss)
-        focal_weight = (self.alpha * (1 - pt) ** self.gamma)
+        focal_weight = self.alpha * (1 - pt) ** self.gamma
 
         loss = focal_weight * ce_loss
 
@@ -135,13 +129,10 @@ class TokenLoss(AbstractLoss):
         self.ce = nn.CrossEntropyLoss(ignore_index=ignore_index)
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
-        logits = predictions.get('action_logits')
-        tokens = targets.get('action_tokens')
+        logits = predictions.get("action_logits")
+        tokens = targets.get("action_tokens")
 
         if logits is None or tokens is None:
             return torch.tensor(0.0)
@@ -172,27 +163,25 @@ class BCELoss(AbstractLoss):
         self.pos_weight = pos_weight
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
-        logits = predictions.get('logits')
-        labels = targets.get('labels')
+        logits = predictions.get("logits")
+        labels = targets.get("labels")
 
         if logits is None or labels is None:
             return torch.tensor(0.0)
 
         return F.binary_cross_entropy_with_logits(
-            logits, labels.float(),
+            logits,
+            labels.float(),
             reduction=self.reduction,
             pos_weight=self.pos_weight,
         )
 
 
 __all__ = [
-    'CrossEntropyLoss',
-    'FocalLoss',
-    'TokenLoss',
-    'BCELoss',
+    "CrossEntropyLoss",
+    "FocalLoss",
+    "TokenLoss",
+    "BCELoss",
 ]

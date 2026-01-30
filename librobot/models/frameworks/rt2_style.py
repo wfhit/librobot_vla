@@ -71,21 +71,21 @@ class RT2VLA(AbstractVLA):
 
         # Action token embeddings (one head per action dimension)
         # Each dimension is predicted as a classification problem over bins
-        self.action_token_heads = nn.ModuleList([
-            nn.Sequential(
-                nn.Linear(self.vlm_dim, self.vlm_dim // 2),
-                nn.LayerNorm(self.vlm_dim // 2),
-                nn.GELU(),
-                nn.Dropout(0.1),
-                nn.Linear(self.vlm_dim // 2, num_bins),
-            )
-            for _ in range(action_dim)
-        ])
+        self.action_token_heads = nn.ModuleList(
+            [
+                nn.Sequential(
+                    nn.Linear(self.vlm_dim, self.vlm_dim // 2),
+                    nn.LayerNorm(self.vlm_dim // 2),
+                    nn.GELU(),
+                    nn.Dropout(0.1),
+                    nn.Linear(self.vlm_dim // 2, num_bins),
+                )
+                for _ in range(action_dim)
+            ]
+        )
 
         # Action queries (learned tokens for each action dimension)
-        self.action_queries = nn.Parameter(
-            torch.randn(1, action_dim, self.vlm_dim)
-        )
+        self.action_queries = nn.Parameter(torch.randn(1, action_dim, self.vlm_dim))
 
         # Transformer decoder for autoregressive action prediction
         decoder_layer = nn.TransformerDecoderLayer(
@@ -93,7 +93,7 @@ class RT2VLA(AbstractVLA):
             nhead=8,
             dim_feedforward=self.vlm_dim * 4,
             dropout=0.1,
-            activation='gelu',
+            activation="gelu",
             batch_first=True,
         )
         self.action_decoder = nn.TransformerDecoder(decoder_layer, num_layers=2)
@@ -106,7 +106,7 @@ class RT2VLA(AbstractVLA):
             bins_list.append(bins)
 
         # Register as buffer (not trainable)
-        self.register_buffer('bins', torch.stack(bins_list))  # [action_dim, num_bins + 1]
+        self.register_buffer("bins", torch.stack(bins_list))  # [action_dim, num_bins + 1]
 
     def discretize_actions(self, actions: torch.Tensor) -> torch.Tensor:
         """
@@ -123,11 +123,9 @@ class RT2VLA(AbstractVLA):
 
         for i in range(self.action_dim):
             # Use torch.bucketize for efficient discretization
-            discretized[:, i] = torch.bucketize(
-                actions[:, i],
-                self.bins[i],
-                right=False
-            ).clamp(0, self.num_bins - 1)
+            discretized[:, i] = torch.bucketize(actions[:, i], self.bins[i], right=False).clamp(
+                0, self.num_bins - 1
+            )
 
         return discretized
 
@@ -143,9 +141,7 @@ class RT2VLA(AbstractVLA):
         """
         batch_size = action_indices.size(0)
         continuous = torch.zeros(
-            batch_size, self.action_dim,
-            device=action_indices.device,
-            dtype=torch.float32
+            batch_size, self.action_dim, device=action_indices.device, dtype=torch.float32
         )
 
         for i in range(self.action_dim):
@@ -162,7 +158,7 @@ class RT2VLA(AbstractVLA):
         text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> dict[str, torch.Tensor]:
         """
         Forward pass of RT-2 VLA.
@@ -184,7 +180,7 @@ class RT2VLA(AbstractVLA):
 
         # Process through VLM
         vlm_outputs = self.vlm(images, text=text, **kwargs)
-        vlm_embeddings = vlm_outputs['embeddings']  # [batch, seq_len, vlm_dim]
+        vlm_embeddings = vlm_outputs["embeddings"]  # [batch, seq_len, vlm_dim]
 
         # Pool VLM embeddings to use as memory for decoder
         memory = vlm_embeddings  # [batch, seq_len, vlm_dim]
@@ -212,9 +208,7 @@ class RT2VLA(AbstractVLA):
             loss = 0.0
             for i in range(self.action_dim):
                 loss += F.cross_entropy(
-                    action_logits[:, i, :],
-                    discretized_actions[:, i],
-                    reduction='mean'
+                    action_logits[:, i, :], discretized_actions[:, i], reduction="mean"
                 )
             loss = loss / self.action_dim
 
@@ -223,10 +217,10 @@ class RT2VLA(AbstractVLA):
             predicted_actions = self.undiscretize_actions(predicted_bins)
 
             return {
-                'actions': predicted_actions,
-                'loss': loss,
-                'logits': action_logits,
-                'discretized_actions': discretized_actions,
+                "actions": predicted_actions,
+                "loss": loss,
+                "logits": action_logits,
+                "discretized_actions": discretized_actions,
             }
         else:
             # Inference mode: sample from logits
@@ -234,9 +228,9 @@ class RT2VLA(AbstractVLA):
             predicted_actions = self.undiscretize_actions(predicted_bins)
 
             return {
-                'actions': predicted_actions,
-                'logits': action_logits,
-                'discretized_actions': predicted_bins,
+                "actions": predicted_actions,
+                "logits": action_logits,
+                "discretized_actions": predicted_bins,
             }
 
     def _sample_actions(
@@ -259,9 +253,7 @@ class RT2VLA(AbstractVLA):
 
         batch_size = logits.size(0)
         sampled_bins = torch.zeros(
-            batch_size, self.action_dim,
-            device=logits.device,
-            dtype=torch.long
+            batch_size, self.action_dim, device=logits.device, dtype=torch.long
         )
 
         for i in range(self.action_dim):
@@ -280,7 +272,7 @@ class RT2VLA(AbstractVLA):
         text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         temperature: Optional[float] = None,
-        **kwargs
+        **kwargs,
     ) -> torch.Tensor:
         """
         Predict actions for inference.
@@ -303,13 +295,9 @@ class RT2VLA(AbstractVLA):
 
         with torch.no_grad():
             outputs = self.forward(
-                images=images,
-                text=text,
-                proprioception=proprioception,
-                actions=None,
-                **kwargs
+                images=images, text=text, proprioception=proprioception, actions=None, **kwargs
             )
-            result = outputs['actions']
+            result = outputs["actions"]
 
         if temperature is not None:
             self.temperature = original_temp
@@ -317,10 +305,7 @@ class RT2VLA(AbstractVLA):
         return result
 
     def compute_loss(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
@@ -335,9 +320,9 @@ class RT2VLA(AbstractVLA):
         """
         losses = {}
 
-        if 'loss' in predictions:
-            losses['action_loss'] = predictions['loss']
-            losses['total_loss'] = predictions['loss']
+        if "loss" in predictions:
+            losses["action_loss"] = predictions["loss"]
+            losses["total_loss"] = predictions["loss"]
 
         return losses
 
@@ -349,10 +334,10 @@ class RT2VLA(AbstractVLA):
             Dictionary containing configuration
         """
         return {
-            'type': 'RT2VLA',
-            'vlm_config': self.vlm.config,
-            'action_dim': self.action_dim,
-            'num_bins': self.num_bins,
-            'action_bounds': self.action_bounds,
-            'temperature': self.temperature,
+            "type": "RT2VLA",
+            "vlm_config": self.vlm.config,
+            "action_dim": self.action_dim,
+            "num_bins": self.num_bins,
+            "action_bounds": self.action_bounds,
+            "temperature": self.temperature,
         }

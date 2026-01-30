@@ -51,17 +51,19 @@ class FrankaArm(Arm):
         }
 
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
-        self._joint_positions = action[:self.num_joints]
-        self._gripper_state = action[self.num_joints:]
+        self._joint_positions = action[: self.num_joints]
+        self._gripper_state = action[self.num_joints :]
         return True
 
     def get_observation(self) -> dict[str, Any]:
         return {
-            "proprioception": np.concatenate([
-                self._joint_positions,
-                self._joint_velocities,
-                self._gripper_state,
-            ]),
+            "proprioception": np.concatenate(
+                [
+                    self._joint_positions,
+                    self._joint_velocities,
+                    self._gripper_state,
+                ]
+            ),
         }
 
 
@@ -71,7 +73,7 @@ class UR5Arm(Arm):
 
     def __init__(self, robot_id: str = "ur5"):
         super().__init__(robot_id, num_joints=6, gripper_dof=1)
-        self.joint_limits = [(-2*np.pi, 2*np.pi)] * 6
+        self.joint_limits = [(-2 * np.pi, 2 * np.pi)] * 6
 
     def connect(self, **kwargs) -> bool:
         kwargs.get("ip", "192.168.1.100")
@@ -92,15 +94,13 @@ class UR5Arm(Arm):
         }
 
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
-        self._joint_positions = action[:self.num_joints]
+        self._joint_positions = action[: self.num_joints]
         if len(action) > self.num_joints:
-            self._gripper_state = action[self.num_joints:]
+            self._gripper_state = action[self.num_joints :]
         return True
 
     def get_observation(self) -> dict[str, Any]:
-        return {"proprioception": np.concatenate([
-            self._joint_positions, self._joint_velocities
-        ])}
+        return {"proprioception": np.concatenate([self._joint_positions, self._joint_velocities])}
 
 
 @register_robot(name="xarm", aliases=["xarm7", "xarm6"])
@@ -128,7 +128,7 @@ class xArmRobot(Arm):
         }
 
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
-        self._joint_positions = action[:self.num_joints]
+        self._joint_positions = action[: self.num_joints]
         return True
 
     def get_observation(self) -> dict[str, Any]:
@@ -157,7 +157,7 @@ class WidowXArm(Arm):
         return {"joint_positions": self._joint_positions.copy()}
 
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
-        self._joint_positions = action[:self.num_joints]
+        self._joint_positions = action[: self.num_joints]
         return True
 
     def get_observation(self) -> dict[str, Any]:
@@ -255,15 +255,17 @@ class SO100Arm(AbstractRobot):
     GRIPPER_DOF = 1
 
     # Joint limits (radians)
-    JOINT_POSITION_LIMITS = np.array([
-        [-np.pi, np.pi],           # joint_0: base
-        [-np.pi/2, np.pi/2],       # joint_1: shoulder
-        [-np.pi, np.pi],           # joint_2: elbow
-        [-np.pi, np.pi],           # joint_3: wrist_1
-        [-np.pi/2, np.pi/2],       # joint_4: wrist_2
-        [-np.pi, np.pi],           # joint_5: wrist_3
-        [-np.pi, np.pi],           # joint_6: flange
-    ])
+    JOINT_POSITION_LIMITS = np.array(
+        [
+            [-np.pi, np.pi],  # joint_0: base
+            [-np.pi / 2, np.pi / 2],  # joint_1: shoulder
+            [-np.pi, np.pi],  # joint_2: elbow
+            [-np.pi, np.pi],  # joint_3: wrist_1
+            [-np.pi / 2, np.pi / 2],  # joint_4: wrist_2
+            [-np.pi, np.pi],  # joint_5: wrist_3
+            [-np.pi, np.pi],  # joint_6: flange
+        ]
+    )
 
     # Joint velocity limits (rad/s)
     JOINT_VELOCITY_LIMITS = np.array([2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0])
@@ -391,11 +393,11 @@ class SO100Arm(AbstractRobot):
                 - 'gripper_state': [position, force]
         """
         return {
-            'joint_positions': self._joint_positions.copy(),
-            'joint_velocities': self._joint_velocities.copy(),
-            'joint_torques': self._joint_torques.copy(),
-            'end_effector_pose': self._ee_pose.copy(),
-            'gripper_state': np.array([self._gripper_position, self._gripper_force]),
+            "joint_positions": self._joint_positions.copy(),
+            "joint_velocities": self._joint_velocities.copy(),
+            "joint_torques": self._joint_torques.copy(),
+            "end_effector_pose": self._ee_pose.copy(),
+            "gripper_state": np.array([self._gripper_position, self._gripper_force]),
         }
 
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
@@ -428,7 +430,9 @@ class SO100Arm(AbstractRobot):
         # Validate action dimensions
         expected_dim = 7 if self.control_mode == "end_effector" else 8
         if action.shape[0] != expected_dim:
-            raise ValueError(f"Action must have {expected_dim} dimensions for {self.control_mode} mode, got {action.shape[0]}")
+            raise ValueError(
+                f"Action must have {expected_dim} dimensions for {self.control_mode} mode, got {action.shape[0]}"
+            )
 
         # Safety checks
         if not self._check_action_safety(action):
@@ -455,9 +459,7 @@ class SO100Arm(AbstractRobot):
         # Clip joint positions to limits
         for i in range(self.NUM_JOINTS):
             joint_targets[i] = np.clip(
-                joint_targets[i],
-                self.JOINT_POSITION_LIMITS[i, 0],
-                self.JOINT_POSITION_LIMITS[i, 1]
+                joint_targets[i], self.JOINT_POSITION_LIMITS[i, 0], self.JOINT_POSITION_LIMITS[i, 1]
             )
 
         self._joint_positions = joint_targets.copy()
@@ -472,9 +474,7 @@ class SO100Arm(AbstractRobot):
 
         # Clip velocities to limits
         joint_velocities = np.clip(
-            joint_velocities,
-            -self.JOINT_VELOCITY_LIMITS,
-            self.JOINT_VELOCITY_LIMITS
+            joint_velocities, -self.JOINT_VELOCITY_LIMITS, self.JOINT_VELOCITY_LIMITS
         )
 
         self._joint_velocities = joint_velocities.copy()
@@ -487,11 +487,7 @@ class SO100Arm(AbstractRobot):
         gripper_force = np.clip(action[7], 0.0, self.GRIPPER_MAX_FORCE)
 
         # Clip torques to limits
-        joint_torques = np.clip(
-            joint_torques,
-            -self.JOINT_TORQUE_LIMITS,
-            self.JOINT_TORQUE_LIMITS
-        )
+        joint_torques = np.clip(joint_torques, -self.JOINT_TORQUE_LIMITS, self.JOINT_TORQUE_LIMITS)
 
         self._joint_torques = joint_torques.copy()
         self._gripper_force = gripper_force
@@ -539,24 +535,24 @@ class SO100Arm(AbstractRobot):
                 - 'proprioception': Internal robot state
         """
         observation = {
-            'proprioception': {
-                'joint_positions': self._joint_positions.copy(),
-                'joint_velocities': self._joint_velocities.copy(),
-                'joint_torques': self._joint_torques.copy(),
-                'joint_temperatures': self._joint_temperatures.copy(),
-                'gripper_position': self._gripper_position,
-                'gripper_force': self._gripper_force,
-                'end_effector_pose': self._ee_pose.copy(),
+            "proprioception": {
+                "joint_positions": self._joint_positions.copy(),
+                "joint_velocities": self._joint_velocities.copy(),
+                "joint_torques": self._joint_torques.copy(),
+                "joint_temperatures": self._joint_temperatures.copy(),
+                "gripper_position": self._gripper_position,
+                "gripper_force": self._gripper_force,
+                "end_effector_pose": self._ee_pose.copy(),
             }
         }
 
         if self.force_torque_sensor:
-            observation['proprioception']['end_effector_wrench'] = self._ee_wrench.copy()
+            observation["proprioception"]["end_effector_wrench"] = self._ee_wrench.copy()
 
         if self.camera_enabled:
-            observation['images'] = {
-                'wrist_camera': np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
-                'external_camera_1': np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
+            observation["images"] = {
+                "wrist_camera": np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
+                "external_camera_1": np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
             }
 
         return observation
@@ -571,31 +567,31 @@ class SO100Arm(AbstractRobot):
         if self.control_mode == "position":
             low = np.concatenate([self.JOINT_POSITION_LIMITS[:, 0], [0.0]])
             high = np.concatenate([self.JOINT_POSITION_LIMITS[:, 1], [1.0]])
-            names = [f'joint_{i}' for i in range(7)] + ['gripper']
-            units = ['rad'] * 7 + ['normalized']
+            names = [f"joint_{i}" for i in range(7)] + ["gripper"]
+            units = ["rad"] * 7 + ["normalized"]
         elif self.control_mode == "velocity":
             low = np.concatenate([-self.JOINT_VELOCITY_LIMITS, [-1.0]])
             high = np.concatenate([self.JOINT_VELOCITY_LIMITS, [1.0]])
-            names = [f'joint_{i}_vel' for i in range(7)] + ['gripper_vel']
-            units = ['rad/s'] * 7 + ['normalized']
+            names = [f"joint_{i}_vel" for i in range(7)] + ["gripper_vel"]
+            units = ["rad/s"] * 7 + ["normalized"]
         elif self.control_mode == "torque":
             low = np.concatenate([-self.JOINT_TORQUE_LIMITS, [0.0]])
             high = np.concatenate([self.JOINT_TORQUE_LIMITS, [self.GRIPPER_MAX_FORCE]])
-            names = [f'joint_{i}_torque' for i in range(7)] + ['gripper_force']
-            units = ['Nm'] * 7 + ['N']
+            names = [f"joint_{i}_torque" for i in range(7)] + ["gripper_force"]
+            units = ["Nm"] * 7 + ["N"]
         else:  # end_effector
             low = np.concatenate([self.WORKSPACE_MIN, [-np.pi, -np.pi, -np.pi], [0.0]])
             high = np.concatenate([self.WORKSPACE_MAX, [np.pi, np.pi, np.pi], [1.0]])
-            names = ['x', 'y', 'z', 'roll', 'pitch', 'yaw', 'gripper']
-            units = ['m', 'm', 'm', 'rad', 'rad', 'rad', 'normalized']
+            names = ["x", "y", "z", "roll", "pitch", "yaw", "gripper"]
+            units = ["m", "m", "m", "rad", "rad", "rad", "normalized"]
 
         return {
-            'shape': (len(low),),
-            'dtype': np.float32,
-            'bounds': {'low': low, 'high': high},
-            'names': names,
-            'units': units,
-            'control_mode': self.control_mode,
+            "shape": (len(low),),
+            "dtype": np.float32,
+            "bounds": {"low": low, "high": high},
+            "names": names,
+            "units": units,
+            "control_mode": self.control_mode,
         }
 
     def get_observation_space(self) -> dict[str, Any]:
@@ -606,26 +602,27 @@ class SO100Arm(AbstractRobot):
             Dictionary describing observation space structure
         """
         obs_space = {
-            'proprioception': {
-                'joint_positions': {'shape': (7,), 'dtype': np.float32},
-                'joint_velocities': {'shape': (7,), 'dtype': np.float32},
-                'joint_torques': {'shape': (7,), 'dtype': np.float32},
-                'joint_temperatures': {'shape': (7,), 'dtype': np.float32},
-                'gripper_position': {'shape': (), 'dtype': np.float32},
-                'gripper_force': {'shape': (), 'dtype': np.float32},
-                'end_effector_pose': {'shape': (6,), 'dtype': np.float32},
+            "proprioception": {
+                "joint_positions": {"shape": (7,), "dtype": np.float32},
+                "joint_velocities": {"shape": (7,), "dtype": np.float32},
+                "joint_torques": {"shape": (7,), "dtype": np.float32},
+                "joint_temperatures": {"shape": (7,), "dtype": np.float32},
+                "gripper_position": {"shape": (), "dtype": np.float32},
+                "gripper_force": {"shape": (), "dtype": np.float32},
+                "end_effector_pose": {"shape": (6,), "dtype": np.float32},
             }
         }
 
         if self.force_torque_sensor:
-            obs_space['proprioception']['end_effector_wrench'] = {
-                'shape': (6,), 'dtype': np.float32
+            obs_space["proprioception"]["end_effector_wrench"] = {
+                "shape": (6,),
+                "dtype": np.float32,
             }
 
         if self.camera_enabled:
-            obs_space['images'] = {
-                'wrist_camera': {'shape': (*self.CAMERA_RESOLUTION, 3), 'dtype': np.uint8},
-                'external_camera_1': {'shape': (*self.CAMERA_RESOLUTION, 3), 'dtype': np.uint8},
+            obs_space["images"] = {
+                "wrist_camera": {"shape": (*self.CAMERA_RESOLUTION, 3), "dtype": np.uint8},
+                "external_camera_1": {"shape": (*self.CAMERA_RESOLUTION, 3), "dtype": np.uint8},
             }
 
         return obs_space
@@ -649,7 +646,9 @@ class SO100Arm(AbstractRobot):
         self._ee_pose = pose.copy()
         return True
 
-    def move_to_joint_positions(self, joint_positions: np.ndarray, velocity_scaling: float = 0.5) -> bool:
+    def move_to_joint_positions(
+        self, joint_positions: np.ndarray, velocity_scaling: float = 0.5
+    ) -> bool:
         """
         Move to target joint configuration.
 
@@ -661,7 +660,11 @@ class SO100Arm(AbstractRobot):
             bool: True if movement completed successfully
         """
         for i in range(self.NUM_JOINTS):
-            if not (self.JOINT_POSITION_LIMITS[i, 0] <= joint_positions[i] <= self.JOINT_POSITION_LIMITS[i, 1]):
+            if not (
+                self.JOINT_POSITION_LIMITS[i, 0]
+                <= joint_positions[i]
+                <= self.JOINT_POSITION_LIMITS[i, 1]
+            ):
                 print(f"[{self.robot_id}] Joint {i} target outside limits")
                 return False
 
@@ -702,31 +705,35 @@ class SO100Arm(AbstractRobot):
             Dictionary with system health and diagnostic data
         """
         return {
-            'joints': {
-                f'joint_{i}': {
-                    'temperature': float(self._joint_temperatures[i]),
-                    'status': 'OK' if self._joint_temperatures[i] < self.WARNING_JOINT_TEMPERATURE else 'WARNING',
+            "joints": {
+                f"joint_{i}": {
+                    "temperature": float(self._joint_temperatures[i]),
+                    "status": (
+                        "OK"
+                        if self._joint_temperatures[i] < self.WARNING_JOINT_TEMPERATURE
+                        else "WARNING"
+                    ),
                 }
                 for i in range(self.NUM_JOINTS)
             },
-            'gripper': {
-                'status': 'OK',
-                'position': float(self._gripper_position),
-                'force': float(self._gripper_force),
+            "gripper": {
+                "status": "OK",
+                "position": float(self._gripper_position),
+                "force": float(self._gripper_force),
             },
-            'safety': {
-                'emergency_stop': self._emergency_stop_triggered,
-                'collision_detected': self._collision_detected,
+            "safety": {
+                "emergency_stop": self._emergency_stop_triggered,
+                "collision_detected": self._collision_detected,
             },
-            'warnings': [],
-            'errors': [],
+            "warnings": [],
+            "errors": [],
         }
 
 
 __all__ = [
-    'FrankaArm',
-    'UR5Arm',
-    'xArmRobot',
-    'WidowXArm',
-    'SO100Arm',
+    "FrankaArm",
+    "UR5Arm",
+    "xArmRobot",
+    "WidowXArm",
+    "SO100Arm",
 ]

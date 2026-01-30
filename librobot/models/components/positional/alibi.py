@@ -25,7 +25,7 @@ class ALiBiPositionalBias(nn.Module):
         self,
         num_heads: int,
         max_len: int = 2048,
-        slopes_init: str = 'geometric',
+        slopes_init: str = "geometric",
     ):
         super().__init__()
         self.num_heads = num_heads
@@ -34,12 +34,12 @@ class ALiBiPositionalBias(nn.Module):
 
         # Compute slopes for each head
         slopes = self._get_slopes(num_heads, slopes_init)
-        self.register_buffer('slopes', slopes)
+        self.register_buffer("slopes", slopes)
 
         # Precompute bias matrix for max_len
         self._precompute_bias(max_len)
 
-    def _get_slopes(self, num_heads: int, method: str = 'geometric') -> torch.Tensor:
+    def _get_slopes(self, num_heads: int, method: str = "geometric") -> torch.Tensor:
         """
         Compute slopes for ALiBi.
 
@@ -50,12 +50,12 @@ class ALiBiPositionalBias(nn.Module):
         Returns:
             Slopes tensor [num_heads]
         """
-        if method == 'geometric':
+        if method == "geometric":
             # Original ALiBi method: geometric sequence
             def get_slopes_power_of_2(n):
                 start = 2 ** (-(2 ** -(math.log2(n) - 3)))
                 ratio = start
-                return [start * (ratio ** i) for i in range(n)]
+                return [start * (ratio**i) for i in range(n)]
 
             if math.log2(num_heads).is_integer():
                 slopes = get_slopes_power_of_2(num_heads)
@@ -64,11 +64,11 @@ class ALiBiPositionalBias(nn.Module):
                 closest_power_of_2 = 2 ** math.floor(math.log2(num_heads))
                 slopes = get_slopes_power_of_2(closest_power_of_2)
                 extra_slopes = get_slopes_power_of_2(2 * closest_power_of_2)
-                slopes = slopes + extra_slopes[0::2][:num_heads - closest_power_of_2]
+                slopes = slopes + extra_slopes[0::2][: num_heads - closest_power_of_2]
 
             slopes = torch.tensor(slopes, dtype=torch.float32)
 
-        elif method == 'linear':
+        elif method == "linear":
             # Linear slopes
             slopes = torch.linspace(0.1, 1.0, num_heads)
 
@@ -94,7 +94,7 @@ class ALiBiPositionalBias(nn.Module):
         # Apply slopes [num_heads, 1, 1] * [1, max_len, max_len]
         bias = self.slopes.view(-1, 1, 1) * bias.unsqueeze(0)
 
-        self.register_buffer('bias_cached', bias, persistent=False)
+        self.register_buffer("bias_cached", bias, persistent=False)
 
     def forward(
         self,
@@ -162,4 +162,4 @@ class ALiBiPositionalBias(nn.Module):
         return bias
 
     def extra_repr(self) -> str:
-        return f'num_heads={self.num_heads}, max_len={self.max_len}, slopes_init={self.slopes_init}'
+        return f"num_heads={self.num_heads}, max_len={self.max_len}, slopes_init={self.slopes_init}"

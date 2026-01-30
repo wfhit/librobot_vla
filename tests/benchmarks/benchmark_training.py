@@ -32,7 +32,7 @@ def benchmark_model(device):
         torch.nn.ReLU(),
         torch.nn.Linear(256, 256),
         torch.nn.ReLU(),
-        torch.nn.Linear(256, 7)
+        torch.nn.Linear(256, 7),
     ).to(device)
     return model
 
@@ -49,7 +49,7 @@ def training_batch(device):
     batch_size = 32
     return {
         "inputs": torch.randn(batch_size, 100).to(device),
-        "targets": torch.randn(batch_size, 7).to(device)
+        "targets": torch.randn(batch_size, 7).to(device),
     }
 
 
@@ -101,7 +101,7 @@ class BenchmarkTrainingSpeed:
         # TODO: Implement batch size scaling benchmark
         batch = {
             "inputs": torch.randn(batch_size, 100).to(device),
-            "targets": torch.randn(batch_size, 7).to(device)
+            "targets": torch.randn(batch_size, 7).to(device),
         }
 
         benchmark_model.train()
@@ -243,7 +243,9 @@ class BenchmarkGradientComputation:
 class BenchmarkMemoryUsage:
     """Benchmark suite for training memory usage."""
 
-    def test_training_memory_usage(self, benchmark_model, benchmark_optimizer, training_batch, device):
+    def test_training_memory_usage(
+        self, benchmark_model, benchmark_optimizer, training_batch, device
+    ):
         """Benchmark memory usage during training."""
         # TODO: Implement memory usage benchmark
         if device.type == "cuda":
@@ -284,7 +286,7 @@ class BenchmarkMemoryUsage:
         # TODO: Implement memory scaling benchmark
         batch = {
             "inputs": torch.randn(batch_size, 100).to(device),
-            "targets": torch.randn(batch_size, 7).to(device)
+            "targets": torch.randn(batch_size, 7).to(device),
         }
 
         if device.type == "cuda":
@@ -355,8 +357,9 @@ class BenchmarkGradientAccumulation:
     """Benchmark suite for gradient accumulation."""
 
     @pytest.mark.parametrize("accumulation_steps", [1, 2, 4, 8])
-    def test_gradient_accumulation_overhead(self, benchmark_model, benchmark_optimizer, 
-                                           training_batch, accumulation_steps, device):
+    def test_gradient_accumulation_overhead(
+        self, benchmark_model, benchmark_optimizer, training_batch, accumulation_steps, device
+    ):
         """Benchmark overhead of gradient accumulation."""
         # TODO: Implement gradient accumulation benchmark
         benchmark_model.train()

@@ -23,6 +23,7 @@ logger = get_logger(__name__)
 # Reinforcement Learning Integration
 # =============================================================================
 
+
 @dataclass
 class RLConfig:
     """Configuration for RL training.
@@ -40,6 +41,7 @@ class RLConfig:
         vf_coef: Value function coefficient
         max_grad_norm: Maximum gradient norm
     """
+
     algorithm: str = "ppo"
     gamma: float = 0.99
     gae_lambda: float = 0.95
@@ -205,8 +207,7 @@ class RLPolicyWrapper:
 
         except ImportError:
             logger.warning(
-                "stable-baselines3 not installed. "
-                "Install with: pip install stable-baselines3"
+                "stable-baselines3 not installed. " "Install with: pip install stable-baselines3"
             )
             return {}
 
@@ -248,6 +249,7 @@ class RewardShaping:
 # =============================================================================
 # Imitation Learning from Video
 # =============================================================================
+
 
 class VideoImitationLearner:
     """Learn robot actions from video demonstrations.
@@ -378,6 +380,7 @@ class VideoImitationLearner:
 # Multi-Robot Coordination
 # =============================================================================
 
+
 @dataclass
 class MultiRobotConfig:
     """Configuration for multi-robot coordination.
@@ -388,6 +391,7 @@ class MultiRobotConfig:
         coordination_method: Coordination method ("shared_goal", "role_assignment", "formation")
         message_dim: Dimension of robot messages
     """
+
     num_robots: int = 2
     communication_type: str = "decentralized"
     coordination_method: str = "shared_goal"
@@ -547,13 +551,14 @@ class MultiRobotCoordinator:
         message[0] = robot_id
         # Safely copy action to message, handling different lengths
         action_len = min(len(action), self.config.message_dim - 1)
-        message[1:1 + action_len] = action[:action_len]
+        message[1 : 1 + action_len] = action[:action_len]
         return message
 
 
 # =============================================================================
 # Sim-to-Real Transfer
 # =============================================================================
+
 
 @dataclass
 class SimToRealConfig:
@@ -567,6 +572,7 @@ class SimToRealConfig:
         observation_noise: Add noise to observations
         adaptation_method: Adaptation method ("fine_tune", "domain_adaptation", "meta_learning")
     """
+
     domain_randomization: bool = True
     visual_randomization: bool = True
     dynamics_randomization: bool = True
@@ -685,6 +691,7 @@ class SimToRealAdapter:
 # Online Learning and Adaptation
 # =============================================================================
 
+
 class OnlineLearner:
     """Online learning and adaptation for VLA models.
 
@@ -720,13 +727,15 @@ class OnlineLearner:
         done: bool = False,
     ) -> None:
         """Add experience to replay buffer."""
-        self._buffer.append({
-            "observation": observation,
-            "action": action,
-            "reward": reward,
-            "next_observation": next_observation,
-            "done": done,
-        })
+        self._buffer.append(
+            {
+                "observation": observation,
+                "action": action,
+                "reward": reward,
+                "next_observation": next_observation,
+                "done": done,
+            }
+        )
 
         # Maintain buffer size
         if len(self._buffer) > self.buffer_size:
@@ -745,6 +754,7 @@ class OnlineLearner:
 
         # Sample batch from buffer
         import random
+
         batch = random.sample(self._buffer, min(32, len(self._buffer)))
 
         # Placeholder for actual online update
@@ -779,6 +789,7 @@ class OnlineLearner:
 # =============================================================================
 # Zero-Shot and Few-Shot Capabilities
 # =============================================================================
+
 
 class ZeroShotAdapter:
     """Zero-shot task adaptation using language grounding.
@@ -970,6 +981,7 @@ class FewShotAdapter:
 # =============================================================================
 # Model Compression for Edge Deployment
 # =============================================================================
+
 
 class EdgeDeployer:
     """Prepare VLA models for edge deployment.

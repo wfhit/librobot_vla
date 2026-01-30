@@ -230,11 +230,7 @@ class TestEncoderUtilities:
     def test_layer_freezing(self):
         """Test freezing encoder layers."""
         # TODO: Implement layer freezing test
-        model = nn.Sequential(
-            nn.Linear(10, 20),
-            nn.ReLU(),
-            nn.Linear(20, 5)
-        )
+        model = nn.Sequential(nn.Linear(10, 20), nn.ReLU(), nn.Linear(20, 5))
         for param in model.parameters():
             param.requires_grad = False
         assert all(not p.requires_grad for p in model.parameters())

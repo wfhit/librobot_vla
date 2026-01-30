@@ -19,11 +19,13 @@ def mock_robot():
     robot = Mock()
     robot.connect = Mock(return_value=True)
     robot.disconnect = Mock()
-    robot.get_state = Mock(return_value={
-        "joint_positions": np.zeros(7),
-        "joint_velocities": np.zeros(7),
-        "end_effector_pose": np.zeros(6)
-    })
+    robot.get_state = Mock(
+        return_value={
+            "joint_positions": np.zeros(7),
+            "joint_velocities": np.zeros(7),
+            "end_effector_pose": np.zeros(6),
+        }
+    )
     robot.set_action = Mock()
     robot.is_connected = Mock(return_value=True)
     return robot
@@ -38,10 +40,10 @@ def robot_config():
         "control_frequency": 20,
         "joint_limits": {
             "lower": [-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973],
-            "upper": [2.8973, 1.7628, 2.8973, -0.0698, 2.8973, 3.7525, 2.8973]
+            "upper": [2.8973, 1.7628, 2.8973, -0.0698, 2.8973, 3.7525, 2.8973],
         },
         "velocity_limits": [2.1750, 2.1750, 2.1750, 2.1750, 2.6100, 2.6100, 2.6100],
-        "home_position": [0, -0.785, 0, -2.356, 0, 1.571, 0.785]
+        "home_position": [0, -0.785, 0, -2.356, 0, 1.571, 0.785],
     }
 
 
@@ -142,12 +144,7 @@ class TestRobotControl:
         # TODO: Implement gripper control test
         pass
 
-    @pytest.mark.parametrize("control_mode", [
-        "position",
-        "velocity",
-        "torque",
-        "cartesian"
-    ])
+    @pytest.mark.parametrize("control_mode", ["position", "velocity", "torque", "cartesian"])
     def test_various_control_modes(self, control_mode):
         """Test various control modes."""
         # TODO: Implement multi-mode control test
@@ -164,8 +161,9 @@ class TestSafetyLimits:
         lower_limits = np.array(robot_config["joint_limits"]["lower"])
         upper_limits = np.array(robot_config["joint_limits"]["upper"])
 
-        within_limits = np.all(joint_positions >= lower_limits) and \
-                       np.all(joint_positions <= upper_limits)
+        within_limits = np.all(joint_positions >= lower_limits) and np.all(
+            joint_positions <= upper_limits
+        )
         assert within_limits
 
     def test_velocity_limit_checking(self, robot_config):

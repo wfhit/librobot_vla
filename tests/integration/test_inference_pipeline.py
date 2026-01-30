@@ -23,21 +23,21 @@ def inference_config():
         "model": {
             "checkpoint_path": "/path/to/checkpoint.pth",
             "device": "cuda" if torch.cuda.is_available() else "cpu",
-            "precision": "fp16"
+            "precision": "fp16",
         },
         "inference": {
             "batch_size": 1,
             "max_length": 100,
             "temperature": 1.0,
             "top_k": 50,
-            "top_p": 0.95
+            "top_p": 0.95,
         },
         "preprocessing": {
             "image_size": 224,
             "normalize": True,
             "mean": [0.485, 0.456, 0.406],
-            "std": [0.229, 0.224, 0.225]
-        }
+            "std": [0.229, 0.224, 0.225],
+        },
     }
 
 
@@ -47,10 +47,7 @@ def mock_model():
     model = Mock()
     model.eval = Mock()
     model.to = Mock(return_value=model)
-    model.forward = Mock(return_value={
-        "actions": torch.randn(1, 7),
-        "logits": torch.randn(1, 7)
-    })
+    model.forward = Mock(return_value={"actions": torch.randn(1, 7), "logits": torch.randn(1, 7)})
     return model
 
 
@@ -60,7 +57,7 @@ def sample_observation():
     return {
         "image": np.random.randint(0, 255, (224, 224, 3), dtype=np.uint8),
         "state": np.random.randn(14).astype(np.float32),
-        "instruction": "pick up the red cube"
+        "instruction": "pick up the red cube",
     }
 
 
@@ -221,6 +218,7 @@ class TestInferencePerformance:
         """Test inference latency."""
         # TODO: Implement latency test
         import time
+
         mock_model.eval()
         start = time.time()
         with torch.no_grad():

@@ -39,8 +39,8 @@ class DistributedConfig:
         self.backend = backend
         self.world_size = world_size or int(os.environ.get("WORLD_SIZE", 1))
         self.rank = rank if rank is not None else int(os.environ.get("RANK", 0))
-        self.local_rank = local_rank if local_rank is not None else int(
-            os.environ.get("LOCAL_RANK", 0)
+        self.local_rank = (
+            local_rank if local_rank is not None else int(os.environ.get("LOCAL_RANK", 0))
         )
         self.master_addr = master_addr or os.environ.get("MASTER_ADDR", "localhost")
         self.master_port = master_port or os.environ.get("MASTER_PORT", "12355")
@@ -398,9 +398,7 @@ class DeepSpeedWrapper:
             )
 
         except ImportError:
-            logger.warning(
-                "DeepSpeed not installed. Install with: pip install deepspeed"
-            )
+            logger.warning("DeepSpeed not installed. Install with: pip install deepspeed")
             self.model = model
             raise
 
@@ -686,7 +684,9 @@ class FSDPWrapper:
                 "backward_pre": BackwardPrefetch.BACKWARD_PRE,
                 "backward_post": BackwardPrefetch.BACKWARD_POST,
             }
-            backward_prefetch_policy = prefetch_map.get(backward_prefetch) if backward_prefetch else None
+            backward_prefetch_policy = (
+                prefetch_map.get(backward_prefetch) if backward_prefetch else None
+            )
 
             # Wrap model with FSDP
             self.model = FSDP(
@@ -787,6 +787,7 @@ class FSDPWrapper:
         """
         try:
             from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
+
             if isinstance(self.model, FSDP):
                 return self.model.module
         except ImportError:
@@ -843,10 +844,7 @@ class FSDPWrapper:
 
 
 def wrap_model_distributed(
-    model: nn.Module,
-    strategy: str = "ddp",
-    config: Optional[DistributedConfig] = None,
-    **kwargs
+    model: nn.Module, strategy: str = "ddp", config: Optional[DistributedConfig] = None, **kwargs
 ) -> Union[nn.Module, DDPWrapper, DeepSpeedWrapper, FSDPWrapper]:
     """
     Wrap model for distributed training.
@@ -879,8 +877,7 @@ def wrap_model_distributed(
         return FSDPWrapper(model, config, **kwargs)
     else:
         raise ValueError(
-            f"Unknown distributed strategy: {strategy}. "
-            f"Available: ddp, deepspeed, fsdp"
+            f"Unknown distributed strategy: {strategy}. " f"Available: ddp, deepspeed, fsdp"
         )
 
 

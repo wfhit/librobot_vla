@@ -44,11 +44,7 @@ class ConcatFusion(nn.Module):
         else:
             self.norm = nn.Identity()
 
-    def forward(
-        self,
-        *embeddings: torch.Tensor,
-        **kwargs
-    ) -> torch.Tensor:
+    def forward(self, *embeddings: torch.Tensor, **kwargs) -> torch.Tensor:
         """
         Fuse embeddings via concatenation.
 
@@ -60,9 +56,7 @@ class ConcatFusion(nn.Module):
             Fused embeddings [batch_size, output_dim]
         """
         if len(embeddings) != len(self.input_dims):
-            raise ValueError(
-                f"Expected {len(self.input_dims)} embeddings, got {len(embeddings)}"
-            )
+            raise ValueError(f"Expected {len(self.input_dims)} embeddings, got {len(embeddings)}")
 
         # Concatenate
         x = torch.cat(embeddings, dim=-1)
@@ -78,8 +72,8 @@ class ConcatFusion(nn.Module):
     def get_config(self) -> dict[str, Any]:
         """Get fusion configuration."""
         return {
-            'type': 'ConcatFusion',
-            'input_dims': self.input_dims,
-            'output_dim': self.output_dim,
-            'use_layernorm': self.use_layernorm,
+            "type": "ConcatFusion",
+            "input_dims": self.input_dims,
+            "output_dim": self.output_dim,
+            "use_layernorm": self.use_layernorm,
         }

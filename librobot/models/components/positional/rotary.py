@@ -35,7 +35,7 @@ class RotaryPositionEmbedding(nn.Module):
 
         # Compute inverse frequencies
         inv_freq = 1.0 / (base ** (torch.arange(0, dim, 2).float() / dim))
-        self.register_buffer('inv_freq', inv_freq)
+        self.register_buffer("inv_freq", inv_freq)
 
         # Precompute cos and sin for max_len
         self._precompute_freqs(max_len)
@@ -48,8 +48,8 @@ class RotaryPositionEmbedding(nn.Module):
 
         # Different from paper, but it uses a different permutation in order to obtain the same calculation
         emb = torch.cat((freqs, freqs), dim=-1)
-        self.register_buffer('cos_cached', emb.cos(), persistent=False)
-        self.register_buffer('sin_cached', emb.sin(), persistent=False)
+        self.register_buffer("cos_cached", emb.cos(), persistent=False)
+        self.register_buffer("sin_cached", emb.sin(), persistent=False)
 
     def _rotate_half(self, x: torch.Tensor) -> torch.Tensor:
         """Rotates half the hidden dims of the input."""
@@ -120,4 +120,4 @@ class RotaryPositionEmbedding(nn.Module):
         return self.forward(q, k, position_ids)
 
     def extra_repr(self) -> str:
-        return f'dim={self.dim}, max_len={self.max_len}, base={self.base}'
+        return f"dim={self.dim}, max_len={self.max_len}, base={self.base}"

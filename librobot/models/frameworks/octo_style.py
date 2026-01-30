@@ -100,9 +100,7 @@ class OctoVLA(AbstractVLA):
             self.history_encoder = None
 
         # Positional embeddings for sequence positions
-        self.pos_embedding = nn.Parameter(
-            torch.randn(1, 100, hidden_dim)  # Max sequence length
-        )
+        self.pos_embedding = nn.Parameter(torch.randn(1, 100, hidden_dim))  # Max sequence length
 
         # Unified transformer
         encoder_layer = nn.TransformerEncoderLayer(
@@ -110,7 +108,7 @@ class OctoVLA(AbstractVLA):
             nhead=num_heads,
             dim_feedforward=hidden_dim * 4,
             dropout=dropout,
-            activation='gelu',
+            activation="gelu",
             batch_first=True,
             norm_first=True,
         )
@@ -133,9 +131,9 @@ class OctoVLA(AbstractVLA):
     def _get_vision_dim(self) -> int:
         """Get output dimension of vision encoder."""
         # Try to infer from encoder
-        if hasattr(self.vision_encoder, 'output_dim'):
+        if hasattr(self.vision_encoder, "output_dim"):
             return self.vision_encoder.output_dim
-        elif hasattr(self.vision_encoder, 'embed_dim'):
+        elif hasattr(self.vision_encoder, "embed_dim"):
             return self.vision_encoder.embed_dim
         else:
             # Default assumption
@@ -150,7 +148,7 @@ class OctoVLA(AbstractVLA):
         task_id: Optional[torch.Tensor] = None,
         history_images: Optional[torch.Tensor] = None,
         history_states: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> dict[str, torch.Tensor]:
         """
         Forward pass of Octo VLA.
@@ -243,15 +241,15 @@ class OctoVLA(AbstractVLA):
             loss = F.mse_loss(predicted_actions, actions)
 
             return {
-                'actions': predicted_actions,
-                'loss': loss,
-                'action_token': action_token,
+                "actions": predicted_actions,
+                "loss": loss,
+                "action_token": action_token,
             }
         else:
             # Inference mode
             return {
-                'actions': predicted_actions,
-                'action_token': action_token,
+                "actions": predicted_actions,
+                "action_token": action_token,
             }
 
     def predict_action(
@@ -261,7 +259,7 @@ class OctoVLA(AbstractVLA):
         proprioception: Optional[torch.Tensor] = None,
         task_id: Optional[torch.Tensor] = None,
         history_images: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> torch.Tensor:
         """
         Predict actions for inference.
@@ -286,15 +284,12 @@ class OctoVLA(AbstractVLA):
                 task_id=task_id,
                 history_images=history_images,
                 actions=None,
-                **kwargs
+                **kwargs,
             )
-            return outputs['actions']
+            return outputs["actions"]
 
     def compute_loss(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
@@ -309,9 +304,9 @@ class OctoVLA(AbstractVLA):
         """
         losses = {}
 
-        if 'loss' in predictions:
-            losses['action_loss'] = predictions['loss']
-            losses['total_loss'] = predictions['loss']
+        if "loss" in predictions:
+            losses["action_loss"] = predictions["loss"]
+            losses["total_loss"] = predictions["loss"]
 
         return losses
 
@@ -323,12 +318,12 @@ class OctoVLA(AbstractVLA):
             Dictionary containing configuration
         """
         return {
-            'type': 'OctoVLA',
-            'action_dim': self.action_dim,
-            'state_dim': self.state_dim,
-            'hidden_dim': self.hidden_dim,
-            'num_layers': self.num_layers,
-            'num_heads': self.num_heads,
-            'history_length': self.history_length,
-            'num_tasks': self.num_tasks,
+            "type": "OctoVLA",
+            "action_dim": self.action_dim,
+            "state_dim": self.state_dim,
+            "hidden_dim": self.hidden_dim,
+            "num_layers": self.num_layers,
+            "num_heads": self.num_heads,
+            "history_length": self.history_length,
+            "num_tasks": self.num_tasks,
         }

@@ -56,8 +56,7 @@ class GRPCServer(AbstractServer):
         self.policy = None
 
         logger.warning(
-            "gRPC server is a placeholder. "
-            "Full implementation requires protobuf definitions."
+            "gRPC server is a placeholder. " "Full implementation requires protobuf definitions."
         )
 
     async def start(self) -> None:
@@ -81,9 +80,7 @@ class GRPCServer(AbstractServer):
             # from . import vla_inference_pb2_grpc
 
             # Create server
-            self.server = aio.server(
-                futures.ThreadPoolExecutor(max_workers=self.max_workers)
-            )
+            self.server = aio.server(futures.ThreadPoolExecutor(max_workers=self.max_workers))
 
             # TODO: Add service to server
             # vla_inference_pb2_grpc.add_VLAInferenceServicer_to_server(
@@ -104,9 +101,7 @@ class GRPCServer(AbstractServer):
             await self.server.wait_for_termination()
 
         except ImportError:
-            logger.error(
-                "grpcio not installed. Install with: pip install grpcio grpcio-tools"
-            )
+            logger.error("grpcio not installed. Install with: pip install grpcio grpcio-tools")
             raise
         except Exception as e:
             logger.error(f"Failed to start gRPC server: {e}", exc_info=True)
@@ -130,11 +125,7 @@ class GRPCServer(AbstractServer):
         self._is_running = False
         logger.info("gRPC server stopped")
 
-    async def predict(
-        self,
-        request: dict[str, Any],
-        **kwargs
-    ) -> dict[str, Any]:
+    async def predict(self, request: dict[str, Any], **kwargs) -> dict[str, Any]:
         """
         Handle prediction request.
 
@@ -323,7 +314,7 @@ def create_grpc_server(
     port: int = 50051,
     model_path: Optional[str] = None,
     device: Optional[str] = None,
-    **kwargs
+    **kwargs,
 ) -> GRPCServer:
     """
     Factory function to create gRPC server.
@@ -342,13 +333,7 @@ def create_grpc_server(
         >>> server = create_grpc_server(port=50051, model_path="model.pt")
         >>> asyncio.run(server.start())
     """
-    return GRPCServer(
-        host=host,
-        port=port,
-        model_path=model_path,
-        device=device,
-        **kwargs
-    )
+    return GRPCServer(host=host, port=port, model_path=model_path, device=device, **kwargs)
 
 
 if __name__ == "__main__":

@@ -34,14 +34,12 @@ class GRPCServer(AbstractServer):
 
             import grpc
 
-            self._server = grpc.aio.server(
-                futures.ThreadPoolExecutor(max_workers=self.max_workers)
-            )
+            self._server = grpc.aio.server(futures.ThreadPoolExecutor(max_workers=self.max_workers))
 
             # Add service
             self._add_servicer()
 
-            self._server.add_insecure_port(f'{self.host}:{self.port}')
+            self._server.add_insecure_port(f"{self.host}:{self.port}")
             await self._server.start()
             self._is_running = True
 
@@ -61,11 +59,7 @@ class GRPCServer(AbstractServer):
             await self._server.stop(grace=5)
         self._is_running = False
 
-    async def predict(
-        self,
-        request: dict[str, Any],
-        **kwargs
-    ) -> dict[str, Any]:
+    async def predict(self, request: dict[str, Any], **kwargs) -> dict[str, Any]:
         """Handle prediction request."""
         import numpy as np
 
@@ -78,7 +72,7 @@ class GRPCServer(AbstractServer):
         }
         instruction = request.get("instruction", "")
 
-        if hasattr(self.model, 'get_action'):
+        if hasattr(self.model, "get_action"):
             action = self.model.get_action(observation, instruction)
         else:
             action = np.zeros(7)
@@ -89,6 +83,7 @@ class GRPCServer(AbstractServer):
         """Load model."""
         try:
             import torch
+
             self.model = torch.load(model_path)
         except ImportError:
             pass
@@ -102,4 +97,4 @@ class GRPCServer(AbstractServer):
         }
 
 
-__all__ = ['GRPCServer']
+__all__ = ["GRPCServer"]

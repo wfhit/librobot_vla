@@ -68,92 +68,54 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Run inference with LibroBot VLA models",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__
+        epilog=__doc__,
     )
 
     # Required arguments
-    parser.add_argument(
-        "--checkpoint",
-        type=str,
-        required=True,
-        help="Path to model checkpoint"
-    )
+    parser.add_argument("--checkpoint", type=str, required=True, help="Path to model checkpoint")
 
     # Configuration
     parser.add_argument(
-        "--config",
-        type=str,
-        default=None,
-        help="Path to configuration YAML file (optional)"
+        "--config", type=str, default=None, help="Path to configuration YAML file (optional)"
     )
 
     # Inference mode
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument(
-        "--server",
-        type=str,
-        choices=["rest", "grpc"],
-        help="Start inference server (rest or grpc)"
+        "--server", type=str, choices=["rest", "grpc"], help="Start inference server (rest or grpc)"
     )
     mode_group.add_argument(
-        "--batch-dir",
-        type=str,
-        help="Directory containing images for batch inference"
+        "--batch-dir", type=str, help="Directory containing images for batch inference"
     )
 
     # Single inference inputs
+    parser.add_argument("--image", type=str, help="Path to input image for single inference")
+    parser.add_argument("--text", type=str, help="Text instruction for single inference")
     parser.add_argument(
-        "--image",
-        type=str,
-        help="Path to input image for single inference"
-    )
-    parser.add_argument(
-        "--text",
-        type=str,
-        help="Text instruction for single inference"
-    )
-    parser.add_argument(
-        "--state",
-        type=str,
-        help="Robot state as JSON string or file path for single inference"
+        "--state", type=str, help="Robot state as JSON string or file path for single inference"
     )
 
     # Server options
     parser.add_argument(
-        "--host",
-        type=str,
-        default="0.0.0.0",
-        help="Server host address (default: 0.0.0.0)"
+        "--host", type=str, default="0.0.0.0", help="Server host address (default: 0.0.0.0)"
     )
     parser.add_argument(
         "--port",
         type=int,
         default=None,
-        help="Server port (default: 8000 for REST, 50051 for gRPC)"
+        help="Server port (default: 8000 for REST, 50051 for gRPC)",
     )
+    parser.add_argument("--enable-cors", action="store_true", help="Enable CORS for REST server")
     parser.add_argument(
-        "--enable-cors",
-        action="store_true",
-        help="Enable CORS for REST server"
-    )
-    parser.add_argument(
-        "--workers",
-        type=int,
-        default=1,
-        help="Number of worker processes for server"
+        "--workers", type=int, default=1, help="Number of worker processes for server"
     )
 
     # Output options
     parser.add_argument(
-        "--output-file",
-        type=str,
-        default=None,
-        help="Output file for predictions (JSON)"
+        "--output-file", type=str, default=None, help="Output file for predictions (JSON)"
     )
     parser.add_argument(
-        "--save-visualization",
-        action="store_true",
-        help="Save visualization of predictions"
+        "--save-visualization", action="store_true", help="Save visualization of predictions"
     )
 
     # Device options
@@ -162,27 +124,22 @@ def parse_args():
         type=str,
         default=None,
         choices=["cuda", "cpu", "mps"],
-        help="Device to run inference on"
+        help="Device to run inference on",
     )
     parser.add_argument(
         "--precision",
         type=str,
         default="fp32",
         choices=["fp32", "fp16", "bf16"],
-        help="Inference precision (default: fp32)"
+        help="Inference precision (default: fp32)",
     )
 
     # Performance options
-    parser.add_argument(
-        "--batch-size",
-        type=int,
-        default=1,
-        help="Batch size for batch inference"
-    )
+    parser.add_argument("--batch-size", type=int, default=1, help="Batch size for batch inference")
     parser.add_argument(
         "--compile",
         action="store_true",
-        help="Compile model with torch.compile for faster inference"
+        help="Compile model with torch.compile for faster inference",
     )
 
     # Logging
@@ -191,23 +148,15 @@ def parse_args():
         type=str,
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Logging level"
+        help="Logging level",
     )
-    parser.add_argument(
-        "--log-file",
-        type=str,
-        default=None,
-        help="Path to log file"
-    )
+    parser.add_argument("--log-file", type=str, default=None, help="Path to log file")
 
     return parser.parse_args()
 
 
 def load_model_for_inference(
-    checkpoint_path: str,
-    config: Optional[Config],
-    device: str,
-    precision: str
+    checkpoint_path: str, config: Optional[Config], device: str, precision: str
 ) -> nn.Module:
     """
     Load model from checkpoint for inference.
@@ -285,7 +234,7 @@ def run_single_inference(
     image: Optional[np.ndarray],
     text: Optional[str],
     state: Optional[np.ndarray],
-    device: str
+    device: str,
 ) -> Dict[str, Any]:
     """
     Run single inference.
@@ -337,7 +286,7 @@ def run_single_inference(
             "has_image": image is not None,
             "has_text": text is not None,
             "has_state": state is not None,
-        }
+        },
     }
 
     logger.debug(f"Inference result: {result}")
@@ -346,11 +295,7 @@ def run_single_inference(
 
 
 def run_batch_inference(
-    model: nn.Module,
-    batch_dir: Path,
-    batch_size: int,
-    device: str,
-    output_file: Optional[str]
+    model: nn.Module, batch_dir: Path, batch_size: int, device: str, output_file: Optional[str]
 ) -> List[Dict[str, Any]]:
     """
     Run batch inference on directory of images.
@@ -369,10 +314,7 @@ def run_batch_inference(
 
     # Find all images
     image_extensions = {".jpg", ".jpeg", ".png", ".bmp"}
-    image_paths = [
-        p for p in batch_dir.iterdir()
-        if p.suffix.lower() in image_extensions
-    ]
+    image_paths = [p for p in batch_dir.iterdir() if p.suffix.lower() in image_extensions]
 
     logger.info(f"Found {len(image_paths)} images in {batch_dir}")
 
@@ -380,8 +322,10 @@ def run_batch_inference(
 
     # Process in batches
     for i in range(0, len(image_paths), batch_size):
-        batch_paths = image_paths[i:i + batch_size]
-        logger.info(f"Processing batch {i // batch_size + 1}/{(len(image_paths) + batch_size - 1) // batch_size}")
+        batch_paths = image_paths[i : i + batch_size]
+        logger.info(
+            f"Processing batch {i // batch_size + 1}/{(len(image_paths) + batch_size - 1) // batch_size}"
+        )
 
         # Load images
         images = []
@@ -413,11 +357,8 @@ def run_batch_inference(
             if actions is not None:
                 actions = actions.cpu().numpy()
 
-                for j, path in enumerate(batch_paths[:len(actions)]):
-                    predictions.append({
-                        "image_path": str(path),
-                        "actions": actions[j].tolist()
-                    })
+                for j, path in enumerate(batch_paths[: len(actions)]):
+                    predictions.append({"image_path": str(path), "actions": actions[j].tolist()})
 
     logger.info(f"Completed batch inference on {len(predictions)} images")
 
@@ -443,7 +384,7 @@ def start_server(
     device: str,
     precision: str,
     enable_cors: bool,
-    workers: int
+    workers: int,
 ):
     """
     Start inference server.
@@ -571,10 +512,7 @@ def main():
 
         # Load model for single or batch inference
         model = load_model_for_inference(
-            checkpoint_path=args.checkpoint,
-            config=config,
-            device=device,
-            precision=args.precision
+            checkpoint_path=args.checkpoint, config=config, device=device, precision=args.precision
         )
 
         # Compile model if requested
@@ -593,7 +531,7 @@ def main():
                 batch_dir=batch_dir,
                 batch_size=args.batch_size,
                 device=device,
-                output_file=args.output_file
+                output_file=args.output_file,
             )
 
             logger.info(f"Processed {len(predictions)} images")
@@ -632,11 +570,7 @@ def main():
         # Run inference
         logger.info("Running inference...")
         result = run_single_inference(
-            model=model,
-            image=image,
-            text=text,
-            state=state,
-            device=device
+            model=model, image=image, text=text, state=state, device=device
         )
 
         # Print result

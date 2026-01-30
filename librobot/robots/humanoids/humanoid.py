@@ -120,77 +120,105 @@ class Humanoid(AbstractRobot):
 
     # Joint groups
     JOINT_GROUPS = {
-        'lower_body': list(range(0, 12)),
-        'upper_body': list(range(12, 30)),
-        'left_leg': [0, 1, 2, 3, 4, 5],
-        'right_leg': [6, 7, 8, 9, 10, 11],
-        'torso': [12, 13],
-        'left_arm': [14, 15, 16, 17, 18, 19, 20],
-        'right_arm': [21, 22, 23, 24, 25, 26, 27],
-        'head': [28, 29],
+        "lower_body": list(range(0, 12)),
+        "upper_body": list(range(12, 30)),
+        "left_leg": [0, 1, 2, 3, 4, 5],
+        "right_leg": [6, 7, 8, 9, 10, 11],
+        "torso": [12, 13],
+        "left_arm": [14, 15, 16, 17, 18, 19, 20],
+        "right_arm": [21, 22, 23, 24, 25, 26, 27],
+        "head": [28, 29],
     }
 
     # Default joint limits (radians) - override for specific platforms
     # This is a simplified example; real robots have more complex limits
-    JOINT_POSITION_LIMITS = np.array([
-        # Left leg
-        [-0.785, 0.785],   # hip_roll
-        [-1.571, 1.571],   # hip_pitch
-        [-0.524, 0.524],   # hip_yaw
-        [0.0, 2.5],        # knee
-        [-0.785, 0.785],   # ankle_pitch
-        [-0.785, 0.785],   # ankle_roll
-        # Right leg
-        [-0.785, 0.785],
-        [-1.571, 1.571],
-        [-0.524, 0.524],
-        [0.0, 2.5],
-        [-0.785, 0.785],
-        [-0.785, 0.785],
-        # Torso
-        [-0.785, 0.785],   # yaw
-        [-0.785, 0.785],   # pitch
-        # Left arm
-        [-1.571, 1.571],   # shoulder_roll
-        [-1.571, 1.571],   # shoulder_pitch
-        [-1.571, 1.571],   # shoulder_yaw
-        [0.0, 2.5],        # elbow
-        [-1.571, 1.571],   # wrist_roll
-        [-1.571, 1.571],   # wrist_pitch
-        [-1.571, 1.571],   # wrist_yaw
-        # Right arm
-        [-1.571, 1.571],
-        [-1.571, 1.571],
-        [-1.571, 1.571],
-        [0.0, 2.5],
-        [-1.571, 1.571],
-        [-1.571, 1.571],
-        [-1.571, 1.571],
-        # Head
-        [-1.571, 1.571],   # pan
-        [-1.571, 1.571],   # tilt
-    ])
+    JOINT_POSITION_LIMITS = np.array(
+        [
+            # Left leg
+            [-0.785, 0.785],  # hip_roll
+            [-1.571, 1.571],  # hip_pitch
+            [-0.524, 0.524],  # hip_yaw
+            [0.0, 2.5],  # knee
+            [-0.785, 0.785],  # ankle_pitch
+            [-0.785, 0.785],  # ankle_roll
+            # Right leg
+            [-0.785, 0.785],
+            [-1.571, 1.571],
+            [-0.524, 0.524],
+            [0.0, 2.5],
+            [-0.785, 0.785],
+            [-0.785, 0.785],
+            # Torso
+            [-0.785, 0.785],  # yaw
+            [-0.785, 0.785],  # pitch
+            # Left arm
+            [-1.571, 1.571],  # shoulder_roll
+            [-1.571, 1.571],  # shoulder_pitch
+            [-1.571, 1.571],  # shoulder_yaw
+            [0.0, 2.5],  # elbow
+            [-1.571, 1.571],  # wrist_roll
+            [-1.571, 1.571],  # wrist_pitch
+            [-1.571, 1.571],  # wrist_yaw
+            # Right arm
+            [-1.571, 1.571],
+            [-1.571, 1.571],
+            [-1.571, 1.571],
+            [0.0, 2.5],
+            [-1.571, 1.571],
+            [-1.571, 1.571],
+            [-1.571, 1.571],
+            # Head
+            [-1.571, 1.571],  # pan
+            [-1.571, 1.571],  # tilt
+        ]
+    )
 
     # Joint velocity limits (rad/s)
     JOINT_VELOCITY_LIMITS = np.full(NUM_JOINTS, 3.0)
 
     # Joint torque limits (Nm) - approximate values
-    JOINT_TORQUE_LIMITS = np.array([
-        # Legs (higher torque for weight bearing)
-        100, 150, 80, 150, 80, 80,  # left leg
-        100, 150, 80, 150, 80, 80,  # right leg
-        # Torso
-        80, 80,
-        # Arms (lower torque)
-        50, 50, 30, 30, 20, 20, 20,  # left arm
-        50, 50, 30, 30, 20, 20, 20,  # right arm
-        # Head
-        10, 10,
-    ])
+    JOINT_TORQUE_LIMITS = np.array(
+        [
+            # Legs (higher torque for weight bearing)
+            100,
+            150,
+            80,
+            150,
+            80,
+            80,  # left leg
+            100,
+            150,
+            80,
+            150,
+            80,
+            80,  # right leg
+            # Torso
+            80,
+            80,
+            # Arms (lower torque)
+            50,
+            50,
+            30,
+            30,
+            20,
+            20,
+            20,  # left arm
+            50,
+            50,
+            30,
+            30,
+            20,
+            20,
+            20,  # right arm
+            # Head
+            10,
+            10,
+        ]
+    )
 
     # Physical parameters (typical values in meters/kg)
     HEIGHT = 1.75  # meters
-    MASS = 75.0    # kg
+    MASS = 75.0  # kg
     FOOT_LENGTH = 0.25
     FOOT_WIDTH = 0.15
 
@@ -342,13 +370,15 @@ class Humanoid(AbstractRobot):
         # - Get force/torque measurements
 
         return {
-            'joint_positions': self._joint_positions.copy(),
-            'joint_velocities': self._joint_velocities.copy(),
-            'joint_torques': self._joint_torques.copy(),
-            'base_pose': np.concatenate([self._base_position, self._base_orientation]),
-            'base_velocity': np.concatenate([self._base_linear_velocity, self._base_angular_velocity]),
-            'com': self._center_of_mass.copy(),
-            'zmp': self._zmp.copy(),
+            "joint_positions": self._joint_positions.copy(),
+            "joint_velocities": self._joint_velocities.copy(),
+            "joint_torques": self._joint_torques.copy(),
+            "base_pose": np.concatenate([self._base_position, self._base_orientation]),
+            "base_velocity": np.concatenate(
+                [self._base_linear_velocity, self._base_angular_velocity]
+            ),
+            "com": self._center_of_mass.copy(),
+            "zmp": self._zmp.copy(),
         }
 
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
@@ -378,7 +408,9 @@ class Humanoid(AbstractRobot):
             raise RuntimeError("Fall detected, cannot execute action")
 
         if action.shape[0] != self.NUM_JOINTS:
-            raise ValueError(f"Action must have {self.NUM_JOINTS} dimensions, got {action.shape[0]}")
+            raise ValueError(
+                f"Action must have {self.NUM_JOINTS} dimensions, got {action.shape[0]}"
+            )
 
         # Safety checks
         if not self._check_action_safety(action):
@@ -386,7 +418,7 @@ class Humanoid(AbstractRobot):
             return False
 
         # Check balance if enabled
-        if self.balance_control and not kwargs.get('balance_override', False):
+        if self.balance_control and not kwargs.get("balance_override", False):
             if not self.is_balanced(self._zmp):
                 print(f"[{self.robot_id}] Action rejected: robot not balanced")
                 return False
@@ -413,7 +445,9 @@ class Humanoid(AbstractRobot):
 
         # Check joint position limits
         for i in range(self.NUM_JOINTS):
-            if not (self.JOINT_POSITION_LIMITS[i, 0] <= action[i] <= self.JOINT_POSITION_LIMITS[i, 1]):
+            if not (
+                self.JOINT_POSITION_LIMITS[i, 0] <= action[i] <= self.JOINT_POSITION_LIMITS[i, 1]
+            ):
                 print(f"[{self.robot_id}] Joint {i} target outside limits")
                 return False
 
@@ -432,39 +466,39 @@ class Humanoid(AbstractRobot):
             Dictionary containing images, proprioception, IMU, and F/T data
         """
         observation = {
-            'proprioception': {
-                'joint_positions': self._joint_positions.copy(),
-                'joint_velocities': self._joint_velocities.copy(),
-                'joint_torques': self._joint_torques.copy(),
-                'base_position': self._base_position.copy(),
-                'base_orientation': self._base_orientation.copy(),
-                'base_linear_velocity': self._base_linear_velocity.copy(),
-                'base_angular_velocity': self._base_angular_velocity.copy(),
-                'center_of_mass': self._center_of_mass.copy(),
-                'zero_moment_point': self._zmp.copy(),
-                'battery_level': self._battery_level,
+            "proprioception": {
+                "joint_positions": self._joint_positions.copy(),
+                "joint_velocities": self._joint_velocities.copy(),
+                "joint_torques": self._joint_torques.copy(),
+                "base_position": self._base_position.copy(),
+                "base_orientation": self._base_orientation.copy(),
+                "base_linear_velocity": self._base_linear_velocity.copy(),
+                "base_angular_velocity": self._base_angular_velocity.copy(),
+                "center_of_mass": self._center_of_mass.copy(),
+                "zero_moment_point": self._zmp.copy(),
+                "battery_level": self._battery_level,
             }
         }
 
         if self.camera_enabled:
             # TODO: Implement camera frame capture
-            observation['images'] = {
-                'head_camera': np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
+            observation["images"] = {
+                "head_camera": np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
             }
 
         if self.imu_enabled:
             # TODO: Implement IMU data retrieval
-            observation['imu'] = {
-                'linear_acceleration': self._imu_linear_accel.copy(),
-                'angular_velocity': self._imu_angular_vel.copy(),
-                'orientation': self._imu_orientation.copy(),
+            observation["imu"] = {
+                "linear_acceleration": self._imu_linear_accel.copy(),
+                "angular_velocity": self._imu_angular_vel.copy(),
+                "orientation": self._imu_orientation.copy(),
             }
 
         if self.force_torque_sensors:
             # TODO: Implement F/T sensor reading
-            observation['force_torque'] = {
-                'left_foot': self._left_foot_ft.copy(),
-                'right_foot': self._right_foot_ft.copy(),
+            observation["force_torque"] = {
+                "left_foot": self._left_foot_ft.copy(),
+                "right_foot": self._right_foot_ft.copy(),
             }
 
         return observation
@@ -477,14 +511,14 @@ class Humanoid(AbstractRobot):
             Dictionary describing the action space
         """
         return {
-            'shape': (self.NUM_JOINTS,),
-            'dtype': np.float32,
-            'bounds': {
-                'low': self.JOINT_POSITION_LIMITS[:, 0],
-                'high': self.JOINT_POSITION_LIMITS[:, 1],
+            "shape": (self.NUM_JOINTS,),
+            "dtype": np.float32,
+            "bounds": {
+                "low": self.JOINT_POSITION_LIMITS[:, 0],
+                "high": self.JOINT_POSITION_LIMITS[:, 1],
             },
-            'names': self._get_joint_names(),
-            'groups': self.JOINT_GROUPS,
+            "names": self._get_joint_names(),
+            "groups": self.JOINT_GROUPS,
         }
 
     def get_observation_space(self) -> dict[str, Any]:
@@ -495,36 +529,36 @@ class Humanoid(AbstractRobot):
             Dictionary describing observation space structure
         """
         obs_space = {
-            'proprioception': {
-                'joint_positions': {'shape': (self.NUM_JOINTS,), 'dtype': np.float32},
-                'joint_velocities': {'shape': (self.NUM_JOINTS,), 'dtype': np.float32},
-                'joint_torques': {'shape': (self.NUM_JOINTS,), 'dtype': np.float32},
-                'base_position': {'shape': (3,), 'dtype': np.float32},
-                'base_orientation': {'shape': (4,), 'dtype': np.float32},
-                'base_linear_velocity': {'shape': (3,), 'dtype': np.float32},
-                'base_angular_velocity': {'shape': (3,), 'dtype': np.float32},
-                'center_of_mass': {'shape': (3,), 'dtype': np.float32},
-                'zero_moment_point': {'shape': (2,), 'dtype': np.float32},
-                'battery_level': {'shape': (), 'dtype': np.float32},
+            "proprioception": {
+                "joint_positions": {"shape": (self.NUM_JOINTS,), "dtype": np.float32},
+                "joint_velocities": {"shape": (self.NUM_JOINTS,), "dtype": np.float32},
+                "joint_torques": {"shape": (self.NUM_JOINTS,), "dtype": np.float32},
+                "base_position": {"shape": (3,), "dtype": np.float32},
+                "base_orientation": {"shape": (4,), "dtype": np.float32},
+                "base_linear_velocity": {"shape": (3,), "dtype": np.float32},
+                "base_angular_velocity": {"shape": (3,), "dtype": np.float32},
+                "center_of_mass": {"shape": (3,), "dtype": np.float32},
+                "zero_moment_point": {"shape": (2,), "dtype": np.float32},
+                "battery_level": {"shape": (), "dtype": np.float32},
             }
         }
 
         if self.camera_enabled:
-            obs_space['images'] = {
-                'head_camera': {'shape': (*self.CAMERA_RESOLUTION, 3), 'dtype': np.uint8},
+            obs_space["images"] = {
+                "head_camera": {"shape": (*self.CAMERA_RESOLUTION, 3), "dtype": np.uint8},
             }
 
         if self.imu_enabled:
-            obs_space['imu'] = {
-                'linear_acceleration': {'shape': (3,), 'dtype': np.float32},
-                'angular_velocity': {'shape': (3,), 'dtype': np.float32},
-                'orientation': {'shape': (4,), 'dtype': np.float32},
+            obs_space["imu"] = {
+                "linear_acceleration": {"shape": (3,), "dtype": np.float32},
+                "angular_velocity": {"shape": (3,), "dtype": np.float32},
+                "orientation": {"shape": (4,), "dtype": np.float32},
             }
 
         if self.force_torque_sensors:
-            obs_space['force_torque'] = {
-                'left_foot': {'shape': (6,), 'dtype': np.float32},
-                'right_foot': {'shape': (6,), 'dtype': np.float32},
+            obs_space["force_torque"] = {
+                "left_foot": {"shape": (6,), "dtype": np.float32},
+                "right_foot": {"shape": (6,), "dtype": np.float32},
             }
 
         return obs_space
@@ -533,21 +567,41 @@ class Humanoid(AbstractRobot):
         """Get descriptive names for all joints."""
         return [
             # Left leg
-            'left_hip_roll', 'left_hip_pitch', 'left_hip_yaw',
-            'left_knee', 'left_ankle_pitch', 'left_ankle_roll',
+            "left_hip_roll",
+            "left_hip_pitch",
+            "left_hip_yaw",
+            "left_knee",
+            "left_ankle_pitch",
+            "left_ankle_roll",
             # Right leg
-            'right_hip_roll', 'right_hip_pitch', 'right_hip_yaw',
-            'right_knee', 'right_ankle_pitch', 'right_ankle_roll',
+            "right_hip_roll",
+            "right_hip_pitch",
+            "right_hip_yaw",
+            "right_knee",
+            "right_ankle_pitch",
+            "right_ankle_roll",
             # Torso
-            'torso_yaw', 'torso_pitch',
+            "torso_yaw",
+            "torso_pitch",
             # Left arm
-            'left_shoulder_roll', 'left_shoulder_pitch', 'left_shoulder_yaw',
-            'left_elbow', 'left_wrist_roll', 'left_wrist_pitch', 'left_wrist_yaw',
+            "left_shoulder_roll",
+            "left_shoulder_pitch",
+            "left_shoulder_yaw",
+            "left_elbow",
+            "left_wrist_roll",
+            "left_wrist_pitch",
+            "left_wrist_yaw",
             # Right arm
-            'right_shoulder_roll', 'right_shoulder_pitch', 'right_shoulder_yaw',
-            'right_elbow', 'right_wrist_roll', 'right_wrist_pitch', 'right_wrist_yaw',
+            "right_shoulder_roll",
+            "right_shoulder_pitch",
+            "right_shoulder_yaw",
+            "right_elbow",
+            "right_wrist_roll",
+            "right_wrist_pitch",
+            "right_wrist_yaw",
             # Head
-            'head_pan', 'head_tilt',
+            "head_pan",
+            "head_tilt",
         ]
 
     def is_balanced(self, zmp: np.ndarray) -> bool:
@@ -652,24 +706,24 @@ class Humanoid(AbstractRobot):
         # - Check balance controller
 
         return {
-            'robot_status': {
-                'standing': not self._fall_detected,
-                'balanced': self.is_balanced(self._zmp),
-                'emergency_stop': self._emergency_stop_triggered,
-                'battery_level': self._battery_level,
+            "robot_status": {
+                "standing": not self._fall_detected,
+                "balanced": self.is_balanced(self._zmp),
+                "emergency_stop": self._emergency_stop_triggered,
+                "battery_level": self._battery_level,
             },
-            'joints': {
-                'status': 'OK',
-                'num_joints': self.NUM_JOINTS,
+            "joints": {
+                "status": "OK",
+                "num_joints": self.NUM_JOINTS,
             },
-            'sensors': {
-                'imu': 'OK' if self.imu_enabled else 'DISABLED',
-                'cameras': 'OK' if self.camera_enabled else 'DISABLED',
-                'force_torque': 'OK' if self.force_torque_sensors else 'DISABLED',
+            "sensors": {
+                "imu": "OK" if self.imu_enabled else "DISABLED",
+                "cameras": "OK" if self.camera_enabled else "DISABLED",
+                "force_torque": "OK" if self.force_torque_sensors else "DISABLED",
             },
-            'warnings': [],
-            'errors': [],
+            "warnings": [],
+            "errors": [],
         }
 
 
-__all__ = ['Humanoid']
+__all__ = ["Humanoid"]

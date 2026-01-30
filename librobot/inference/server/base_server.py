@@ -34,11 +34,7 @@ class AbstractServer(ABC):
         pass
 
     @abstractmethod
-    async def predict(
-        self,
-        request: dict[str, Any],
-        **kwargs
-    ) -> dict[str, Any]:
+    async def predict(self, request: dict[str, Any], **kwargs) -> dict[str, Any]:
         """
         Handle prediction request.
 

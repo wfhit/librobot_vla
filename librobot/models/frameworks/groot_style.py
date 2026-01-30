@@ -112,7 +112,7 @@ class GR00TVLA(AbstractVLA):
             action_dim=action_dim,
             hidden_dim=hidden_dim,
             num_timesteps=diffusion_steps,
-            beta_schedule='cosine',
+            beta_schedule="cosine",
         )
 
     def forward(
@@ -121,7 +121,7 @@ class GR00TVLA(AbstractVLA):
         text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> dict[str, torch.Tensor]:
         """
         Forward pass of GR00T VLA.
@@ -152,7 +152,7 @@ class GR00TVLA(AbstractVLA):
         # Extract VLM features
         with torch.set_grad_enabled(not self.training or self.vlm.training):
             vlm_outputs = self.vlm(images, text=text, **kwargs)
-            vlm_embeddings = vlm_outputs['embeddings']
+            vlm_embeddings = vlm_outputs["embeddings"]
 
         # Pool VLM embeddings if sequence
         if vlm_embeddings.dim() == 3:
@@ -196,19 +196,19 @@ class GR00TVLA(AbstractVLA):
             loss = self.action_head.compute_loss(action_pred, actions)
 
             return {
-                'actions': self.action_head.sample(action_input),
-                'loss': loss,
-                'vlm_embeddings': vlm_embeddings,
-                'action_input': action_input,
+                "actions": self.action_head.sample(action_input),
+                "loss": loss,
+                "vlm_embeddings": vlm_embeddings,
+                "action_input": action_input,
             }
         else:
             # Inference mode: sample actions
             predicted_actions = self.action_head.sample(action_input)
 
             return {
-                'actions': predicted_actions,
-                'vlm_embeddings': vlm_embeddings,
-                'action_input': action_input,
+                "actions": predicted_actions,
+                "vlm_embeddings": vlm_embeddings,
+                "action_input": action_input,
             }
 
     def predict_action(
@@ -216,7 +216,7 @@ class GR00TVLA(AbstractVLA):
         images: torch.Tensor,
         text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> torch.Tensor:
         """
         Predict actions for inference.
@@ -233,19 +233,12 @@ class GR00TVLA(AbstractVLA):
         self.eval()
         with torch.no_grad():
             outputs = self.forward(
-                images=images,
-                text=text,
-                proprioception=proprioception,
-                actions=None,
-                **kwargs
+                images=images, text=text, proprioception=proprioception, actions=None, **kwargs
             )
-            return outputs['actions']
+            return outputs["actions"]
 
     def compute_loss(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
@@ -261,9 +254,9 @@ class GR00TVLA(AbstractVLA):
         losses = {}
 
         # Main action loss (already computed in forward)
-        if 'loss' in predictions:
-            losses['action_loss'] = predictions['loss']
-            losses['total_loss'] = predictions['loss']
+        if "loss" in predictions:
+            losses["action_loss"] = predictions["loss"]
+            losses["total_loss"] = predictions["loss"]
 
         return losses
 
@@ -275,11 +268,11 @@ class GR00TVLA(AbstractVLA):
             Dictionary containing configuration
         """
         return {
-            'type': 'GR00TVLA',
-            'vlm_config': self.vlm.config,
-            'action_dim': self.action_dim,
-            'state_dim': self.state_dim,
-            'hidden_dim': self.hidden_dim,
-            'num_cameras': self.num_cameras,
-            'diffusion_steps': self.diffusion_steps,
+            "type": "GR00TVLA",
+            "vlm_config": self.vlm.config,
+            "action_dim": self.action_dim,
+            "state_dim": self.state_dim,
+            "hidden_dim": self.hidden_dim,
+            "num_cameras": self.num_cameras,
+            "diffusion_steps": self.diffusion_steps,
         }

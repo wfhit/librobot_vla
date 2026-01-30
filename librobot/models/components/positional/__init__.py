@@ -5,7 +5,7 @@ from .rotary import RotaryPositionEmbedding
 from .sinusoidal import SinusoidalPositionalEncoding
 
 __all__ = [
-    'SinusoidalPositionalEncoding',
-    'RotaryPositionEmbedding',
-    'ALiBiPositionalBias',
+    "SinusoidalPositionalEncoding",
+    "RotaryPositionEmbedding",
+    "ALiBiPositionalBias",
 ]

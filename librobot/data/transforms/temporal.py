@@ -41,7 +41,7 @@ class TemporalSubsample(TemporalTransform):
             if key in sample:
                 value = sample[key]
                 if isinstance(value, np.ndarray) and value.ndim >= 1:
-                    sample[key] = value[::self.subsample_rate]
+                    sample[key] = value[:: self.subsample_rate]
 
         return sample
 
@@ -137,7 +137,7 @@ class ActionChunking(TemporalTransform):
             if T >= self.chunk_size:
                 # Random start for training
                 start = np.random.randint(0, T - self.chunk_size + 1)
-                sample[self.output_key] = actions[start:start + self.chunk_size]
+                sample[self.output_key] = actions[start : start + self.chunk_size]
             else:
                 # Pad with last action
                 pad_len = self.chunk_size - T
@@ -153,7 +153,7 @@ class TemporalStack(TemporalTransform):
     def __init__(
         self,
         stack_size: int = 4,
-        keys: list[str] = ['images'],
+        keys: list[str] = ["images"],
     ):
         """
         Args:
@@ -172,12 +172,12 @@ class TemporalStack(TemporalTransform):
                 self._buffers[key].append(current)
 
                 if len(self._buffers[key]) > self.stack_size:
-                    self._buffers[key] = self._buffers[key][-self.stack_size:]
+                    self._buffers[key] = self._buffers[key][-self.stack_size :]
 
                 while len(self._buffers[key]) < self.stack_size:
                     self._buffers[key].insert(0, current)
 
-                sample[f'{key}_stacked'] = np.stack(self._buffers[key])
+                sample[f"{key}_stacked"] = np.stack(self._buffers[key])
 
         return sample
 
@@ -212,7 +212,7 @@ class FrameSkip(TemporalTransform):
         for key in keys:
             if key in sample and isinstance(sample[key], np.ndarray):
                 if sample[key].ndim >= 1:
-                    sample[key] = sample[key][::self.skip]
+                    sample[key] = sample[key][:: self.skip]
 
         return sample
 
@@ -238,17 +238,17 @@ class DeltaActions(TemporalTransform):
             delta = np.diff(actions, axis=0)
             # Pad to keep same length
             delta = np.concatenate([delta, delta[-1:]], axis=0)
-            sample[f'{self.action_key}_delta'] = delta
+            sample[f"{self.action_key}_delta"] = delta
 
         return sample
 
 
 __all__ = [
-    'TemporalTransform',
-    'TemporalSubsample',
-    'TemporalCrop',
-    'ActionChunking',
-    'TemporalStack',
-    'FrameSkip',
-    'DeltaActions',
+    "TemporalTransform",
+    "TemporalSubsample",
+    "TemporalCrop",
+    "ActionChunking",
+    "TemporalStack",
+    "FrameSkip",
+    "DeltaActions",
 ]

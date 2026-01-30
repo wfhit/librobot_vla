@@ -45,7 +45,7 @@ class SinusoidalPositionalEncoding(nn.Module):
         pe[:, 1::2] = torch.cos(position * div_term)
 
         # Register as buffer (not trained)
-        self.register_buffer('pe', pe.unsqueeze(0))
+        self.register_buffer("pe", pe.unsqueeze(0))
 
     def forward(
         self,
@@ -69,7 +69,7 @@ class SinusoidalPositionalEncoding(nn.Module):
                 f"Sequence length {seq_len} with offset {offset} exceeds maximum length {self.max_len}"
             )
 
-        pe = self.pe[:, offset:offset + seq_len, :]
+        pe = self.pe[:, offset : offset + seq_len, :]
 
         if self.scale:
             x = x * math.sqrt(self.d_model)
@@ -99,7 +99,7 @@ class SinusoidalPositionalEncoding(nn.Module):
                 f"Sequence length {seq_len} with offset {offset} exceeds maximum length {self.max_len}"
             )
 
-        return self.pe[:, offset:offset + seq_len, :]
+        return self.pe[:, offset : offset + seq_len, :]
 
     def extra_repr(self) -> str:
-        return f'd_model={self.d_model}, max_len={self.max_len}, scale={self.scale}'
+        return f"d_model={self.d_model}, max_len={self.max_len}, scale={self.scale}"

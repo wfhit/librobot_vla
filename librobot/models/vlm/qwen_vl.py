@@ -93,7 +93,7 @@ class QwenVisionAttention(nn.Module):
         super().__init__()
         self.num_heads = config.vision_num_heads
         self.head_dim = config.vision_hidden_size // config.vision_num_heads
-        self.scale = self.head_dim ** -0.5
+        self.scale = self.head_dim**-0.5
 
         self.qkv = nn.Linear(config.vision_hidden_size, config.vision_hidden_size * 3)
         self.proj = nn.Linear(config.vision_hidden_size, config.vision_hidden_size)
@@ -103,6 +103,7 @@ class QwenVisionAttention(nn.Module):
         if config.use_flash_attn:
             try:
                 from flash_attn import flash_attn_func
+
                 self.flash_attn_func = flash_attn_func
                 self.use_flash = True
             except ImportError:
@@ -203,19 +204,19 @@ class QwenVisionEncoder(nn.Module):
             kernel_size=(
                 config.vision_temporal_patch_size,
                 config.vision_patch_size,
-                config.vision_patch_size
+                config.vision_patch_size,
             ),
             stride=(
                 config.vision_temporal_patch_size,
                 config.vision_patch_size,
-                config.vision_patch_size
+                config.vision_patch_size,
             ),
         )
 
         # Transformer blocks
-        self.blocks = nn.ModuleList([
-            QwenVisionBlock(config) for _ in range(config.vision_num_layers)
-        ])
+        self.blocks = nn.ModuleList(
+            [QwenVisionBlock(config) for _ in range(config.vision_num_layers)]
+        )
 
         self.norm = nn.LayerNorm(config.vision_hidden_size, eps=config.rms_norm_eps)
 
@@ -253,7 +254,7 @@ class QwenVisionEncoder(nn.Module):
         h_coords = torch.arange(h_patches, device=x.device).float()
         w_coords = torch.arange(w_patches, device=x.device).float()
 
-        coords = torch.stack(torch.meshgrid(t_coords, h_coords, w_coords, indexing='ij'), dim=-1)
+        coords = torch.stack(torch.meshgrid(t_coords, h_coords, w_coords, indexing="ij"), dim=-1)
         coords = coords.reshape(-1, 3).unsqueeze(0).expand(B, -1, -1)
 
         # Apply transformer blocks
@@ -288,6 +289,7 @@ class QwenLanguageAttention(nn.Module):
         if config.use_flash_attn:
             try:
                 from flash_attn import flash_attn_func
+
                 self.flash_attn_func = flash_attn_func
                 self.use_flash = True
             except ImportError:
@@ -333,7 +335,7 @@ class QwenLanguageAttention(nn.Module):
             out = out.reshape(B, L, -1)
         else:
             # Standard attention
-            scale = self.head_dim ** -0.5
+            scale = self.head_dim**-0.5
             attn = (q @ k.transpose(-2, -1)) * scale
 
             if attention_mask is not None:
@@ -399,9 +401,9 @@ class QwenLanguageModel(nn.Module):
         self.config = config
 
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size)
-        self.layers = nn.ModuleList([
-            QwenLanguageBlock(config, i) for i in range(config.num_hidden_layers)
-        ])
+        self.layers = nn.ModuleList(
+            [QwenLanguageBlock(config, i) for i in range(config.num_hidden_layers)]
+        )
         self.norm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
     def forward(
@@ -512,7 +514,7 @@ class QwenVL(AbstractVLM):
 
         for layer in self.language_model.layers:
             # Apply to Q, K, V projections
-            for name in ['q_proj', 'k_proj', 'v_proj', 'o_proj']:
+            for name in ["q_proj", "k_proj", "v_proj", "o_proj"]:
                 linear = getattr(layer.self_attn, name)
                 adapter = adapter_class(
                     linear.in_features,
@@ -521,7 +523,7 @@ class QwenVL(AbstractVLM):
                     alpha=self._config.lora_alpha,
                 )
                 adapter.apply_to_layer(linear)
-                setattr(layer.self_attn, f'{name}_lora', adapter)
+                setattr(layer.self_attn, f"{name}_lora", adapter)
 
     def encode_image(self, images: torch.Tensor, **kwargs) -> torch.Tensor:
         """
@@ -536,10 +538,7 @@ class QwenVL(AbstractVLM):
         return self.vision_proj(vision_features)
 
     def encode_text(
-        self,
-        text: Union[str, list[str]],
-        tokenizer: Optional[Any] = None,
-        **kwargs
+        self, text: Union[str, list[str]], tokenizer: Optional[Any] = None, **kwargs
     ) -> torch.Tensor:
         """
         Encode text to embeddings.
@@ -575,7 +574,7 @@ class QwenVL(AbstractVLM):
         labels: Optional[torch.Tensor] = None,
         use_cache: bool = False,
         return_dict: bool = True,
-        **kwargs
+        **kwargs,
     ) -> dict[str, torch.Tensor]:
         """
         Forward pass.
@@ -674,7 +673,9 @@ class QwenVL(AbstractVLM):
             if len(vision_positions) > 0:
                 # Replace with vision embeddings
                 num_vision_tokens = min(len(vision_positions), N)
-                output_embeds[b, vision_positions[:num_vision_tokens]] = vision_embeds[b, :num_vision_tokens]
+                output_embeds[b, vision_positions[:num_vision_tokens]] = vision_embeds[
+                    b, :num_vision_tokens
+                ]
 
         return output_embeds
 
@@ -686,7 +687,7 @@ class QwenVL(AbstractVLM):
         temperature: float = 1.0,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
-        **kwargs
+        **kwargs,
     ) -> torch.Tensor:
         """
         Generate text autoregressively.
@@ -717,7 +718,7 @@ class QwenVL(AbstractVLM):
             # Apply top-k filtering
             if top_k is not None:
                 indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1, None]
-                logits[indices_to_remove] = float('-inf')
+                logits[indices_to_remove] = float("-inf")
 
             # Apply top-p (nucleus) filtering
             if top_p is not None:
@@ -729,7 +730,7 @@ class QwenVL(AbstractVLM):
                 indices_to_remove = sorted_indices_to_remove.scatter(
                     1, sorted_indices, sorted_indices_to_remove
                 )
-                logits[indices_to_remove] = float('-inf')
+                logits[indices_to_remove] = float("-inf")
 
             # Sample next token
             probs = F.softmax(logits, dim=-1)

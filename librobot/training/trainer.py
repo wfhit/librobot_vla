@@ -72,7 +72,9 @@ class TrainerConfig:
     # Logging and checkpointing
     log_interval: int = 10
     eval_interval: Optional[int] = None
-    save_interval: int = 1000  # Save checkpoint every N steps (during training) or epochs (during epoch-based training)
+    save_interval: int = (
+        1000  # Save checkpoint every N steps (during training) or epochs (during epoch-based training)
+    )
     save_total_limit: Optional[int] = 5
     resume_from_checkpoint: Optional[str] = None
 
@@ -211,7 +213,7 @@ class Trainer:
         # Training state
         self.global_step = 0
         self.current_epoch = 0
-        self.best_metric = float('inf')
+        self.best_metric = float("inf")
 
         # Setup callbacks
         for callback in self.callbacks:
@@ -323,7 +325,7 @@ class Trainer:
 
             # Logging
             if self.global_step % self.config.log_interval == 0:
-                lr = self.optimizer.param_groups[0]['lr'] if self.optimizer else 0.0
+                lr = self.optimizer.param_groups[0]["lr"] if self.optimizer else 0.0
                 logger.info(
                     f"Step {self.global_step} | "
                     f"Epoch {self.current_epoch} | "
@@ -332,15 +334,16 @@ class Trainer:
                 )
 
             # Validation
-            if (self.config.eval_interval and
-                self.val_dataloader is not None and
-                self.global_step % self.config.eval_interval == 0):
+            if (
+                self.config.eval_interval
+                and self.val_dataloader is not None
+                and self.global_step % self.config.eval_interval == 0
+            ):
                 val_metrics = self.validate()
                 logger.info(f"Validation metrics: {val_metrics}")
 
             # Checkpointing
-            if (self.config.save_interval and
-                self.global_step % self.config.save_interval == 0):
+            if self.config.save_interval and self.global_step % self.config.save_interval == 0:
                 self.save_checkpoint(step=self.global_step, metrics={"loss": loss})
 
             self._call_callbacks("on_batch_end", batch=batch_idx, logs={"loss": loss})
@@ -362,7 +365,7 @@ class Trainer:
         batch = self._move_to_device(batch)
 
         # Determine device type for autocast
-        device_type = 'cuda' if self.device.type == 'cuda' else 'cpu'
+        device_type = "cuda" if self.device.type == "cuda" else "cpu"
 
         # Forward pass with automatic mixed precision
         with torch.amp.autocast(device_type=device_type, enabled=self.config.mixed_precision):
@@ -381,10 +384,10 @@ class Trainer:
                     loss = self.loss_fn(outputs, batch)
                 else:
                     # Assume outputs contains loss
-                    loss = outputs.get('loss', outputs) if isinstance(outputs, dict) else outputs
+                    loss = outputs.get("loss", outputs) if isinstance(outputs, dict) else outputs
             else:
                 # Assume model returns loss directly
-                loss = outputs.get('loss', outputs) if isinstance(outputs, dict) else outputs
+                loss = outputs.get("loss", outputs) if isinstance(outputs, dict) else outputs
 
             # Scale loss for gradient accumulation
             loss = loss / self.config.gradient_accumulation_steps
@@ -404,14 +407,12 @@ class Trainer:
             # Gradient clipping
             if self.config.gradient_clip_norm is not None:
                 torch.nn.utils.clip_grad_norm_(
-                    self.model.parameters(),
-                    self.config.gradient_clip_norm
+                    self.model.parameters(), self.config.gradient_clip_norm
                 )
 
             if self.config.gradient_clip_value is not None:
                 torch.nn.utils.clip_grad_value_(
-                    self.model.parameters(),
-                    self.config.gradient_clip_value
+                    self.model.parameters(), self.config.gradient_clip_value
                 )
 
             # Optimizer step
@@ -454,7 +455,7 @@ class Trainer:
             batch = self._move_to_device(batch)
 
             # Determine device type for autocast
-            device_type = 'cuda' if self.device.type == 'cuda' else 'cpu'
+            device_type = "cuda" if self.device.type == "cuda" else "cpu"
 
             # Forward pass
             with torch.amp.autocast(device_type=device_type, enabled=self.config.mixed_precision):
@@ -471,9 +472,11 @@ class Trainer:
                     if isinstance(outputs, dict) and isinstance(batch, dict):
                         loss = self.loss_fn(outputs, batch)
                     else:
-                        loss = outputs.get('loss', outputs) if isinstance(outputs, dict) else outputs
+                        loss = (
+                            outputs.get("loss", outputs) if isinstance(outputs, dict) else outputs
+                        )
                 else:
-                    loss = outputs.get('loss', outputs) if isinstance(outputs, dict) else outputs
+                    loss = outputs.get("loss", outputs) if isinstance(outputs, dict) else outputs
 
             total_loss += loss.item()
             num_batches += 1
@@ -504,9 +507,9 @@ class Trainer:
             return
 
         # Get unwrapped model for saving
-        if hasattr(self.model, 'unwrap'):
+        if hasattr(self.model, "unwrap"):
             model = self.model.unwrap()
-        elif hasattr(self.model, 'module'):
+        elif hasattr(self.model, "module"):
             model = self.model.module
         else:
             model = self.model
@@ -520,7 +523,7 @@ class Trainer:
             metrics=metrics,
             metadata={
                 "config": self.config.__dict__,
-            }
+            },
         )
 
     def load_checkpoint(self, checkpoint_path: str) -> None:
@@ -533,9 +536,9 @@ class Trainer:
         logger.info(f"Loading checkpoint from {checkpoint_path}")
 
         # Get unwrapped model for loading
-        if hasattr(self.model, 'unwrap'):
+        if hasattr(self.model, "unwrap"):
             model = self.model.unwrap()
-        elif hasattr(self.model, 'module'):
+        elif hasattr(self.model, "module"):
             model = self.model.module
         else:
             model = self.model
@@ -549,10 +552,10 @@ class Trainer:
         )
 
         # Restore training state
-        if 'epoch' in checkpoint_data:
-            self.current_epoch = checkpoint_data['epoch'] + 1
-        if 'step' in checkpoint_data:
-            self.global_step = checkpoint_data['step'] + 1
+        if "epoch" in checkpoint_data:
+            self.current_epoch = checkpoint_data["epoch"] + 1
+        if "step" in checkpoint_data:
+            self.global_step = checkpoint_data["step"] + 1
 
         logger.info(
             f"Checkpoint loaded - resuming from epoch {self.current_epoch}, "
@@ -595,7 +598,7 @@ def create_trainer(
     model: nn.Module,
     train_dataloader: DataLoader,
     val_dataloader: Optional[DataLoader] = None,
-    **kwargs
+    **kwargs,
 ) -> Trainer:
     """
     Convenience function to create a trainer.
@@ -623,5 +626,5 @@ def create_trainer(
         model=model,
         train_dataloader=train_dataloader,
         val_dataloader=val_dataloader,
-        **kwargs
+        **kwargs,
     )

@@ -42,12 +42,7 @@ class FiLMFusion(nn.Module):
             nn.Linear(context_dim, feature_dim),
         )
 
-    def forward(
-        self,
-        features: torch.Tensor,
-        context: torch.Tensor,
-        **kwargs
-    ) -> torch.Tensor:
+    def forward(self, features: torch.Tensor, context: torch.Tensor, **kwargs) -> torch.Tensor:
         """
         Modulate features with context via FiLM.
 
@@ -87,8 +82,8 @@ class FiLMFusion(nn.Module):
     def get_config(self) -> dict[str, Any]:
         """Get fusion configuration."""
         return {
-            'type': 'FiLMFusion',
-            'feature_dim': self.feature_dim,
-            'context_dim': self.context_dim,
-            'use_residual': self.use_residual,
+            "type": "FiLMFusion",
+            "feature_dim": self.feature_dim,
+            "context_dim": self.context_dim,
+            "use_residual": self.use_residual,
         }

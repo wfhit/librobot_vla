@@ -25,7 +25,7 @@ class AbstractVLM(ABC, nn.Module):
         images: torch.Tensor,
         text: Optional[Union[str, list[str]]] = None,
         attention_mask: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> dict[str, torch.Tensor]:
         """
         Forward pass of the VLM.
@@ -58,11 +58,7 @@ class AbstractVLM(ABC, nn.Module):
         pass
 
     @abstractmethod
-    def encode_text(
-        self,
-        text: Union[str, list[str]],
-        **kwargs
-    ) -> torch.Tensor:
+    def encode_text(self, text: Union[str, list[str]], **kwargs) -> torch.Tensor:
         """
         Encode text to embeddings.
 

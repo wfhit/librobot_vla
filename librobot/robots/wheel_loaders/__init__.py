@@ -5,7 +5,7 @@ from .wheel_loader_robot import WheelLoaderRobot
 
 __all__ = [
     # Base
-    'WheelLoader',
+    "WheelLoader",
     # Implementations
-    'WheelLoaderRobot',
+    "WheelLoaderRobot",
 ]

@@ -64,4 +64,4 @@ class MobileRobot(AbstractRobot):
         }
 
 
-__all__ = ['MobileRobot']
+__all__ = ["MobileRobot"]

@@ -20,14 +20,16 @@ def train_cli(args: Optional[list] = None) -> int:
 
     # Config
     parser.add_argument(
-        "--config", "-c",
+        "--config",
+        "-c",
         type=str,
         help="Path to training configuration file",
     )
 
     # Model
     parser.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         type=str,
         default="openvla",
         help="VLA model architecture",
@@ -47,7 +49,8 @@ def train_cli(args: Optional[list] = None) -> int:
 
     # Data
     parser.add_argument(
-        "--dataset", "-d",
+        "--dataset",
+        "-d",
         type=str,
         required=True,
         help="Dataset name or path",
@@ -62,13 +65,15 @@ def train_cli(args: Optional[list] = None) -> int:
 
     # Training
     parser.add_argument(
-        "--epochs", "-e",
+        "--epochs",
+        "-e",
         type=int,
         default=100,
         help="Number of training epochs",
     )
     parser.add_argument(
-        "--batch-size", "-b",
+        "--batch-size",
+        "-b",
         type=int,
         default=32,
         help="Batch size per GPU",
@@ -88,7 +93,8 @@ def train_cli(args: Optional[list] = None) -> int:
 
     # Output
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         type=str,
         default="./outputs",
         help="Output directory",
@@ -164,6 +170,7 @@ def run_training(args) -> int:
 
         # Setup model
         from librobot.models import create_vla
+
         model = create_vla(
             args.model,
             vlm_name=args.vlm,
@@ -172,6 +179,7 @@ def run_training(args) -> int:
 
         # Setup dataset
         from librobot.data.datasets import HDF5Dataset, LeRobotDataset
+
         if args.data_format == "lerobot":
             LeRobotDataset(args.dataset)
         else:
@@ -180,6 +188,7 @@ def run_training(args) -> int:
         # Setup trainer
         if args.deepspeed:
             from librobot.training.trainers import DeepSpeedTrainer
+
             DeepSpeedTrainer(
                 model=model,
                 train_dataloader=None,  # Would create dataloader
@@ -188,6 +197,7 @@ def run_training(args) -> int:
             )
         elif args.accelerate:
             from librobot.training.trainers import AccelerateTrainer
+
             AccelerateTrainer(
                 model=model,
                 optimizer=None,  # Would create optimizer
@@ -209,6 +219,7 @@ def load_config(path: str) -> dict:
     """Load configuration from YAML file."""
     try:
         import yaml
+
         with open(path) as f:
             return yaml.safe_load(f)
     except ImportError:

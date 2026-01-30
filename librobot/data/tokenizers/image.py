@@ -110,8 +110,9 @@ class ImageTokenizer:
 
         # Apply normalization
         if self.normalize:
-            image = (image - self.mean[np.newaxis, :, np.newaxis, np.newaxis]) / \
-                    self.std[np.newaxis, :, np.newaxis, np.newaxis]
+            image = (image - self.mean[np.newaxis, :, np.newaxis, np.newaxis]) / self.std[
+                np.newaxis, :, np.newaxis, np.newaxis
+            ]
 
         if squeeze:
             image = image[0]
@@ -119,27 +120,26 @@ class ImageTokenizer:
         if return_tensors == "pt":
             try:
                 import torch
+
                 image = torch.from_numpy(image)
             except ImportError:
                 pass
 
         if return_tensors:
-            return {'pixel_values': image}
+            return {"pixel_values": image}
         return image
 
     def _resize_batch(self, images: np.ndarray) -> np.ndarray:
         """Resize batch of images."""
         try:
             from PIL import Image
+
             resized = []
             for img in images:
                 # CHW -> HWC for PIL
                 img_hwc = np.transpose(img, (1, 2, 0))
                 pil_img = Image.fromarray((img_hwc * 255).astype(np.uint8))
-                pil_img = pil_img.resize(
-                    (self.image_size[1], self.image_size[0]),
-                    Image.BILINEAR
-                )
+                pil_img = pil_img.resize((self.image_size[1], self.image_size[0]), Image.BILINEAR)
                 resized_hwc = np.array(pil_img).astype(np.float32) / 255.0
                 resized.append(np.transpose(resized_hwc, (2, 0, 1)))
             return np.stack(resized)
@@ -169,9 +169,7 @@ class ImageTokenizer:
 
         # Reshape to patches
         patches = image.reshape(
-            B, C,
-            self.num_patches_h, self.patch_size,
-            self.num_patches_w, self.patch_size
+            B, C, self.num_patches_h, self.patch_size, self.num_patches_w, self.patch_size
         )
         patches = patches.transpose(0, 2, 4, 3, 5, 1)  # B, nH, nW, pH, pW, C
         patches = patches.reshape(B, self.num_patches, self.patch_dim)
@@ -208,11 +206,7 @@ class ImageTokenizer:
         else:
             return self._encode_patches(image, add_cls_token)
 
-    def _encode_patches(
-        self,
-        image: np.ndarray,
-        add_cls_token: bool
-    ) -> np.ndarray:
+    def _encode_patches(self, image: np.ndarray, add_cls_token: bool) -> np.ndarray:
         """Encode as patch embeddings."""
         patches = self.patchify(image)
 
@@ -228,11 +222,7 @@ class ImageTokenizer:
 
         return patches
 
-    def _encode_vqvae(
-        self,
-        image: np.ndarray,
-        add_cls_token: bool
-    ) -> np.ndarray:
+    def _encode_vqvae(self, image: np.ndarray, add_cls_token: bool) -> np.ndarray:
         """Encode using VQ-VAE discrete tokens."""
         # Simplified: hash-based discretization
         patches = self.patchify(image)
@@ -258,11 +248,7 @@ class ImageTokenizer:
 
         return tokens
 
-    def _encode_dino(
-        self,
-        image: np.ndarray,
-        add_cls_token: bool
-    ) -> np.ndarray:
+    def _encode_dino(self, image: np.ndarray, add_cls_token: bool) -> np.ndarray:
         """Encode using DINO features (requires model)."""
         # Fallback to patch encoding if DINO not available
         return self._encode_patches(image, add_cls_token)
@@ -308,8 +294,12 @@ class ImageTokenizer:
 
         # Reshape from flat patches
         patches = patches.reshape(
-            B, self.num_patches_h, self.num_patches_w,
-            self.patch_size, self.patch_size, self.num_channels
+            B,
+            self.num_patches_h,
+            self.num_patches_w,
+            self.patch_size,
+            self.patch_size,
+            self.num_channels,
         )
 
         # Rearrange to image
@@ -337,13 +327,10 @@ class ImageTokenizer:
         return positions
 
     def __call__(
-        self,
-        image: np.ndarray,
-        return_tensors: Optional[str] = None,
-        **kwargs
+        self, image: np.ndarray, return_tensors: Optional[str] = None, **kwargs
     ) -> Union[np.ndarray, dict[str, Any]]:
         """Preprocess image (alias for preprocess)."""
         return self.preprocess(image, return_tensors=return_tensors)
 
 
-__all__ = ['ImageTokenizer']
+__all__ = ["ImageTokenizer"]

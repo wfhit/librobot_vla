@@ -40,10 +40,7 @@ class BaseQuantizer(ABC):
 
     @abstractmethod
     def quantize_model(
-        self,
-        model: nn.Module,
-        calibration_data: Optional[Any] = None,
-        **kwargs
+        self, model: nn.Module, calibration_data: Optional[Any] = None, **kwargs
     ) -> nn.Module:
         """
         Quantize model.
@@ -107,19 +104,15 @@ class BitsAndBytesQuantizer(BaseQuantizer):
         # Check if bitsandbytes is available
         try:
             import bitsandbytes as bnb
+
             self.bnb = bnb
             self._available = True
         except ImportError:
-            logger.warning(
-                "bitsandbytes not installed. Install with: pip install bitsandbytes"
-            )
+            logger.warning("bitsandbytes not installed. Install with: pip install bitsandbytes")
             self._available = False
 
     def quantize_model(
-        self,
-        model: nn.Module,
-        calibration_data: Optional[Any] = None,
-        **kwargs
+        self, model: nn.Module, calibration_data: Optional[Any] = None, **kwargs
     ) -> nn.Module:
         """
         Quantize model using bitsandbytes.
@@ -232,20 +225,16 @@ class GPTQQuantizer(BaseQuantizer):
         # Check if auto-gptq is available
         try:
             from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
+
             self.AutoGPTQ = AutoGPTQForCausalLM
             self.QuantizeConfig = BaseQuantizeConfig
             self._available = True
         except ImportError:
-            logger.warning(
-                "auto-gptq not installed. Install with: pip install auto-gptq"
-            )
+            logger.warning("auto-gptq not installed. Install with: pip install auto-gptq")
             self._available = False
 
     def quantize_model(
-        self,
-        model: nn.Module,
-        calibration_data: Optional[Any] = None,
-        **kwargs
+        self, model: nn.Module, calibration_data: Optional[Any] = None, **kwargs
     ) -> nn.Module:
         """
         Quantize model using GPTQ.
@@ -337,10 +326,7 @@ class DynamicQuantizer(BaseQuantizer):
         self.qconfig = qconfig
 
     def quantize_model(
-        self,
-        model: nn.Module,
-        calibration_data: Optional[Any] = None,
-        **kwargs
+        self, model: nn.Module, calibration_data: Optional[Any] = None, **kwargs
     ) -> nn.Module:
         """
         Apply dynamic quantization.
@@ -365,9 +351,7 @@ class DynamicQuantizer(BaseQuantizer):
 
         # Apply dynamic quantization to linear and LSTM layers
         quantized_model = torch.quantization.quantize_dynamic(
-            model,
-            {nn.Linear, nn.LSTM},
-            dtype=torch.qint8
+            model, {nn.Linear, nn.LSTM}, dtype=torch.qint8
         )
 
         logger.info("Dynamic quantization completed")
@@ -409,10 +393,7 @@ class StaticQuantizer(BaseQuantizer):
         self.qconfig = qconfig
 
     def quantize_model(
-        self,
-        model: nn.Module,
-        calibration_data: Optional[Any] = None,
-        **kwargs
+        self, model: nn.Module, calibration_data: Optional[Any] = None, **kwargs
     ) -> nn.Module:
         """
         Apply static quantization.
@@ -470,7 +451,7 @@ def get_quantizer(
     method: str = "dynamic",
     bits: int = 8,
     device: Optional[Union[str, torch.device]] = None,
-    **kwargs
+    **kwargs,
 ) -> BaseQuantizer:
     """
     Factory function to get quantizer.

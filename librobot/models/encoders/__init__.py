@@ -40,24 +40,24 @@ from .state import (
 
 __all__ = [
     # Base and registry
-    'AbstractEncoder',
-    'ENCODER_REGISTRY',
-    'register_encoder',
-    'get_encoder',
-    'create_encoder',
-    'list_encoders',
+    "AbstractEncoder",
+    "ENCODER_REGISTRY",
+    "register_encoder",
+    "get_encoder",
+    "create_encoder",
+    "list_encoders",
     # State encoders
-    'MLPStateEncoder',
-    'TransformerStateEncoder',
-    'TokenizerStateEncoder',
+    "MLPStateEncoder",
+    "TransformerStateEncoder",
+    "TokenizerStateEncoder",
     # History encoders
-    'MLPHistoryEncoder',
-    'LSTMHistoryEncoder',
-    'TransformerHistoryEncoder',
-    'TemporalConvEncoder',
+    "MLPHistoryEncoder",
+    "LSTMHistoryEncoder",
+    "TransformerHistoryEncoder",
+    "TemporalConvEncoder",
     # Fusion modules
-    'ConcatFusion',
-    'CrossAttentionFusion',
-    'FiLMFusion',
-    'GatedFusion',
+    "ConcatFusion",
+    "CrossAttentionFusion",
+    "FiLMFusion",
+    "GatedFusion",
 ]

@@ -60,9 +60,9 @@ def list_vlms():
 
 
 __all__ = [
-    'VLM_REGISTRY',
-    'register_vlm',
-    'get_vlm',
-    'create_vlm',
-    'list_vlms',
+    "VLM_REGISTRY",
+    "register_vlm",
+    "get_vlm",
+    "create_vlm",
+    "list_vlms",
 ]

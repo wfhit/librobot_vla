@@ -1,4 +1,5 @@
 """Optimal Transport Conditional Flow Matching."""
+
 import torch
 
 from .flow_model import FlowMatchingHead
@@ -6,8 +7,9 @@ from .flow_model import FlowMatchingHead
 
 class OTCFMHead(FlowMatchingHead):
     """OT-CFM with optimal transport plan."""
+
     def compute_loss(self, predictions: dict, targets: torch.Tensor, **kwargs) -> torch.Tensor:
-        emb = predictions['embeddings']
+        emb = predictions["embeddings"]
         t = torch.rand(targets.size(0), 1, device=targets.device)
         torch.randn_like(targets)
         sigma = 0.01

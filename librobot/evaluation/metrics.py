@@ -245,16 +245,16 @@ def create_metrics(metric_names: list[str]) -> MetricCollection:
 
 
 __all__ = [
-    'MetricBase',
-    'MSE',
-    'MAE',
-    'SuccessRate',
-    'PositionError',
-    'RotationError',
-    'TrajectoryLength',
-    'Smoothness',
-    'EpisodeReturn',
-    'MetricCollection',
-    'create_metrics',
-    'BENCHMARK_CONFIGS',
+    "MetricBase",
+    "MSE",
+    "MAE",
+    "SuccessRate",
+    "PositionError",
+    "RotationError",
+    "TrajectoryLength",
+    "Smoothness",
+    "EpisodeReturn",
+    "MetricCollection",
+    "create_metrics",
+    "BENCHMARK_CONFIGS",
 ]

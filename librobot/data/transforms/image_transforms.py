@@ -21,8 +21,7 @@ class ImageTransform(nn.Module):
     """
 
     def forward(
-        self,
-        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+        self, image: Union[torch.Tensor, dict[str, torch.Tensor]]
     ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """
         Apply transform to image(s).
@@ -59,8 +58,7 @@ class RandomCrop(ImageTransform):
         # TODO: Initialize torchvision RandomCrop
 
     def forward(
-        self,
-        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+        self, image: Union[torch.Tensor, dict[str, torch.Tensor]]
     ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """Apply random crop."""
         # TODO: Implement
@@ -83,8 +81,7 @@ class CenterCrop(ImageTransform):
         # TODO: Initialize torchvision CenterCrop
 
     def forward(
-        self,
-        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+        self, image: Union[torch.Tensor, dict[str, torch.Tensor]]
     ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """Apply center crop."""
         # TODO: Implement
@@ -114,8 +111,7 @@ class Resize(ImageTransform):
         # TODO: Initialize torchvision Resize
 
     def forward(
-        self,
-        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+        self, image: Union[torch.Tensor, dict[str, torch.Tensor]]
     ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """Apply resize."""
         # TODO: Implement
@@ -145,8 +141,7 @@ class Normalize(ImageTransform):
         # TODO: Register mean and std as buffers
 
     def forward(
-        self,
-        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+        self, image: Union[torch.Tensor, dict[str, torch.Tensor]]
     ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """Apply normalization."""
         # TODO: Implement
@@ -182,8 +177,7 @@ class RandomColorJitter(ImageTransform):
         # TODO: Initialize torchvision ColorJitter
 
     def forward(
-        self,
-        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+        self, image: Union[torch.Tensor, dict[str, torch.Tensor]]
     ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """Apply color jitter."""
         # TODO: Implement
@@ -215,8 +209,7 @@ class RandomGaussianBlur(ImageTransform):
         # TODO: Initialize torchvision GaussianBlur
 
     def forward(
-        self,
-        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+        self, image: Union[torch.Tensor, dict[str, torch.Tensor]]
     ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """Apply Gaussian blur."""
         # TODO: Implement
@@ -273,13 +266,13 @@ class MultiViewTransform(nn.Module):
 
 
 __all__ = [
-    'ImageTransform',
-    'RandomCrop',
-    'CenterCrop',
-    'Resize',
-    'Normalize',
-    'RandomColorJitter',
-    'RandomGaussianBlur',
-    'Compose',
-    'MultiViewTransform',
+    "ImageTransform",
+    "RandomCrop",
+    "CenterCrop",
+    "Resize",
+    "Normalize",
+    "RandomColorJitter",
+    "RandomGaussianBlur",
+    "Compose",
+    "MultiViewTransform",
 ]

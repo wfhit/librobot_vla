@@ -86,6 +86,7 @@ class RESTClient(BaseClient):
         """Check server health."""
         try:
             import requests
+
             response = requests.get(f"{self.base_url}/health", timeout=5)
             return response.status_code == 200
         except:
@@ -108,6 +109,7 @@ class WebSocketClient(BaseClient):
         """Connect to WebSocket server."""
         try:
             import websockets
+
             self._websocket = await websockets.connect(self.uri)
             self._connected = True
             return True
@@ -176,6 +178,7 @@ class GRPCClient(BaseClient):
         """Connect to gRPC server."""
         try:
             import grpc
+
             self._channel = grpc.insecure_channel(f"{self.host}:{self.port}")
             self._connected = True
             return True
@@ -202,8 +205,8 @@ class GRPCClient(BaseClient):
 
 
 __all__ = [
-    'BaseClient',
-    'RESTClient',
-    'WebSocketClient',
-    'GRPCClient',
+    "BaseClient",
+    "RESTClient",
+    "WebSocketClient",
+    "GRPCClient",
 ]

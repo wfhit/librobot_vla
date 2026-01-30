@@ -25,7 +25,7 @@ class GatedFusion(nn.Module):
         self,
         input_dims: list[int],
         output_dim: int,
-        gate_activation: str = 'sigmoid',
+        gate_activation: str = "sigmoid",
         use_context: bool = False,
         context_dim: Optional[int] = None,
     ):
@@ -38,9 +38,7 @@ class GatedFusion(nn.Module):
         self.num_modalities = len(input_dims)
 
         # Input projections
-        self.input_projs = nn.ModuleList([
-            nn.Linear(dim, output_dim) for dim in input_dims
-        ])
+        self.input_projs = nn.ModuleList([nn.Linear(dim, output_dim) for dim in input_dims])
 
         # Gate network
         if use_context:
@@ -57,11 +55,11 @@ class GatedFusion(nn.Module):
         )
 
         # Gate activation
-        if gate_activation == 'sigmoid':
+        if gate_activation == "sigmoid":
             self.gate_activation = nn.Sigmoid()
-        elif gate_activation == 'softmax':
+        elif gate_activation == "softmax":
             self.gate_activation = nn.Softmax(dim=-1)
-        elif gate_activation == 'tanh':
+        elif gate_activation == "tanh":
             self.gate_activation = nn.Tanh()
         else:
             raise ValueError(f"Unknown gate activation: {gate_activation}")
@@ -70,10 +68,7 @@ class GatedFusion(nn.Module):
         self.norm = nn.LayerNorm(output_dim)
 
     def forward(
-        self,
-        *embeddings: torch.Tensor,
-        context: Optional[torch.Tensor] = None,
-        **kwargs
+        self, *embeddings: torch.Tensor, context: Optional[torch.Tensor] = None, **kwargs
     ) -> torch.Tensor:
         """
         Fuse embeddings with learned gates.
@@ -87,9 +82,7 @@ class GatedFusion(nn.Module):
             Fused embeddings [batch_size, output_dim]
         """
         if len(embeddings) != self.num_modalities:
-            raise ValueError(
-                f"Expected {self.num_modalities} embeddings, got {len(embeddings)}"
-            )
+            raise ValueError(f"Expected {self.num_modalities} embeddings, got {len(embeddings)}")
 
         # Project all inputs to common dimension
         projected = [proj(emb) for proj, emb in zip(self.input_projs, embeddings)]
@@ -110,7 +103,7 @@ class GatedFusion(nn.Module):
         # Apply gates and sum
         output = torch.zeros_like(projected[0])
         for i, proj_emb in enumerate(projected):
-            gate_weight = gates[:, i:i+1]
+            gate_weight = gates[:, i : i + 1]
             output = output + gate_weight * proj_emb
 
         # Normalize
@@ -121,10 +114,10 @@ class GatedFusion(nn.Module):
     def get_config(self) -> dict[str, Any]:
         """Get fusion configuration."""
         return {
-            'type': 'GatedFusion',
-            'input_dims': self.input_dims,
-            'output_dim': self.output_dim,
-            'gate_activation': self.gate_activation_name,
-            'use_context': self.use_context,
-            'context_dim': self.context_dim,
+            "type": "GatedFusion",
+            "input_dims": self.input_dims,
+            "output_dim": self.output_dim,
+            "gate_activation": self.gate_activation_name,
+            "use_context": self.use_context,
+            "context_dim": self.context_dim,
         }

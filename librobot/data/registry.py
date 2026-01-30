@@ -125,15 +125,15 @@ def list_tokenizers():
 
 __all__ = [
     # Dataset registry
-    'DATASET_REGISTRY',
-    'register_dataset',
-    'get_dataset',
-    'create_dataset',
-    'list_datasets',
+    "DATASET_REGISTRY",
+    "register_dataset",
+    "get_dataset",
+    "create_dataset",
+    "list_datasets",
     # Tokenizer registry
-    'TOKENIZER_REGISTRY',
-    'register_tokenizer',
-    'get_tokenizer',
-    'create_tokenizer',
-    'list_tokenizers',
+    "TOKENIZER_REGISTRY",
+    "register_tokenizer",
+    "get_tokenizer",
+    "create_tokenizer",
+    "list_tokenizers",
 ]

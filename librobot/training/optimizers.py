@@ -56,7 +56,7 @@ class OptimizerBuilder:
         lr: float = 1e-3,
         weight_decay: float = 0.0,
         exclude_bias_and_norm: bool = True,
-        **optimizer_kwargs
+        **optimizer_kwargs,
     ):
         """
         Initialize optimizer builder.
@@ -80,7 +80,7 @@ class OptimizerBuilder:
         params: Iterable[torch.Tensor],
         lr: Optional[float] = None,
         weight_decay: Optional[float] = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Add a custom parameter group.
@@ -91,12 +91,12 @@ class OptimizerBuilder:
             weight_decay: Weight decay override for this group
             **kwargs: Additional optimizer arguments for this group
         """
-        group = {'params': list(params)}
+        group = {"params": list(params)}
 
         if lr is not None:
-            group['lr'] = lr
+            group["lr"] = lr
         if weight_decay is not None:
-            group['weight_decay'] = weight_decay
+            group["weight_decay"] = weight_decay
 
         group.update(kwargs)
         self._param_groups.append(group)
@@ -127,11 +127,7 @@ class OptimizerBuilder:
                 f"Available: {OPTIMIZER_REGISTRY.list()}"
             )
 
-        return optimizer_fn(
-            param_groups,
-            lr=self.lr,
-            **self.optimizer_kwargs
-        )
+        return optimizer_fn(param_groups, lr=self.lr, **self.optimizer_kwargs)
 
     def _get_param_groups(self, model: nn.Module) -> list[dict[str, Any]]:
         """
@@ -145,11 +141,13 @@ class OptimizerBuilder:
         """
         if not self.exclude_bias_and_norm:
             # Simple case: all parameters in one group
-            return [{
-                'params': model.parameters(),
-                'lr': self.lr,
-                'weight_decay': self.weight_decay,
-            }]
+            return [
+                {
+                    "params": model.parameters(),
+                    "lr": self.lr,
+                    "weight_decay": self.weight_decay,
+                }
+            ]
 
         # Separate parameters with and without weight decay
         decay_params = []
@@ -167,15 +165,15 @@ class OptimizerBuilder:
 
         param_groups = [
             {
-                'params': decay_params,
-                'lr': self.lr,
-                'weight_decay': self.weight_decay,
+                "params": decay_params,
+                "lr": self.lr,
+                "weight_decay": self.weight_decay,
             },
             {
-                'params': no_decay_params,
-                'lr': self.lr,
-                'weight_decay': 0.0,
-            }
+                "params": no_decay_params,
+                "lr": self.lr,
+                "weight_decay": 0.0,
+            },
         ]
 
         return param_groups
@@ -193,7 +191,7 @@ class OptimizerBuilder:
             bool: True if should exclude from decay
         """
         # Bias parameters
-        if name.endswith('.bias'):
+        if name.endswith(".bias"):
             return True
 
         # 1D parameters (usually norm layer scales/biases)
@@ -201,11 +199,11 @@ class OptimizerBuilder:
             return True
 
         # Normalization layers by name
-        if any(norm in name for norm in ['norm', 'ln', 'bn', 'gn']):
+        if any(norm in name for norm in ["norm", "ln", "bn", "gn"]):
             return True
 
         # Embedding parameters
-        if 'embedding' in name or 'emb' in name:
+        if "embedding" in name or "emb" in name:
             return True
 
         return False
@@ -219,7 +217,7 @@ def build_adam(
     betas: tuple = (0.9, 0.999),
     eps: float = 1e-8,
     weight_decay: float = 0.0,
-    **kwargs
+    **kwargs,
 ) -> Optimizer:
     """
     Build Adam optimizer.
@@ -236,12 +234,7 @@ def build_adam(
         Optimizer: Adam optimizer instance
     """
     return torch.optim.Adam(
-        params,
-        lr=lr,
-        betas=betas,
-        eps=eps,
-        weight_decay=weight_decay,
-        **kwargs
+        params, lr=lr, betas=betas, eps=eps, weight_decay=weight_decay, **kwargs
     )
 
 
@@ -252,7 +245,7 @@ def build_adamw(
     betas: tuple = (0.9, 0.999),
     eps: float = 1e-8,
     weight_decay: float = 0.01,
-    **kwargs
+    **kwargs,
 ) -> Optimizer:
     """
     Build AdamW optimizer with decoupled weight decay.
@@ -271,12 +264,7 @@ def build_adamw(
         Optimizer: AdamW optimizer instance
     """
     return torch.optim.AdamW(
-        params,
-        lr=lr,
-        betas=betas,
-        eps=eps,
-        weight_decay=weight_decay,
-        **kwargs
+        params, lr=lr, betas=betas, eps=eps, weight_decay=weight_decay, **kwargs
     )
 
 
@@ -288,7 +276,7 @@ def build_sgd(
     dampening: float = 0.0,
     weight_decay: float = 0.0,
     nesterov: bool = False,
-    **kwargs
+    **kwargs,
 ) -> Optimizer:
     """
     Build SGD optimizer with optional momentum.
@@ -312,7 +300,7 @@ def build_sgd(
         dampening=dampening,
         weight_decay=weight_decay,
         nesterov=nesterov,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -324,7 +312,7 @@ def build_rmsprop(
     eps: float = 1e-8,
     weight_decay: float = 0.0,
     momentum: float = 0.0,
-    **kwargs
+    **kwargs,
 ) -> Optimizer:
     """
     Build RMSprop optimizer.
@@ -342,13 +330,7 @@ def build_rmsprop(
         Optimizer: RMSprop optimizer instance
     """
     return torch.optim.RMSprop(
-        params,
-        lr=lr,
-        alpha=alpha,
-        eps=eps,
-        weight_decay=weight_decay,
-        momentum=momentum,
-        **kwargs
+        params, lr=lr, alpha=alpha, eps=eps, weight_decay=weight_decay, momentum=momentum, **kwargs
     )
 
 
@@ -358,7 +340,7 @@ def build_optimizer(
     lr: float = 1e-3,
     weight_decay: float = 0.0,
     exclude_bias_and_norm: bool = True,
-    **optimizer_kwargs
+    **optimizer_kwargs,
 ) -> Optimizer:
     """
     Convenience function to build an optimizer.
@@ -382,7 +364,7 @@ def build_optimizer(
         lr=lr,
         weight_decay=weight_decay,
         exclude_bias_and_norm=exclude_bias_and_norm,
-        **optimizer_kwargs
+        **optimizer_kwargs,
     )
     return builder.build(model)
 

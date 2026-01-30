@@ -28,10 +28,7 @@ class AbstractActionHead(ABC, nn.Module):
 
     @abstractmethod
     def forward(
-        self,
-        embeddings: torch.Tensor,
-        attention_mask: Optional[torch.Tensor] = None,
-        **kwargs
+        self, embeddings: torch.Tensor, attention_mask: Optional[torch.Tensor] = None, **kwargs
     ) -> dict[str, torch.Tensor]:
         """
         Forward pass to predict actions.
@@ -50,10 +47,7 @@ class AbstractActionHead(ABC, nn.Module):
 
     @abstractmethod
     def compute_loss(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: torch.Tensor,
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: torch.Tensor, **kwargs
     ) -> torch.Tensor:
         """
         Compute loss for action prediction.
@@ -69,12 +63,7 @@ class AbstractActionHead(ABC, nn.Module):
         pass
 
     @abstractmethod
-    def sample(
-        self,
-        embeddings: torch.Tensor,
-        temperature: float = 1.0,
-        **kwargs
-    ) -> torch.Tensor:
+    def sample(self, embeddings: torch.Tensor, temperature: float = 1.0, **kwargs) -> torch.Tensor:
         """
         Sample actions from the predicted distribution.
 
@@ -96,9 +85,9 @@ class AbstractActionHead(ABC, nn.Module):
             Dictionary containing configuration
         """
         return {
-            'input_dim': self.input_dim,
-            'action_dim': self.action_dim,
-            'type': self.__class__.__name__,
+            "input_dim": self.input_dim,
+            "action_dim": self.action_dim,
+            "type": self.__class__.__name__,
         }
 
     def freeze(self) -> None:

@@ -56,7 +56,7 @@ class ActionTokenizer(nn.Module):
         share_bins: bool = False,
         action_components: Optional[dict[str, list[int]]] = None,
         component_strategies: Optional[dict[str, str]] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__()
         self.action_dim = action_dim
@@ -83,7 +83,7 @@ class ActionTokenizer(nn.Module):
         elif strategy == "learned":
             # TODO: Implement learned codebook (VQ-VAE style)
             if vocab_size is None:
-                vocab_size = num_bins ** action_dim if not share_bins else num_bins
+                vocab_size = num_bins**action_dim if not share_bins else num_bins
             self.vocab_size = vocab_size
             # TODO: Initialize codebook
 
@@ -111,10 +111,7 @@ class ActionTokenizer(nn.Module):
         # TODO: Implement tokenization based on strategy
         raise NotImplementedError("ActionTokenizer.forward not yet implemented")
 
-    def decode(
-        self,
-        tokens: Union[torch.Tensor, dict[str, torch.Tensor]]
-    ) -> torch.Tensor:
+    def decode(self, tokens: Union[torch.Tensor, dict[str, torch.Tensor]]) -> torch.Tensor:
         """
         Decode tokens back to continuous action.
 
@@ -156,18 +153,20 @@ class ActionTokenizer(nn.Module):
         """
         if self.strategy == "mixture":
             # TODO: Return vocab size for each component
-            raise NotImplementedError("ActionTokenizer.get_vocab_size for mixture not yet implemented")
+            raise NotImplementedError(
+                "ActionTokenizer.get_vocab_size for mixture not yet implemented"
+            )
 
         if self.share_bins:
             return self.num_bins
         else:
-            return self.num_bins ** self.action_dim
+            return self.num_bins**self.action_dim
 
     def compute_action_loss(
         self,
         predicted_tokens: torch.Tensor,
         target_actions: torch.Tensor,
-        loss_type: str = "cross_entropy"
+        loss_type: str = "cross_entropy",
     ) -> torch.Tensor:
         """
         Compute action prediction loss.
@@ -190,7 +189,7 @@ class ActionTokenizer(nn.Module):
         token_logits: torch.Tensor,
         temperature: float = 1.0,
         top_k: Optional[int] = None,
-        top_p: Optional[float] = None
+        top_p: Optional[float] = None,
     ) -> torch.Tensor:
         """
         Sample actions from token distributions.
@@ -213,5 +212,5 @@ class ActionTokenizer(nn.Module):
 
 
 __all__ = [
-    'ActionTokenizer',
+    "ActionTokenizer",
 ]

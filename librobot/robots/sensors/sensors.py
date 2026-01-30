@@ -70,11 +70,13 @@ class Camera(BaseSensor):
         fy = fx
         cx = self.resolution[0] / 2
         cy = self.resolution[1] / 2
-        return np.array([
-            [fx, 0, cx],
-            [0, fy, cy],
-            [0, 0, 1],
-        ])
+        return np.array(
+            [
+                [fx, 0, cx],
+                [0, fy, cy],
+                [0, 0, 1],
+            ]
+        )
 
 
 class DepthCamera(Camera):
@@ -97,8 +99,7 @@ class DepthCamera(Camera):
         """Read RGB and depth images."""
         base_data = super().read()
         base_data["depth"] = np.random.uniform(
-            self.min_depth, self.max_depth,
-            self.resolution
+            self.min_depth, self.max_depth, self.resolution
         ).astype(np.float32)
         return base_data
 
@@ -185,7 +186,7 @@ class Lidar(BaseSensor):
         """Read LiDAR scan."""
         return {
             "ranges": np.random.uniform(0.1, self.max_range, self.num_beams),
-            "angles": np.linspace(0, 2*np.pi, self.num_beams),
+            "angles": np.linspace(0, 2 * np.pi, self.num_beams),
             "timestamp": 0.0,
         }
 
@@ -212,12 +213,12 @@ class Tactile(BaseSensor):
 
 
 __all__ = [
-    'BaseSensor',
-    'Camera',
-    'DepthCamera',
-    'ForceTorqueSensor',
-    'JointEncoder',
-    'IMU',
-    'Lidar',
-    'Tactile',
+    "BaseSensor",
+    "Camera",
+    "DepthCamera",
+    "ForceTorqueSensor",
+    "JointEncoder",
+    "IMU",
+    "Lidar",
+    "Tactile",
 ]

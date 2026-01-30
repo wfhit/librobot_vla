@@ -69,4 +69,4 @@ class ArticulatedTruck(AbstractRobot):
         }
 
 
-__all__ = ['ArticulatedTruck']
+__all__ = ["ArticulatedTruck"]

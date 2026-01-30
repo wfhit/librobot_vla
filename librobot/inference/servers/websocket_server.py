@@ -64,11 +64,7 @@ class WebSocketServer(AbstractServer):
             await self._server.wait_closed()
         self._is_running = False
 
-    async def predict(
-        self,
-        request: dict[str, Any],
-        **kwargs
-    ) -> dict[str, Any]:
+    async def predict(self, request: dict[str, Any], **kwargs) -> dict[str, Any]:
         """Handle prediction request."""
         import numpy as np
 
@@ -81,7 +77,7 @@ class WebSocketServer(AbstractServer):
         }
         instruction = request.get("instruction", "")
 
-        if hasattr(self.model, 'get_action'):
+        if hasattr(self.model, "get_action"):
             action = self.model.get_action(observation, instruction)
         else:
             action = np.zeros(7)
@@ -91,14 +87,13 @@ class WebSocketServer(AbstractServer):
     async def broadcast(self, message: dict[str, Any]) -> None:
         """Broadcast message to all connected clients."""
         if self._clients:
-            await asyncio.gather(
-                *[client.send(json.dumps(message)) for client in self._clients]
-            )
+            await asyncio.gather(*[client.send(json.dumps(message)) for client in self._clients])
 
     def load_model(self, model_path: str, **kwargs) -> None:
         """Load model."""
         try:
             import torch
+
             self.model = torch.load(model_path)
         except ImportError:
             pass
@@ -113,4 +108,4 @@ class WebSocketServer(AbstractServer):
         }
 
 
-__all__ = ['WebSocketServer']
+__all__ = ["WebSocketServer"]

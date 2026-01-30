@@ -23,6 +23,7 @@ class AugmentationConfig:
         probability: Global probability of applying augmentations
         seed: Random seed for reproducibility
     """
+
     image_augmentations: list[str] = field(default_factory=lambda: ["color_jitter", "random_crop"])
     action_augmentations: list[str] = field(default_factory=list)
     state_augmentations: list[str] = field(default_factory=list)
@@ -48,6 +49,7 @@ class AbstractAugmentation(ABC):
 # =============================================================================
 # Image Augmentations
 # =============================================================================
+
 
 class ColorJitter(AbstractAugmentation):
     """Random color jitter augmentation."""
@@ -146,11 +148,12 @@ class RandomCrop(AbstractAugmentation):
         left = random.randint(0, w - new_w)
 
         # Crop
-        cropped = image[top:top + new_h, left:left + new_w]
+        cropped = image[top : top + new_h, left : left + new_w]
 
         # Resize to target size
         try:
             import cv2
+
             resized = cv2.resize(cropped, (target_w, target_h), interpolation=cv2.INTER_LINEAR)
             return resized
         except ImportError:
@@ -330,6 +333,7 @@ class CutOut(AbstractAugmentation):
 # Action Augmentations
 # =============================================================================
 
+
 class ActionNoise(AbstractAugmentation):
     """Add noise to actions."""
 
@@ -392,6 +396,7 @@ class ActionMixup(AbstractAugmentation):
 # State Augmentations
 # =============================================================================
 
+
 class StateNoise(AbstractAugmentation):
     """Add noise to robot state."""
 
@@ -440,6 +445,7 @@ class StateDropout(AbstractAugmentation):
 # =============================================================================
 # Composition and Pipeline
 # =============================================================================
+
 
 class Compose:
     """Compose multiple augmentations."""
@@ -520,9 +526,9 @@ class VLADataAugmentation:
         }
 
         image_augs = image_augs or ["color_jitter", "random_crop"]
-        self.image_pipeline = Compose([
-            image_aug_map[name] for name in image_augs if name in image_aug_map
-        ])
+        self.image_pipeline = Compose(
+            [image_aug_map[name] for name in image_augs if name in image_aug_map]
+        )
 
         # Build action augmentation pipeline
         action_aug_map = {
@@ -531,9 +537,9 @@ class VLADataAugmentation:
         }
 
         action_augs = action_augs or []
-        self.action_pipeline = Compose([
-            action_aug_map[name] for name in action_augs if name in action_aug_map
-        ])
+        self.action_pipeline = Compose(
+            [action_aug_map[name] for name in action_augs if name in action_aug_map]
+        )
 
         # Build state augmentation pipeline
         state_aug_map = {
@@ -542,9 +548,9 @@ class VLADataAugmentation:
         }
 
         state_augs = state_augs or []
-        self.state_pipeline = Compose([
-            state_aug_map[name] for name in state_augs if name in state_aug_map
-        ])
+        self.state_pipeline = Compose(
+            [state_aug_map[name] for name in state_augs if name in state_aug_map]
+        )
 
     def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply augmentations to a sample."""
@@ -617,8 +623,12 @@ def get_strong_augmentations() -> VLADataAugmentation:
     """Get strong augmentations for improved generalization."""
     return VLADataAugmentation(
         image_augs=[
-            "color_jitter", "random_crop", "random_rotation",
-            "gaussian_noise", "gaussian_blur", "cutout"
+            "color_jitter",
+            "random_crop",
+            "random_rotation",
+            "gaussian_noise",
+            "gaussian_blur",
+            "cutout",
         ],
         action_augs=["noise", "scaling"],
         state_augs=["noise", "dropout"],

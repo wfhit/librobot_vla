@@ -38,8 +38,8 @@ class TransformerHistoryEncoder(AbstractEncoder):
         num_heads: int = 8,
         ffn_dim: int = 1024,
         dropout: float = 0.1,
-        activation: str = 'gelu',
-        pooling: str = 'mean',
+        activation: str = "gelu",
+        pooling: str = "mean",
         max_seq_len: int = 512,
     ):
         super().__init__(output_dim)
@@ -56,7 +56,7 @@ class TransformerHistoryEncoder(AbstractEncoder):
         self.input_proj = nn.Linear(input_dim, output_dim)
 
         # CLS token for pooling
-        if pooling == 'cls':
+        if pooling == "cls":
             self.cls_token = nn.Parameter(torch.randn(1, 1, output_dim))
 
         # Positional encoding
@@ -67,24 +67,23 @@ class TransformerHistoryEncoder(AbstractEncoder):
         )
 
         # Transformer layers
-        self.layers = nn.ModuleList([
-            TransformerLayer(
-                d_model=output_dim,
-                num_heads=num_heads,
-                ffn_dim=ffn_dim,
-                dropout=dropout,
-                activation=activation,
-            )
-            for _ in range(num_layers)
-        ])
+        self.layers = nn.ModuleList(
+            [
+                TransformerLayer(
+                    d_model=output_dim,
+                    num_heads=num_heads,
+                    ffn_dim=ffn_dim,
+                    dropout=dropout,
+                    activation=activation,
+                )
+                for _ in range(num_layers)
+            ]
+        )
 
         self.norm = LayerNorm(output_dim)
 
     def forward(
-        self,
-        inputs: torch.Tensor,
-        mask: Optional[torch.Tensor] = None,
-        **kwargs
+        self, inputs: torch.Tensor, mask: Optional[torch.Tensor] = None, **kwargs
     ) -> torch.Tensor:
         """
         Encode history sequence.
@@ -103,7 +102,7 @@ class TransformerHistoryEncoder(AbstractEncoder):
         x = self.input_proj(inputs)
 
         # Add CLS token if using CLS pooling
-        if self.pooling_method == 'cls':
+        if self.pooling_method == "cls":
             cls_tokens = self.cls_token.expand(batch_size, -1, -1)
             x = torch.cat([cls_tokens, x], dim=1)
 
@@ -122,16 +121,16 @@ class TransformerHistoryEncoder(AbstractEncoder):
         x = self.norm(x)
 
         # Pool output
-        if self.pooling_method == 'cls':
+        if self.pooling_method == "cls":
             output = x[:, 0]
 
-        elif self.pooling_method == 'mean':
+        elif self.pooling_method == "mean":
             if mask is not None:
                 output = (x * mask.unsqueeze(-1)).sum(dim=1) / mask.sum(dim=1, keepdim=True)
             else:
                 output = x.mean(dim=1)
 
-        elif self.pooling_method == 'last':
+        elif self.pooling_method == "last":
             if mask is not None:
                 lengths = mask.sum(dim=1).long() - 1
                 output = x[torch.arange(batch_size), lengths]
@@ -154,16 +153,16 @@ class TransformerHistoryEncoder(AbstractEncoder):
     def config(self) -> dict[str, Any]:
         """Get encoder configuration."""
         return {
-            'type': 'TransformerHistoryEncoder',
-            'input_dim': self.input_dim,
-            'output_dim': self.output_dim,
-            'num_layers': self.num_layers,
-            'num_heads': self.num_heads,
-            'ffn_dim': self.ffn_dim,
-            'dropout': self.dropout_rate,
-            'activation': self.activation_name,
-            'pooling': self.pooling_method,
-            'max_seq_len': self.max_seq_len,
+            "type": "TransformerHistoryEncoder",
+            "input_dim": self.input_dim,
+            "output_dim": self.output_dim,
+            "num_layers": self.num_layers,
+            "num_heads": self.num_heads,
+            "ffn_dim": self.ffn_dim,
+            "dropout": self.dropout_rate,
+            "activation": self.activation_name,
+            "pooling": self.pooling_method,
+            "max_seq_len": self.max_seq_len,
         }
 
 
@@ -176,7 +175,7 @@ class TransformerLayer(nn.Module):
         num_heads: int,
         ffn_dim: int,
         dropout: float = 0.1,
-        activation: str = 'gelu',
+        activation: str = "gelu",
     ):
         super().__init__()
 
@@ -189,7 +188,7 @@ class TransformerLayer(nn.Module):
 
         self.ffn = nn.Sequential(
             nn.Linear(d_model, ffn_dim),
-            nn.GELU() if activation == 'gelu' else nn.ReLU(),
+            nn.GELU() if activation == "gelu" else nn.ReLU(),
             nn.Dropout(dropout),
             nn.Linear(ffn_dim, d_model),
             nn.Dropout(dropout),

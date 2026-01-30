@@ -22,10 +22,10 @@ class Compose:
         return sample
 
     def __repr__(self) -> str:
-        format_string = self.__class__.__name__ + '('
+        format_string = self.__class__.__name__ + "("
         for t in self.transforms:
-            format_string += f'\n    {t}'
-        format_string += '\n)'
+            format_string += f"\n    {t}"
+        format_string += "\n)"
         return format_string
 
 
@@ -157,12 +157,12 @@ class ToTensor:
 
 
 __all__ = [
-    'Compose',
-    'RandomApply',
-    'RandomChoice',
-    'Identity',
-    'Lambda',
-    'KeyRename',
-    'KeySelect',
-    'ToTensor',
+    "Compose",
+    "RandomApply",
+    "RandomChoice",
+    "Identity",
+    "Lambda",
+    "KeyRename",
+    "KeySelect",
+    "ToTensor",
 ]

@@ -21,11 +21,11 @@ def sample_episode_data():
     return {
         "observations": {
             "image": np.random.randn(50, 3, 224, 224).astype(np.float32),
-            "state": np.random.randn(50, 14).astype(np.float32)
+            "state": np.random.randn(50, 14).astype(np.float32),
         },
         "actions": np.random.randn(50, 7).astype(np.float32),
         "rewards": np.random.randn(50, 1).astype(np.float32),
-        "dones": np.zeros(50, dtype=bool)
+        "dones": np.zeros(50, dtype=bool),
     }
 
 
@@ -44,7 +44,7 @@ def mock_dataloader():
     batch = {
         "observations": torch.randn(4, 32, 3, 224, 224),
         "states": torch.randn(4, 32, 14),
-        "actions": torch.randn(4, 32, 7)
+        "actions": torch.randn(4, 32, 7),
     }
     dataloader.__iter__ = Mock(return_value=iter([batch]))
     dataloader.__len__ = Mock(return_value=1)

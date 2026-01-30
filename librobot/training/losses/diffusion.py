@@ -32,26 +32,23 @@ class DiffusionLoss(AbstractLoss):
         self.snr_gamma = snr_gamma
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
         """Compute diffusion loss."""
-        pred = predictions.get('noise_pred', predictions.get('pred'))
-        target = targets.get('noise', targets.get('target'))
-        timesteps = targets.get('timesteps')
+        pred = predictions.get("noise_pred", predictions.get("pred"))
+        target = targets.get("noise", targets.get("target"))
+        timesteps = targets.get("timesteps")
 
         if pred is None or target is None:
             return torch.tensor(0.0)
 
         # Compute base loss
         if self.loss_type == "mse":
-            loss = F.mse_loss(pred, target, reduction='none')
+            loss = F.mse_loss(pred, target, reduction="none")
         elif self.loss_type == "l1":
-            loss = F.l1_loss(pred, target, reduction='none')
+            loss = F.l1_loss(pred, target, reduction="none")
         else:
-            loss = F.smooth_l1_loss(pred, target, reduction='none')
+            loss = F.smooth_l1_loss(pred, target, reduction="none")
 
         # Average over non-batch dimensions
         loss = loss.mean(dim=list(range(1, loss.dim())))
@@ -59,10 +56,7 @@ class DiffusionLoss(AbstractLoss):
         # Apply SNR weighting if specified
         if self.snr_gamma is not None and timesteps is not None:
             snr = self._compute_snr(timesteps)
-            snr_weight = torch.minimum(
-                snr,
-                torch.ones_like(snr) * self.snr_gamma
-            ) / snr
+            snr_weight = torch.minimum(snr, torch.ones_like(snr) * self.snr_gamma) / snr
             loss = loss * snr_weight
 
         return loss.mean()
@@ -124,13 +118,10 @@ class DDPMLoss(AbstractLoss):
         return torch.clip(betas, 0.0001, 0.9999)
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
-        noise_pred = predictions.get('noise_pred')
-        noise = targets.get('noise')
+        noise_pred = predictions.get("noise_pred")
+        noise = targets.get("noise")
 
         if noise_pred is None or noise is None:
             return torch.tensor(0.0)
@@ -152,14 +143,11 @@ class ScoreMatchingLoss(AbstractLoss):
         self.sigma_max = sigma_max
 
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
-        score_pred = predictions.get('score')
-        noise = targets.get('noise')
-        sigma = targets.get('sigma')
+        score_pred = predictions.get("score")
+        noise = targets.get("noise")
+        sigma = targets.get("sigma")
 
         if score_pred is None or noise is None:
             return torch.tensor(0.0)
@@ -168,16 +156,16 @@ class ScoreMatchingLoss(AbstractLoss):
             sigma = torch.ones_like(noise[..., :1])
 
         # Score should be -noise/sigma^2
-        target_score = -noise / (sigma ** 2 + 1e-8)
+        target_score = -noise / (sigma**2 + 1e-8)
 
         # Weight by sigma^2
-        loss = ((score_pred - target_score) ** 2 * sigma ** 2).mean()
+        loss = ((score_pred - target_score) ** 2 * sigma**2).mean()
 
         return loss
 
 
 __all__ = [
-    'DiffusionLoss',
-    'DDPMLoss',
-    'ScoreMatchingLoss',
+    "DiffusionLoss",
+    "DDPMLoss",
+    "ScoreMatchingLoss",
 ]

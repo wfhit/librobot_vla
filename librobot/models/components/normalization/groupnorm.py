@@ -1,6 +1,5 @@
 """GroupNorm for convolutional layers."""
 
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -30,7 +29,9 @@ class GroupNorm(nn.Module):
     ):
         super().__init__()
         if num_channels % num_groups != 0:
-            raise ValueError(f'num_channels ({num_channels}) must be divisible by num_groups ({num_groups})')
+            raise ValueError(
+                f"num_channels ({num_channels}) must be divisible by num_groups ({num_groups})"
+            )
 
         self.num_groups = num_groups
         self.num_channels = num_channels
@@ -41,8 +42,8 @@ class GroupNorm(nn.Module):
             self.weight = nn.Parameter(torch.ones(num_channels))
             self.bias = nn.Parameter(torch.zeros(num_channels))
         else:
-            self.register_parameter('weight', None)
-            self.register_parameter('bias', None)
+            self.register_parameter("weight", None)
+            self.register_parameter("bias", None)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -63,4 +64,4 @@ class GroupNorm(nn.Module):
         )
 
     def extra_repr(self) -> str:
-        return f'num_groups={self.num_groups}, num_channels={self.num_channels}, eps={self.eps}, affine={self.affine}'
+        return f"num_groups={self.num_groups}, num_channels={self.num_channels}, eps={self.eps}, affine={self.affine}"

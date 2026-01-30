@@ -63,7 +63,7 @@ class InternViTAttention(nn.Module):
         super().__init__()
         self.num_heads = config.vision_num_attention_heads
         self.head_dim = config.vision_hidden_size // config.vision_num_attention_heads
-        self.scale = self.head_dim ** -0.5
+        self.scale = self.head_dim**-0.5
 
         self.qkv = nn.Linear(config.vision_hidden_size, config.vision_hidden_size * 3, bias=True)
         self.proj = nn.Linear(config.vision_hidden_size, config.vision_hidden_size)
@@ -71,6 +71,7 @@ class InternViTAttention(nn.Module):
         if config.use_flash_attn:
             try:
                 from flash_attn import flash_attn_func
+
                 self.flash_attn_func = flash_attn_func
                 self.use_flash = True
             except ImportError:
@@ -78,7 +79,9 @@ class InternViTAttention(nn.Module):
         else:
             self.use_flash = False
 
-    def forward(self, x: torch.Tensor, attention_mask: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def forward(
+        self, x: torch.Tensor, attention_mask: Optional[torch.Tensor] = None
+    ) -> torch.Tensor:
         B, N, C = x.shape
 
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, self.head_dim)
@@ -125,7 +128,9 @@ class InternViTBlock(nn.Module):
         self.norm2 = LayerNorm(config.vision_hidden_size, eps=1e-6)
         self.mlp = InternViTMLP(config)
 
-    def forward(self, x: torch.Tensor, attention_mask: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def forward(
+        self, x: torch.Tensor, attention_mask: Optional[torch.Tensor] = None
+    ) -> torch.Tensor:
         x = x + self.attn(self.norm1(x), attention_mask)
         x = x + self.mlp(self.norm2(x))
         return x
@@ -156,7 +161,7 @@ class PixelShuffle(nn.Module):
         """
         B, C, H, W = x.shape
         s = self.scale_factor
-        return rearrange(x, 'b c (h s1) (w s2) -> b (c s1 s2) h w', s1=s, s2=s)
+        return rearrange(x, "b c (h s1) (w s2) -> b (c s1 s2) h w", s1=s, s2=s)
 
 
 class InternViTEncoder(nn.Module):
@@ -182,9 +187,9 @@ class InternViTEncoder(nn.Module):
         self.pos_embed = nn.Parameter(torch.zeros(1, max_patches + 1, config.vision_hidden_size))
 
         # Transformer blocks
-        self.blocks = nn.ModuleList([
-            InternViTBlock(config) for _ in range(config.vision_num_hidden_layers)
-        ])
+        self.blocks = nn.ModuleList(
+            [InternViTBlock(config) for _ in range(config.vision_num_hidden_layers)]
+        )
 
         self.norm = LayerNorm(config.vision_hidden_size, eps=1e-6)
 
@@ -215,7 +220,7 @@ class InternViTEncoder(nn.Module):
         patch_pos_embed = F.interpolate(
             patch_pos_embed.reshape(1, int(N**0.5), int(N**0.5), dim).permute(0, 3, 1, 2),
             size=(h0, w0),
-            mode='bicubic',
+            mode="bicubic",
         )
         patch_pos_embed = patch_pos_embed.permute(0, 2, 3, 1).reshape(1, -1, dim)
 
@@ -282,6 +287,7 @@ class InternLM2Attention(nn.Module):
         if config.use_flash_attn:
             try:
                 from flash_attn import flash_attn_func
+
                 self.flash_attn_func = flash_attn_func
                 self.use_flash = True
             except ImportError:
@@ -318,12 +324,12 @@ class InternLM2Attention(nn.Module):
             out = out.reshape(B, L, -1)
         else:
             # Standard attention
-            scale = self.head_dim ** -0.5
+            scale = self.head_dim**-0.5
             attn = (q @ k.transpose(-2, -1)) * scale
 
             # Causal mask
             causal_mask = torch.tril(torch.ones(L, L, device=x.device, dtype=torch.bool))
-            attn = attn.masked_fill(~causal_mask, float('-inf'))
+            attn = attn.masked_fill(~causal_mask, float("-inf"))
 
             if attention_mask is not None:
                 attn = attn + attention_mask
@@ -385,9 +391,9 @@ class InternLM2Model(nn.Module):
         self.config = config
 
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size)
-        self.layers = nn.ModuleList([
-            InternLM2DecoderBlock(config) for _ in range(config.num_hidden_layers)
-        ])
+        self.layers = nn.ModuleList(
+            [InternLM2DecoderBlock(config) for _ in range(config.num_hidden_layers)]
+        )
         self.norm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
     def forward(
@@ -485,10 +491,7 @@ class InternVL2(AbstractVLM):
         return self.vision_proj(vision_features)
 
     def encode_text(
-        self,
-        text: Union[str, list[str]],
-        tokenizer: Optional[Any] = None,
-        **kwargs
+        self, text: Union[str, list[str]], tokenizer: Optional[Any] = None, **kwargs
     ) -> torch.Tensor:
         """
         Encode text to embeddings.
@@ -522,7 +525,7 @@ class InternVL2(AbstractVLM):
         inputs_embeds: Optional[torch.Tensor] = None,
         labels: Optional[torch.Tensor] = None,
         return_dict: bool = True,
-        **kwargs
+        **kwargs,
     ) -> dict[str, torch.Tensor]:
         """
         Forward pass.
@@ -555,11 +558,15 @@ class InternVL2(AbstractVLM):
             # Adjust position IDs and attention mask
             B, N, _ = vision_embeds.shape
             if position_ids is not None:
-                vision_position_ids = torch.arange(N, device=position_ids.device).unsqueeze(0).expand(B, -1)
+                vision_position_ids = (
+                    torch.arange(N, device=position_ids.device).unsqueeze(0).expand(B, -1)
+                )
                 position_ids = torch.cat([vision_position_ids, position_ids + N], dim=1)
 
             if attention_mask is not None:
-                vision_mask = torch.ones(B, N, device=attention_mask.device, dtype=attention_mask.dtype)
+                vision_mask = torch.ones(
+                    B, N, device=attention_mask.device, dtype=attention_mask.dtype
+                )
                 attention_mask = torch.cat([vision_mask, attention_mask], dim=1)
 
         # Forward through language model
@@ -608,7 +615,7 @@ class InternVL2(AbstractVLM):
         temperature: float = 1.0,
         top_k: Optional[int] = None,
         top_p: Optional[float] = None,
-        **kwargs
+        **kwargs,
     ) -> torch.Tensor:
         """Generate text autoregressively."""
         # Encode images once
@@ -636,7 +643,7 @@ class InternVL2(AbstractVLM):
             # Apply top-k filtering
             if top_k is not None:
                 indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1, None]
-                logits[indices_to_remove] = float('-inf')
+                logits[indices_to_remove] = float("-inf")
 
             # Apply top-p (nucleus) filtering
             if top_p is not None:
@@ -648,7 +655,7 @@ class InternVL2(AbstractVLM):
                 indices_to_remove = sorted_indices_to_remove.scatter(
                     1, sorted_indices, sorted_indices_to_remove
                 )
-                logits[indices_to_remove] = float('-inf')
+                logits[indices_to_remove] = float("-inf")
 
             # Sample next token
             probs = F.softmax(logits, dim=-1)

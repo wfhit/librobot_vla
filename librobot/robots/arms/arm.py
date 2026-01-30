@@ -63,4 +63,4 @@ class Arm(AbstractRobot):
         }
 
 
-__all__ = ['Arm']
+__all__ = ["Arm"]

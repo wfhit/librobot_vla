@@ -44,9 +44,7 @@ class ModelQuantizer:
 
         if self.dtype == "int8":
             return torch.quantization.quantize_dynamic(
-                self.model,
-                {torch.nn.Linear},
-                dtype=torch.qint8
+                self.model, {torch.nn.Linear}, dtype=torch.qint8
             )
         return self.model
 
@@ -74,9 +72,9 @@ class ONNXExporter:
         self.model = model
         self.opset_version = opset_version
         self.dynamic_axes = dynamic_axes or {
-            'images': {0: 'batch'},
-            'proprioception': {0: 'batch'},
-            'output': {0: 'batch'},
+            "images": {0: "batch"},
+            "proprioception": {0: "batch"},
+            "output": {0: "batch"},
         }
 
     def export(
@@ -106,7 +104,7 @@ class ONNXExporter:
             # Prepare inputs
             input_names = list(sample_inputs.keys())
             input_tensors = tuple(
-                torch.from_numpy(v) if hasattr(v, '__array__') else v
+                torch.from_numpy(v) if hasattr(v, "__array__") else v
                 for v in sample_inputs.values()
             )
 
@@ -115,7 +113,7 @@ class ONNXExporter:
                 input_tensors,
                 str(output_path),
                 input_names=input_names,
-                output_names=['output'],
+                output_names=["output"],
                 dynamic_axes=self.dynamic_axes,
                 opset_version=self.opset_version,
                 do_constant_folding=True,
@@ -176,7 +174,7 @@ class TensorRTExporter:
 
             # Parse ONNX
             if onnx_path:
-                with open(onnx_path, 'rb') as f:
+                with open(onnx_path, "rb") as f:
                     parser.parse(f.read())
 
             # Build engine
@@ -191,7 +189,7 @@ class TensorRTExporter:
             engine = builder.build_engine(network, config)
 
             # Serialize
-            with open(output_path, 'wb') as f:
+            with open(output_path, "wb") as f:
                 f.write(engine.serialize())
 
             return output_path
@@ -233,14 +231,11 @@ class OptimizedModel:
         try:
             import onnxruntime as ort
 
-            providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
+            providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
             if self.device == "cpu":
-                providers = ['CPUExecutionProvider']
+                providers = ["CPUExecutionProvider"]
 
-            self._session = ort.InferenceSession(
-                str(self.model_path),
-                providers=providers
-            )
+            self._session = ort.InferenceSession(str(self.model_path), providers=providers)
         except ImportError:
             pass
 
@@ -259,21 +254,21 @@ class OptimizedModel:
             for inp in self._session.get_inputs():
                 if inp.name in inputs:
                     val = inputs[inp.name]
-                    if hasattr(val, 'numpy'):
+                    if hasattr(val, "numpy"):
                         val = val.numpy()
                     ort_inputs[inp.name] = np.asarray(val)
 
             # Run inference
             outputs = self._session.run(None, ort_inputs)
 
-            return {'output': outputs[0]}
+            return {"output": outputs[0]}
 
         return {}
 
 
 __all__ = [
-    'ModelQuantizer',
-    'ONNXExporter',
-    'TensorRTExporter',
-    'OptimizedModel',
+    "ModelQuantizer",
+    "ONNXExporter",
+    "TensorRTExporter",
+    "OptimizedModel",
 ]

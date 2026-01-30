@@ -29,8 +29,8 @@ class MLPHistoryEncoder(AbstractEncoder):
         input_dim: int,
         output_dim: int,
         hidden_dims: list[int] = [256, 256],
-        pooling: str = 'mean',
-        activation: str = 'relu',
+        pooling: str = "mean",
+        activation: str = "relu",
         dropout: float = 0.0,
     ):
         super().__init__(output_dim)
@@ -48,9 +48,9 @@ class MLPHistoryEncoder(AbstractEncoder):
             layers.append(nn.Linear(dims[i], dims[i + 1]))
 
             if i < len(dims) - 2:
-                if activation == 'relu':
+                if activation == "relu":
                     layers.append(nn.ReLU(inplace=True))
-                elif activation == 'gelu':
+                elif activation == "gelu":
                     layers.append(nn.GELU())
 
                 if dropout > 0:
@@ -59,17 +59,14 @@ class MLPHistoryEncoder(AbstractEncoder):
         self.mlp = nn.Sequential(*layers)
 
         # Attention pooling
-        if pooling == 'attention':
+        if pooling == "attention":
             self.attn_pool = nn.Sequential(
                 nn.Linear(output_dim, 1),
                 nn.Softmax(dim=1),
             )
 
     def forward(
-        self,
-        inputs: torch.Tensor,
-        mask: Optional[torch.Tensor] = None,
-        **kwargs
+        self, inputs: torch.Tensor, mask: Optional[torch.Tensor] = None, **kwargs
     ) -> torch.Tensor:
         """
         Encode history.
@@ -94,18 +91,18 @@ class MLPHistoryEncoder(AbstractEncoder):
             x = x * mask.unsqueeze(-1)
 
         # Pool across time
-        if self.pooling_method == 'mean':
+        if self.pooling_method == "mean":
             if mask is not None:
                 output = (x * mask.unsqueeze(-1)).sum(dim=1) / mask.sum(dim=1, keepdim=True)
             else:
                 output = x.mean(dim=1)
 
-        elif self.pooling_method == 'max':
+        elif self.pooling_method == "max":
             if mask is not None:
-                x = x.masked_fill(~mask.unsqueeze(-1).bool(), float('-inf'))
+                x = x.masked_fill(~mask.unsqueeze(-1).bool(), float("-inf"))
             output = x.max(dim=1)[0]
 
-        elif self.pooling_method == 'last':
+        elif self.pooling_method == "last":
             if mask is not None:
                 # Get last valid timestep for each batch
                 lengths = mask.sum(dim=1).long() - 1
@@ -113,7 +110,7 @@ class MLPHistoryEncoder(AbstractEncoder):
             else:
                 output = x[:, -1]
 
-        elif self.pooling_method == 'attention':
+        elif self.pooling_method == "attention":
             # Attention-based pooling
             attn_weights = self.attn_pool(x)
             if mask is not None:
@@ -136,11 +133,11 @@ class MLPHistoryEncoder(AbstractEncoder):
     def config(self) -> dict[str, Any]:
         """Get encoder configuration."""
         return {
-            'type': 'MLPHistoryEncoder',
-            'input_dim': self.input_dim,
-            'output_dim': self.output_dim,
-            'hidden_dims': self.hidden_dims,
-            'pooling': self.pooling_method,
-            'activation': self.activation_name,
-            'dropout': self.dropout_rate,
+            "type": "MLPHistoryEncoder",
+            "input_dim": self.input_dim,
+            "output_dim": self.output_dim,
+            "hidden_dims": self.hidden_dims,
+            "pooling": self.pooling_method,
+            "activation": self.activation_name,
+            "dropout": self.dropout_rate,
         }

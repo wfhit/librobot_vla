@@ -90,8 +90,7 @@ class ActionBuffer:
             return self._buffer[-1]
 
     def add_and_smooth(
-        self,
-        action: Union[np.ndarray, torch.Tensor]
+        self, action: Union[np.ndarray, torch.Tensor]
     ) -> Union[np.ndarray, torch.Tensor]:
         """
         Add action and return smoothed result.
@@ -141,13 +140,11 @@ class ActionBuffer:
 
         if isinstance(current_action, torch.Tensor):
             self._smoothed_action = (
-                self.alpha * current_action +
-                (1 - self.alpha) * self._smoothed_action
+                self.alpha * current_action + (1 - self.alpha) * self._smoothed_action
             )
         else:
             self._smoothed_action = (
-                self.alpha * current_action +
-                (1 - self.alpha) * self._smoothed_action
+                self.alpha * current_action + (1 - self.alpha) * self._smoothed_action
             )
 
         return self._smoothed_action
@@ -166,9 +163,7 @@ class ActionBuffer:
         if isinstance(self._buffer[0], torch.Tensor):
             stacked = torch.stack(list(self._buffer), dim=0)
             weights_tensor = torch.tensor(
-                weights,
-                dtype=stacked.dtype,
-                device=stacked.device
+                weights, dtype=stacked.dtype, device=stacked.device
             ).reshape(-1, *([1] * (stacked.ndim - 1)))
             return (stacked * weights_tensor).sum(dim=0)
         else:
@@ -295,8 +290,7 @@ class TemporalEnsembleBuffer:
             return valid_actions[-1]  # Return most recent
 
     def _aggregate_mean(
-        self,
-        actions: list[Union[np.ndarray, torch.Tensor]]
+        self, actions: list[Union[np.ndarray, torch.Tensor]]
     ) -> Union[np.ndarray, torch.Tensor]:
         """Compute mean of actions."""
         if isinstance(actions[0], torch.Tensor):
@@ -305,9 +299,7 @@ class TemporalEnsembleBuffer:
             return np.stack(actions).mean(axis=0)
 
     def _aggregate_weighted_mean(
-        self,
-        actions: list[Union[np.ndarray, torch.Tensor]],
-        weights: list[float]
+        self, actions: list[Union[np.ndarray, torch.Tensor]], weights: list[float]
     ) -> Union[np.ndarray, torch.Tensor]:
         """Compute weighted mean of actions."""
         weights_normalized = np.array(weights) / np.sum(weights)
@@ -315,9 +307,7 @@ class TemporalEnsembleBuffer:
         if isinstance(actions[0], torch.Tensor):
             stacked = torch.stack(actions)
             weights_tensor = torch.tensor(
-                weights_normalized,
-                dtype=stacked.dtype,
-                device=stacked.device
+                weights_normalized, dtype=stacked.dtype, device=stacked.device
             ).reshape(-1, *([1] * (stacked.ndim - 1)))
             return (stacked * weights_tensor).sum(dim=0)
         else:
@@ -326,8 +316,7 @@ class TemporalEnsembleBuffer:
             return (stacked * weights_arr).sum(axis=0)
 
     def _aggregate_median(
-        self,
-        actions: list[Union[np.ndarray, torch.Tensor]]
+        self, actions: list[Union[np.ndarray, torch.Tensor]]
     ) -> Union[np.ndarray, torch.Tensor]:
         """Compute median of actions."""
         if isinstance(actions[0], torch.Tensor):
@@ -368,11 +357,7 @@ class AdaptiveActionBuffer(ActionBuffer):
             max_alpha: Maximum smoothing factor (less smoothing)
             variance_threshold: Variance threshold for adaptation
         """
-        super().__init__(
-            buffer_size=buffer_size,
-            smoothing_method="exponential",
-            alpha=max_alpha
-        )
+        super().__init__(buffer_size=buffer_size, smoothing_method="exponential", alpha=max_alpha)
 
         self.min_alpha = min_alpha
         self.max_alpha = max_alpha

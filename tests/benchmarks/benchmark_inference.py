@@ -39,7 +39,7 @@ def sample_batch(device):
     """Create sample batch for benchmarking."""
     return {
         "observations": torch.randn(1, 3, 224, 224).to(device),
-        "states": torch.randn(1, 14).to(device)
+        "states": torch.randn(1, 14).to(device),
     }
 
 
@@ -90,7 +90,7 @@ class BenchmarkInferenceLatency:
         # TODO: Implement batch inference latency benchmark
         batch = {
             "observations": torch.randn(batch_size, 3, 224, 224).to(device),
-            "states": torch.randn(batch_size, 14).to(device)
+            "states": torch.randn(batch_size, 14).to(device),
         }
 
         benchmark_model.eval()
@@ -158,7 +158,7 @@ class BenchmarkInferenceThroughput:
         # TODO: Implement batch throughput benchmark
         batch = {
             "observations": torch.randn(batch_size, 3, 224, 224).to(device),
-            "states": torch.randn(batch_size, 14).to(device)
+            "states": torch.randn(batch_size, 14).to(device),
         }
 
         benchmark_model.eval()
@@ -233,7 +233,7 @@ class BenchmarkMemoryUsage:
         # TODO: Implement memory scaling benchmark
         batch = {
             "observations": torch.randn(batch_size, 3, 224, 224).to(device),
-            "states": torch.randn(batch_size, 14).to(device)
+            "states": torch.randn(batch_size, 14).to(device),
         }
 
         if device.type == "cuda":
@@ -267,7 +267,7 @@ class BenchmarkPrecision:
 
         batch = {
             "observations": torch.randn(1, 3, 224, 224).to(device, dtype=dtype),
-            "states": torch.randn(1, 14).to(device, dtype=dtype)
+            "states": torch.randn(1, 14).to(device, dtype=dtype),
         }
 
         benchmark_model.eval()

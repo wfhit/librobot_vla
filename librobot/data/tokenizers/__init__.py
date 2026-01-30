@@ -5,7 +5,7 @@ from .image import ImageTokenizer
 from .state import StateTokenizer
 
 __all__ = [
-    'StateTokenizer',
-    'ActionTokenizer',
-    'ImageTokenizer',
+    "StateTokenizer",
+    "ActionTokenizer",
+    "ImageTokenizer",
 ]

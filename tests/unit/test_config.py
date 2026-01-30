@@ -19,20 +19,9 @@ from unittest.mock import Mock, patch, mock_open
 def sample_config_dict():
     """Create a sample configuration dictionary."""
     return {
-        "model": {
-            "name": "test_model",
-            "hidden_size": 768,
-            "num_layers": 12
-        },
-        "training": {
-            "batch_size": 32,
-            "learning_rate": 1e-4,
-            "num_epochs": 10
-        },
-        "data": {
-            "dataset_path": "/path/to/data",
-            "num_workers": 4
-        }
+        "model": {"name": "test_model", "hidden_size": 768, "num_layers": 12},
+        "training": {"batch_size": 32, "learning_rate": 1e-4, "num_epochs": 10},
+        "data": {"dataset_path": "/path/to/data", "num_workers": 4},
     }
 
 
@@ -106,12 +95,15 @@ class TestConfigValidation:
         assert isinstance(sample_config_dict["model"]["hidden_size"], int)
         assert isinstance(sample_config_dict["training"]["learning_rate"], float)
 
-    @pytest.mark.parametrize("field,expected_type", [
-        ("model.hidden_size", int),
-        ("training.batch_size", int),
-        ("training.learning_rate", float),
-        ("data.dataset_path", str),
-    ])
+    @pytest.mark.parametrize(
+        "field,expected_type",
+        [
+            ("model.hidden_size", int),
+            ("training.batch_size", int),
+            ("training.learning_rate", float),
+            ("data.dataset_path", str),
+        ],
+    )
     def test_validate_specific_field_types(self, sample_config_dict, field, expected_type):
         """Test validation of specific field types."""
         # TODO: Implement specific field type validation
@@ -138,11 +130,7 @@ class TestConfigMerging:
     def test_merge_two_configs(self, sample_config_dict):
         """Test merging two configurations."""
         # TODO: Implement config merging
-        override_config = {
-            "model": {
-                "hidden_size": 1024
-            }
-        }
+        override_config = {"model": {"hidden_size": 1024}}
         # Merged config should have hidden_size=1024
         pass
 

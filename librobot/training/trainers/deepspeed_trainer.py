@@ -94,7 +94,7 @@ class DeepSpeedTrainer(BaseTrainer):
         # Training state
         self.current_epoch = 0
         self.global_step = 0
-        self.best_val_loss = float('inf')
+        self.best_val_loss = float("inf")
         self._stop_training = False
         self.train_metrics: dict[str, list[float]] = {}
         self.val_metrics: dict[str, list[float]] = {}
@@ -184,6 +184,7 @@ class DeepSpeedTrainer(BaseTrainer):
             print("Warning: deepspeed not installed, falling back to basic training")
             self.model_engine = None
             import torch
+
             self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=1e-4)
 
     def _train_epoch(self) -> float:
@@ -200,10 +201,10 @@ class DeepSpeedTrainer(BaseTrainer):
             return 0.0
 
         for batch_idx, batch in enumerate(self.train_dataloader):
-            self._call_callbacks('on_batch_begin', batch=batch_idx)
+            self._call_callbacks("on_batch_begin", batch=batch_idx)
 
             result = self._train_step(batch)
-            loss = result.get('loss', 0)
+            loss = result.get("loss", 0)
             total_loss += loss
             num_batches += 1
 
@@ -212,7 +213,7 @@ class DeepSpeedTrainer(BaseTrainer):
             if self.global_step % self.log_interval == 0:
                 self._log_metrics(result)
 
-            self._call_callbacks('on_batch_end', batch=batch_idx, logs=result)
+            self._call_callbacks("on_batch_end", batch=batch_idx, logs=result)
 
             if self.max_steps and self.global_step >= self.max_steps:
                 break
@@ -226,16 +227,18 @@ class DeepSpeedTrainer(BaseTrainer):
 
             # Move batch to device
             if isinstance(batch, dict):
-                batch = {k: v.to(self.device) if hasattr(v, 'to') else v
-                        for k, v in batch.items()}
+                batch = {k: v.to(self.device) if hasattr(v, "to") else v for k, v in batch.items()}
 
             if self.model_engine:
                 # DeepSpeed forward
-                outputs = self.model_engine(**batch) if isinstance(batch, dict) \
+                outputs = (
+                    self.model_engine(**batch)
+                    if isinstance(batch, dict)
                     else self.model_engine(batch)
+                )
 
-                if isinstance(outputs, dict) and 'loss' in outputs:
-                    loss = outputs['loss']
+                if isinstance(outputs, dict) and "loss" in outputs:
+                    loss = outputs["loss"]
                 elif self.loss_fn:
                     loss = self.loss_fn(outputs, batch)
                 else:
@@ -245,13 +248,13 @@ class DeepSpeedTrainer(BaseTrainer):
                 self.model_engine.backward(loss)
                 self.model_engine.step()
 
-                return {'loss': loss.item()}
+                return {"loss": loss.item()}
             else:
                 # Fallback
                 return self._train_step_basic(batch)
 
         except ImportError:
-            return {'loss': 0.0}
+            return {"loss": 0.0}
 
     def _train_step_basic(self, batch: dict[str, Any]) -> dict[str, Any]:
         """Basic training step without DeepSpeed."""
@@ -262,8 +265,8 @@ class DeepSpeedTrainer(BaseTrainer):
 
             outputs = self.model(**batch) if isinstance(batch, dict) else self.model(batch)
 
-            if isinstance(outputs, dict) and 'loss' in outputs:
-                loss = outputs['loss']
+            if isinstance(outputs, dict) and "loss" in outputs:
+                loss = outputs["loss"]
             elif self.loss_fn:
                 loss = self.loss_fn(outputs, batch)
             else:
@@ -272,17 +275,14 @@ class DeepSpeedTrainer(BaseTrainer):
             loss.backward()
 
             if self.gradient_clip_val:
-                torch.nn.utils.clip_grad_norm_(
-                    self.model.parameters(),
-                    self.gradient_clip_val
-                )
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.gradient_clip_val)
 
             self.optimizer.step()
 
-            return {'loss': loss.item()}
+            return {"loss": loss.item()}
 
         except ImportError:
-            return {'loss': 0.0}
+            return {"loss": 0.0}
 
     def _log_metrics(self, metrics: dict[str, Any]) -> None:
         """Log training metrics."""
@@ -304,12 +304,16 @@ class DeepSpeedTrainer(BaseTrainer):
         else:
             try:
                 import torch
-                torch.save({
-                    'model_state_dict': self.model.state_dict(),
-                    'optimizer_state_dict': self.optimizer.state_dict(),
-                    'epoch': self.current_epoch,
-                    'global_step': self.global_step,
-                }, path)
+
+                torch.save(
+                    {
+                        "model_state_dict": self.model.state_dict(),
+                        "optimizer_state_dict": self.optimizer.state_dict(),
+                        "epoch": self.current_epoch,
+                        "global_step": self.global_step,
+                    },
+                    path,
+                )
             except ImportError:
                 pass
 
@@ -320,13 +324,14 @@ class DeepSpeedTrainer(BaseTrainer):
         else:
             try:
                 import torch
+
                 checkpoint = torch.load(path)
-                self.model.load_state_dict(checkpoint['model_state_dict'])
-                self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-                self.current_epoch = checkpoint.get('epoch', 0)
-                self.global_step = checkpoint.get('global_step', 0)
+                self.model.load_state_dict(checkpoint["model_state_dict"])
+                self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+                self.current_epoch = checkpoint.get("epoch", 0)
+                self.global_step = checkpoint.get("global_step", 0)
             except (ImportError, FileNotFoundError):
                 pass
 
 
-__all__ = ['DeepSpeedTrainer']
+__all__ = ["DeepSpeedTrainer"]

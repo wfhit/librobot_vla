@@ -100,10 +100,10 @@ class HelixVLA(AbstractVLA):
                 nhead=4,
                 dim_feedforward=plan_dim * 4,
                 dropout=0.1,
-                activation='gelu',
+                activation="gelu",
                 batch_first=True,
             ),
-            num_layers=2
+            num_layers=2,
         )
 
         # ============================================
@@ -173,10 +173,7 @@ class HelixVLA(AbstractVLA):
         )
 
     def high_level_planning(
-        self,
-        images: torch.Tensor,
-        text: Optional[Union[str, list[str]]] = None,
-        **kwargs
+        self, images: torch.Tensor, text: Optional[Union[str, list[str]]] = None, **kwargs
     ) -> torch.Tensor:
         """
         High-level planning using VLM.
@@ -192,7 +189,7 @@ class HelixVLA(AbstractVLA):
         # Process through VLM
         with torch.set_grad_enabled(not self.training or self.vlm.training):
             vlm_outputs = self.vlm(images, text=text, **kwargs)
-            vlm_embeddings = vlm_outputs['embeddings']
+            vlm_embeddings = vlm_outputs["embeddings"]
 
         # Pool embeddings
         if vlm_embeddings.dim() == 3:
@@ -273,7 +270,7 @@ class HelixVLA(AbstractVLA):
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
         action_sequences: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> dict[str, torch.Tensor]:
         """
         Forward pass of Helix VLA (all three tiers).
@@ -311,9 +308,7 @@ class HelixVLA(AbstractVLA):
         # Apply temporal smoothing if we have sequence
         if action_sequence.size(1) > 1:
             # Transpose for Conv1d: [batch, action_dim, seq_len]
-            smoothed_seq = self.temporal_smoother(
-                action_sequence.transpose(1, 2)
-            ).transpose(1, 2)
+            smoothed_seq = self.temporal_smoother(action_sequence.transpose(1, 2)).transpose(1, 2)
         else:
             smoothed_seq = action_sequence
 
@@ -323,31 +318,31 @@ class HelixVLA(AbstractVLA):
 
             # Low-level action loss (immediate action)
             action_loss = F.mse_loss(refined_action, actions)
-            losses['action_loss'] = action_loss
+            losses["action_loss"] = action_loss
 
             # Mid-level sequence loss (if provided)
             if action_sequences is not None:
                 seq_loss = F.mse_loss(smoothed_seq, action_sequences)
-                losses['sequence_loss'] = seq_loss
+                losses["sequence_loss"] = seq_loss
                 total_loss = action_loss + 0.5 * seq_loss
             else:
                 total_loss = action_loss
 
-            losses['total_loss'] = total_loss
+            losses["total_loss"] = total_loss
 
             return {
-                'actions': refined_action,
-                'action_sequence': smoothed_seq,
-                'plan': plan,
-                'loss': total_loss,
+                "actions": refined_action,
+                "action_sequence": smoothed_seq,
+                "plan": plan,
+                "loss": total_loss,
                 **losses,
             }
         else:
             # Inference mode
             return {
-                'actions': refined_action,
-                'action_sequence': smoothed_seq,
-                'plan': plan,
+                "actions": refined_action,
+                "action_sequence": smoothed_seq,
+                "plan": plan,
             }
 
     def predict_action(
@@ -356,7 +351,7 @@ class HelixVLA(AbstractVLA):
         text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         return_sequence: bool = False,
-        **kwargs
+        **kwargs,
     ) -> Union[torch.Tensor, tuple]:
         """
         Predict actions for inference.
@@ -375,23 +370,16 @@ class HelixVLA(AbstractVLA):
         self.eval()
         with torch.no_grad():
             outputs = self.forward(
-                images=images,
-                text=text,
-                proprioception=proprioception,
-                actions=None,
-                **kwargs
+                images=images, text=text, proprioception=proprioception, actions=None, **kwargs
             )
 
             if return_sequence:
-                return outputs['actions'], outputs['action_sequence']
+                return outputs["actions"], outputs["action_sequence"]
             else:
-                return outputs['actions']
+                return outputs["actions"]
 
     def compute_loss(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
@@ -406,16 +394,16 @@ class HelixVLA(AbstractVLA):
         """
         losses = {}
 
-        if 'action_loss' in predictions:
-            losses['action_loss'] = predictions['action_loss']
+        if "action_loss" in predictions:
+            losses["action_loss"] = predictions["action_loss"]
 
-        if 'sequence_loss' in predictions:
-            losses['sequence_loss'] = predictions['sequence_loss']
+        if "sequence_loss" in predictions:
+            losses["sequence_loss"] = predictions["sequence_loss"]
 
-        if 'total_loss' in predictions:
-            losses['total_loss'] = predictions['total_loss']
+        if "total_loss" in predictions:
+            losses["total_loss"] = predictions["total_loss"]
         else:
-            losses['total_loss'] = predictions.get('loss', torch.tensor(0.0))
+            losses["total_loss"] = predictions.get("loss", torch.tensor(0.0))
 
         return losses
 
@@ -427,11 +415,11 @@ class HelixVLA(AbstractVLA):
             Dictionary containing configuration
         """
         return {
-            'type': 'HelixVLA',
-            'vlm_config': self.vlm.config,
-            'action_dim': self.action_dim,
-            'state_dim': self.state_dim,
-            'plan_dim': self.plan_dim,
-            'hidden_dim': self.hidden_dim,
-            'plan_horizon': self.plan_horizon,
+            "type": "HelixVLA",
+            "vlm_config": self.vlm.config,
+            "action_dim": self.action_dim,
+            "state_dim": self.state_dim,
+            "plan_dim": self.plan_dim,
+            "hidden_dim": self.hidden_dim,
+            "plan_horizon": self.plan_horizon,
         }

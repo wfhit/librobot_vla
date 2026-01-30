@@ -12,16 +12,16 @@ from .registry import (
 )
 
 __all__ = [
-    'AbstractVLM',
-    'VLM_REGISTRY',
-    'register_vlm',
-    'get_vlm',
-    'create_vlm',
-    'list_vlms',
+    "AbstractVLM",
+    "VLM_REGISTRY",
+    "register_vlm",
+    "get_vlm",
+    "create_vlm",
+    "list_vlms",
     # VLM implementations
-    'qwen_vl',
-    'florence',
-    'paligemma',
-    'internvl',
-    'llava',
+    "qwen_vl",
+    "florence",
+    "paligemma",
+    "internvl",
+    "llava",
 ]

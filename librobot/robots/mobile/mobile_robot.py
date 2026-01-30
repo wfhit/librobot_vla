@@ -46,11 +46,13 @@ class LeKiwiRobot(MobileRobot):
 
     def get_observation(self) -> dict[str, Any]:
         return {
-            "proprioception": np.concatenate([
-                self._position,
-                self._orientation,
-                self._velocity,
-            ]),
+            "proprioception": np.concatenate(
+                [
+                    self._position,
+                    self._orientation,
+                    self._velocity,
+                ]
+            ),
         }
 
 
@@ -103,6 +105,6 @@ class DifferentialDriveRobot(MobileRobot):
 
 
 __all__ = [
-    'LeKiwiRobot',
-    'DifferentialDriveRobot',
+    "LeKiwiRobot",
+    "DifferentialDriveRobot",
 ]

@@ -45,7 +45,7 @@ def mock_dataloader():
     batch = {
         "observations": torch.randn(4, 3, 224, 224),
         "actions": torch.randn(4, 7),
-        "rewards": torch.randn(4, 1)
+        "rewards": torch.randn(4, 1),
     }
     dataloader.__iter__ = Mock(return_value=iter([batch, batch]))
     dataloader.__len__ = Mock(return_value=2)
@@ -63,7 +63,7 @@ def training_config():
         "warmup_steps": 1000,
         "max_grad_norm": 1.0,
         "log_interval": 100,
-        "save_interval": 1000
+        "save_interval": 1000,
     }
 
 
@@ -232,10 +232,7 @@ class TestCheckpointing:
         """Test checkpointing with optimizer state."""
         # TODO: Implement optimizer checkpointing test
         checkpoint_path = tmp_path / "checkpoint.pth"
-        torch.save({
-            "model": {},
-            "optimizer": mock_optimizer.state_dict()
-        }, checkpoint_path)
+        torch.save({"model": {}, "optimizer": mock_optimizer.state_dict()}, checkpoint_path)
         assert checkpoint_path.exists()
 
     def test_checkpoint_versioning(self):

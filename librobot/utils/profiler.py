@@ -44,7 +44,7 @@ class Profiler:
         stream = StringIO()
         self.stats = pstats.Stats(self.profiler, stream=stream)
 
-    def print_stats(self, top: int = 20, sort_by: str = 'cumulative') -> None:
+    def print_stats(self, top: int = 20, sort_by: str = "cumulative") -> None:
         """
         Print profiling statistics.
 
@@ -55,9 +55,9 @@ class Profiler:
         if self.stats is None:
             raise RuntimeError("No stats available. Run start() and stop() first")
 
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print(f"Profiling Results (Top {top} by {sort_by})")
-        print("="*80)
+        print("=" * 80)
 
         self.stats.sort_stats(sort_by)
         self.stats.print_stats(top)
@@ -211,11 +211,11 @@ class TorchProfiler:
         if self.profiler is None:
             raise RuntimeError("No profiling data available")
 
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("PyTorch Profiling Results")
-        print("="*80)
+        print("=" * 80)
         print(self.profiler.key_averages().table(sort_by=sort_by, row_limit=row_limit))
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")
 
     def export_chrome_trace(self, path: Union[str, Path]) -> None:
         """
@@ -253,19 +253,15 @@ def profile_function(func: Callable, *args, **kwargs) -> dict[str, Any]:
     cpu_time = time.process_time() - start_cpu
 
     return {
-        'result': result,
-        'wall_time': wall_time,
-        'cpu_time': cpu_time,
-        'function': func.__name__,
+        "result": result,
+        "wall_time": wall_time,
+        "cpu_time": cpu_time,
+        "function": func.__name__,
     }
 
 
 def benchmark_function(
-    func: Callable,
-    *args,
-    num_iterations: int = 100,
-    warmup: int = 10,
-    **kwargs
+    func: Callable, *args, num_iterations: int = 100, warmup: int = 10, **kwargs
 ) -> dict[str, float]:
     """
     Benchmark a function with multiple iterations.
@@ -296,10 +292,10 @@ def benchmark_function(
     times = np.array(times)
 
     return {
-        'mean': float(np.mean(times)),
-        'std': float(np.std(times)),
-        'min': float(np.min(times)),
-        'max': float(np.max(times)),
-        'median': float(np.median(times)),
-        'iterations': num_iterations,
+        "mean": float(np.mean(times)),
+        "std": float(np.std(times)),
+        "min": float(np.min(times)),
+        "max": float(np.max(times)),
+        "median": float(np.median(times)),
+        "iterations": num_iterations,
     }

@@ -43,7 +43,7 @@ def action_config():
         "num_layers": 2,
         "dropout": 0.1,
         "action_min": -1.0,
-        "action_max": 1.0
+        "action_max": 1.0,
     }
 
 
@@ -226,11 +226,7 @@ class TestActionNormalization:
         assert clipped.max() <= 1.0
         assert clipped.min() >= -1.0
 
-    @pytest.mark.parametrize("scale,offset", [
-        (1.0, 0.0),
-        (2.0, 1.0),
-        (0.5, -0.5)
-    ])
+    @pytest.mark.parametrize("scale,offset", [(1.0, 0.0), (2.0, 1.0), (0.5, -0.5)])
     def test_affine_normalization(self, scale, offset):
         """Test affine normalization with various parameters."""
         # TODO: Implement affine normalization test

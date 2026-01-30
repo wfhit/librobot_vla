@@ -10,8 +10,8 @@ class ActionTransform:
 
     def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply transform to sample."""
-        if 'actions' in sample:
-            sample['actions'] = self.transform(sample['actions'])
+        if "actions" in sample:
+            sample["actions"] = self.transform(sample["actions"])
         return sample
 
     def transform(self, action: np.ndarray) -> np.ndarray:
@@ -44,7 +44,7 @@ class ActionNormalize(ActionTransform):
         self.max_val = max_val
         self.normalize_type = normalize_type
 
-    def fit(self, actions: np.ndarray) -> 'ActionNormalize':
+    def fit(self, actions: np.ndarray) -> "ActionNormalize":
         """Fit normalization statistics from data."""
         self.mean = np.mean(actions, axis=0)
         self.std = np.std(actions, axis=0) + 1e-6
@@ -156,15 +156,15 @@ class ActionDelta(ActionTransform):
 
     def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply delta transform using reference state."""
-        if self.reference_key in sample and 'actions' in sample:
+        if self.reference_key in sample and "actions" in sample:
             reference = sample[self.reference_key]
-            action = sample['actions']
+            action = sample["actions"]
 
             # Compute delta (assuming action and state have same dimensions for position)
             action_dim = min(action.shape[-1], reference.shape[-1])
             delta_action = action.copy()
             delta_action[..., :action_dim] = action[..., :action_dim] - reference[..., :action_dim]
-            sample['actions'] = delta_action
+            sample["actions"] = delta_action
 
         return sample
 
@@ -187,26 +187,26 @@ class RelativeAction(ActionTransform):
 
     def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Convert to relative actions."""
-        if 'actions' in sample and 'proprioception' in sample:
-            action = sample['actions']
-            state = sample['proprioception']
+        if "actions" in sample and "proprioception" in sample:
+            action = sample["actions"]
+            state = sample["proprioception"]
 
             # Make position relative
             for i in self.position_indices:
                 if i < action.shape[-1] and i < state.shape[-1]:
                     action[..., i] = action[..., i] - state[..., i]
 
-            sample['actions'] = action
+            sample["actions"] = action
 
         return sample
 
 
 __all__ = [
-    'ActionTransform',
-    'ActionNormalize',
-    'ActionNoise',
-    'ActionScale',
-    'ActionClip',
-    'ActionDelta',
-    'RelativeAction',
+    "ActionTransform",
+    "ActionNormalize",
+    "ActionNoise",
+    "ActionScale",
+    "ActionClip",
+    "ActionDelta",
+    "RelativeAction",
 ]

@@ -10,8 +10,8 @@ class StateTransform:
 
     def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply transform to sample."""
-        if 'proprioception' in sample:
-            sample['proprioception'] = self.transform(sample['proprioception'])
+        if "proprioception" in sample:
+            sample["proprioception"] = self.transform(sample["proprioception"])
         return sample
 
     def transform(self, state: np.ndarray) -> np.ndarray:
@@ -44,7 +44,7 @@ class StateNormalize(StateTransform):
         self.max_val = max_val
         self.normalize_type = normalize_type
 
-    def fit(self, states: np.ndarray) -> 'StateNormalize':
+    def fit(self, states: np.ndarray) -> "StateNormalize":
         """Fit normalization statistics from data."""
         self.mean = np.mean(states, axis=0)
         self.std = np.std(states, axis=0) + 1e-6
@@ -134,7 +134,7 @@ class StateStack(StateTransform):
                 components.append(val.flatten())
 
         if components:
-            sample['proprioception'] = np.concatenate(components)
+            sample["proprioception"] = np.concatenate(components)
 
         return sample
 
@@ -145,7 +145,7 @@ class StateHistory(StateTransform):
     def __init__(
         self,
         history_length: int = 4,
-        keys: list[str] = ['proprioception'],
+        keys: list[str] = ["proprioception"],
     ):
         """
         Args:
@@ -165,13 +165,13 @@ class StateHistory(StateTransform):
 
                 # Keep only recent history
                 if len(self._history[key]) > self.history_length:
-                    self._history[key] = self._history[key][-self.history_length:]
+                    self._history[key] = self._history[key][-self.history_length :]
 
                 # Pad if not enough history
                 while len(self._history[key]) < self.history_length:
                     self._history[key].insert(0, current)
 
-                sample[f'{key}_history'] = np.stack(self._history[key])
+                sample[f"{key}_history"] = np.stack(self._history[key])
 
         return sample
 
@@ -181,10 +181,10 @@ class StateHistory(StateTransform):
 
 
 __all__ = [
-    'StateTransform',
-    'StateNormalize',
-    'StateNoise',
-    'StateSelect',
-    'StateStack',
-    'StateHistory',
+    "StateTransform",
+    "StateNormalize",
+    "StateNoise",
+    "StateSelect",
+    "StateStack",
+    "StateHistory",
 ]

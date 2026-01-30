@@ -60,9 +60,9 @@ def list_encoders():
 
 
 __all__ = [
-    'ENCODER_REGISTRY',
-    'register_encoder',
-    'get_encoder',
-    'create_encoder',
-    'list_encoders',
+    "ENCODER_REGISTRY",
+    "register_encoder",
+    "get_encoder",
+    "create_encoder",
+    "list_encoders",
 ]

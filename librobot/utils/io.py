@@ -24,7 +24,7 @@ def save_json(data: Any, path: str | Path, indent: int = 2, **kwargs) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(path, 'w', encoding='utf-8') as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=indent, **kwargs)
 
 
@@ -39,7 +39,7 @@ def load_json(path: str | Path, **kwargs) -> Any:
     Returns:
         Loaded data
     """
-    with open(path, encoding='utf-8') as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f, **kwargs)
 
 
@@ -55,7 +55,7 @@ def save_yaml(data: Any, path: str | Path, **kwargs) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(path, 'w', encoding='utf-8') as f:
+    with open(path, "w", encoding="utf-8") as f:
         yaml.safe_dump(data, f, **kwargs)
 
 
@@ -70,7 +70,7 @@ def load_yaml(path: str | Path, **kwargs) -> Any:
     Returns:
         Loaded data
     """
-    with open(path, encoding='utf-8') as f:
+    with open(path, encoding="utf-8") as f:
         return yaml.safe_load(f, **kwargs)
 
 
@@ -86,7 +86,7 @@ def save_pickle(data: Any, path: str | Path, **kwargs) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(path, 'wb') as f:
+    with open(path, "wb") as f:
         pickle.dump(data, f, **kwargs)
 
 
@@ -101,7 +101,7 @@ def load_pickle(path: str | Path, **kwargs) -> Any:
     Returns:
         Loaded data
     """
-    with open(path, 'rb') as f:
+    with open(path, "rb") as f:
         return pickle.load(f, **kwargs)
 
 
@@ -153,7 +153,7 @@ def ensure_dir(path: str | Path) -> Path:
     return path
 
 
-def read_text(path: str | Path, encoding: str = 'utf-8') -> str:
+def read_text(path: str | Path, encoding: str = "utf-8") -> str:
     """
     Read text from file.
 
@@ -168,7 +168,7 @@ def read_text(path: str | Path, encoding: str = 'utf-8') -> str:
         return f.read()
 
 
-def write_text(text: str, path: str | Path, encoding: str = 'utf-8') -> None:
+def write_text(text: str, path: str | Path, encoding: str = "utf-8") -> None:
     """
     Write text to file.
 
@@ -180,11 +180,11 @@ def write_text(text: str, path: str | Path, encoding: str = 'utf-8') -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(path, 'w', encoding=encoding) as f:
+    with open(path, "w", encoding=encoding) as f:
         f.write(text)
 
 
-def read_lines(path: str | Path, encoding: str = 'utf-8', strip: bool = True) -> list[str]:
+def read_lines(path: str | Path, encoding: str = "utf-8", strip: bool = True) -> list[str]:
     """
     Read lines from file.
 
@@ -205,7 +205,7 @@ def read_lines(path: str | Path, encoding: str = 'utf-8', strip: bool = True) ->
     return lines
 
 
-def write_lines(lines: list[str], path: str | Path, encoding: str = 'utf-8') -> None:
+def write_lines(lines: list[str], path: str | Path, encoding: str = "utf-8") -> None:
     """
     Write lines to file.
 
@@ -217,8 +217,8 @@ def write_lines(lines: list[str], path: str | Path, encoding: str = 'utf-8') -> 
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(path, 'w', encoding=encoding) as f:
+    with open(path, "w", encoding=encoding) as f:
         for line in lines:
             f.write(line)
-            if not line.endswith('\n'):
-                f.write('\n')
+            if not line.endswith("\n"):
+                f.write("\n")

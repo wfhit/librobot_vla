@@ -21,7 +21,8 @@ def serve_cli(args: Optional[list] = None) -> int:
 
     # Model
     parser.add_argument(
-        "--checkpoint", "-c",
+        "--checkpoint",
+        "-c",
         type=str,
         required=True,
         help="Path to model checkpoint",
@@ -34,7 +35,8 @@ def serve_cli(args: Optional[list] = None) -> int:
 
     # Server
     parser.add_argument(
-        "--type", "-t",
+        "--type",
+        "-t",
         type=str,
         default="rest",
         choices=["rest", "grpc", "websocket", "ros2"],
@@ -47,7 +49,8 @@ def serve_cli(args: Optional[list] = None) -> int:
         help="Server host",
     )
     parser.add_argument(
-        "--port", "-p",
+        "--port",
+        "-p",
         type=int,
         default=8000,
         help="Server port",
@@ -116,6 +119,7 @@ def run_server(args) -> int:
         # Create server
         if args.type == "rest":
             from librobot.inference.servers import RESTServer
+
             server = RESTServer(
                 host=args.host,
                 port=args.port,
@@ -123,6 +127,7 @@ def run_server(args) -> int:
             )
         elif args.type == "grpc":
             from librobot.inference.servers import GRPCServer
+
             server = GRPCServer(
                 host=args.host,
                 port=args.port,
@@ -130,6 +135,7 @@ def run_server(args) -> int:
             )
         elif args.type == "websocket":
             from librobot.inference.servers import WebSocketServer
+
             server = WebSocketServer(
                 host=args.host,
                 port=args.port,
@@ -137,6 +143,7 @@ def run_server(args) -> int:
             )
         elif args.type == "ros2":
             from librobot.inference.servers import ROS2Server
+
             server = ROS2Server(model=model)
 
         # Run server
@@ -161,18 +168,21 @@ def load_model(args):
     # Try loading optimized model first
     if args.onnx:
         from librobot.inference.optimization import OptimizedModel
+
         return OptimizedModel(args.onnx, backend="onnx")
 
     if args.tensorrt:
         from librobot.inference.optimization import OptimizedModel
+
         return OptimizedModel(args.tensorrt, backend="tensorrt")
 
     # Load PyTorch model
     try:
         import torch
+
         checkpoint = torch.load(args.checkpoint, map_location=args.device)
 
-        if isinstance(checkpoint, dict) and 'model_state_dict' in checkpoint:
+        if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
             # Need to reconstruct model
             return checkpoint  # Simplified
 

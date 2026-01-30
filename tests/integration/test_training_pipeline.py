@@ -21,12 +21,7 @@ from unittest.mock import Mock, patch
 def training_config():
     """Create comprehensive training configuration."""
     return {
-        "model": {
-            "name": "vla_model",
-            "hidden_size": 256,
-            "num_layers": 4,
-            "action_dim": 7
-        },
+        "model": {"name": "vla_model", "hidden_size": 256, "num_layers": 4, "action_dim": 7},
         "training": {
             "num_epochs": 2,
             "batch_size": 4,
@@ -34,19 +29,15 @@ def training_config():
             "weight_decay": 0.01,
             "gradient_accumulation_steps": 2,
             "max_grad_norm": 1.0,
-            "warmup_steps": 100
+            "warmup_steps": 100,
         },
         "data": {
             "train_path": "/path/to/train",
             "val_path": "/path/to/val",
             "num_workers": 2,
-            "shuffle": True
+            "shuffle": True,
         },
-        "logging": {
-            "log_interval": 10,
-            "eval_interval": 50,
-            "save_interval": 100
-        }
+        "logging": {"log_interval": 10, "eval_interval": 50, "save_interval": 100},
     }
 
 
@@ -55,11 +46,13 @@ def mock_dataset():
     """Create mock dataset."""
     dataset = Mock()
     dataset.__len__ = Mock(return_value=100)
-    dataset.__getitem__ = Mock(return_value={
-        "observations": torch.randn(32, 3, 224, 224),
-        "states": torch.randn(32, 14),
-        "actions": torch.randn(32, 7)
-    })
+    dataset.__getitem__ = Mock(
+        return_value={
+            "observations": torch.randn(32, 3, 224, 224),
+            "states": torch.randn(32, 14),
+            "actions": torch.randn(32, 7),
+        }
+    )
     return dataset
 
 

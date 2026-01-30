@@ -70,7 +70,9 @@ class SearchSpace:
             return ray_space
 
         except ImportError:
-            raise ImportError("ray[tune] required for Ray Tune. Install with: pip install ray[tune]")
+            raise ImportError(
+                "ray[tune] required for Ray Tune. Install with: pip install ray[tune]"
+            )
 
     def to_optuna(self, trial) -> dict[str, Any]:
         """Convert to Optuna trial suggestions."""
@@ -82,7 +84,9 @@ class SearchSpace:
             if param_type == "uniform":
                 optuna_params[name] = trial.suggest_float(name, config["low"], config["high"])
             elif param_type == "loguniform":
-                optuna_params[name] = trial.suggest_float(name, config["low"], config["high"], log=True)
+                optuna_params[name] = trial.suggest_float(
+                    name, config["low"], config["high"], log=True
+                )
             elif param_type == "choice":
                 optuna_params[name] = trial.suggest_categorical(name, config["choices"])
             elif param_type == "int":
@@ -112,6 +116,7 @@ class TuningConfig:
         resources_per_trial: Resources per trial (CPU, GPU)
         local_dir: Local directory for results
     """
+
     num_trials: int = 10
     max_concurrent_trials: int = 4
     metric: str = "val_loss"
@@ -485,6 +490,7 @@ class OptunaTuner(AbstractTuner):
 
         try:
             import optuna.visualization as vis
+
             return vis.plot_optimization_history(self._study)
         except ImportError:
             logger.warning("optuna visualization requires plotly")
@@ -496,6 +502,7 @@ class OptunaTuner(AbstractTuner):
 
         try:
             import optuna.visualization as vis
+
             return vis.plot_param_importances(self._study)
         except ImportError:
             logger.warning("optuna visualization requires plotly")

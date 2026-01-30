@@ -89,7 +89,7 @@ class ACTVLA(AbstractVLA):
             nhead=num_heads,
             dim_feedforward=hidden_dim * 4,
             dropout=0.1,
-            activation='relu',
+            activation="relu",
             batch_first=True,
         )
         self.encoder = nn.TransformerEncoder(encoder_layer, num_encoder_layers)
@@ -117,7 +117,7 @@ class ACTVLA(AbstractVLA):
             nhead=num_heads,
             dim_feedforward=hidden_dim * 4,
             dropout=0.1,
-            activation='relu',
+            activation="relu",
             batch_first=True,
         )
         self.decoder = nn.TransformerDecoder(decoder_layer, num_decoder_layers)
@@ -131,9 +131,9 @@ class ACTVLA(AbstractVLA):
 
     def _get_vision_dim(self) -> int:
         """Get output dimension of vision encoder."""
-        if hasattr(self.vision_encoder, 'output_dim'):
+        if hasattr(self.vision_encoder, "output_dim"):
             return self.vision_encoder.output_dim
-        elif hasattr(self.vision_encoder, 'embed_dim'):
+        elif hasattr(self.vision_encoder, "embed_dim"):
             return self.vision_encoder.embed_dim
         else:
             return 512
@@ -272,7 +272,7 @@ class ACTVLA(AbstractVLA):
         text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> dict[str, torch.Tensor]:
         """
         Forward pass of ACT VLA.
@@ -321,27 +321,24 @@ class ACTVLA(AbstractVLA):
             total_loss = recon_loss + self.kl_weight * kl_loss
 
             return {
-                'actions': predicted_actions,
-                'loss': total_loss,
-                'recon_loss': recon_loss,
-                'kl_loss': kl_loss,
-                'mean': mean,
-                'logvar': logvar,
+                "actions": predicted_actions,
+                "loss": total_loss,
+                "recon_loss": recon_loss,
+                "kl_loss": kl_loss,
+                "mean": mean,
+                "logvar": logvar,
             }
         else:
             # Inference mode: sample from prior
             batch_size = obs_encoding.size(0)
-            latent = torch.randn(
-                batch_size, self.latent_dim,
-                device=obs_encoding.device
-            )
+            latent = torch.randn(batch_size, self.latent_dim, device=obs_encoding.device)
 
             # Decode to actions
             predicted_actions = self.decode_actions(obs_encoding, latent)
 
             return {
-                'actions': predicted_actions,
-                'latent': latent,
+                "actions": predicted_actions,
+                "latent": latent,
             }
 
     def predict_action(
@@ -349,7 +346,7 @@ class ACTVLA(AbstractVLA):
         images: torch.Tensor,
         text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
-        **kwargs
+        **kwargs,
     ) -> torch.Tensor:
         """
         Predict actions for inference.
@@ -366,19 +363,12 @@ class ACTVLA(AbstractVLA):
         self.eval()
         with torch.no_grad():
             outputs = self.forward(
-                images=images,
-                text=text,
-                proprioception=proprioception,
-                actions=None,
-                **kwargs
+                images=images, text=text, proprioception=proprioception, actions=None, **kwargs
             )
-            return outputs['actions']
+            return outputs["actions"]
 
     def compute_loss(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
@@ -393,14 +383,14 @@ class ACTVLA(AbstractVLA):
         """
         losses = {}
 
-        if 'recon_loss' in predictions:
-            losses['recon_loss'] = predictions['recon_loss']
+        if "recon_loss" in predictions:
+            losses["recon_loss"] = predictions["recon_loss"]
 
-        if 'kl_loss' in predictions:
-            losses['kl_loss'] = predictions['kl_loss']
+        if "kl_loss" in predictions:
+            losses["kl_loss"] = predictions["kl_loss"]
 
-        if 'loss' in predictions:
-            losses['total_loss'] = predictions['loss']
+        if "loss" in predictions:
+            losses["total_loss"] = predictions["loss"]
 
         return losses
 
@@ -412,11 +402,11 @@ class ACTVLA(AbstractVLA):
             Dictionary containing configuration
         """
         return {
-            'type': 'ACTVLA',
-            'action_dim': self.action_dim,
-            'state_dim': self.state_dim,
-            'chunk_size': self.chunk_size,
-            'hidden_dim': self.hidden_dim,
-            'latent_dim': self.latent_dim,
-            'kl_weight': self.kl_weight,
+            "type": "ACTVLA",
+            "action_dim": self.action_dim,
+            "state_dim": self.state_dim,
+            "chunk_size": self.chunk_size,
+            "hidden_dim": self.hidden_dim,
+            "latent_dim": self.latent_dim,
+            "kl_weight": self.kl_weight,
         }

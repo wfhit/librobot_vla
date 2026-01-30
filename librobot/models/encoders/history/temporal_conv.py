@@ -33,9 +33,9 @@ class TemporalConvEncoder(AbstractEncoder):
         channels: list[int] = [64, 128, 256],
         kernel_sizes: list[int] = [3, 3, 3],
         strides: list[int] = [1, 2, 2],
-        activation: str = 'relu',
+        activation: str = "relu",
         dropout: float = 0.0,
-        pooling: str = 'adaptive',
+        pooling: str = "adaptive",
     ):
         super().__init__(output_dim)
         self.input_dim = input_dim
@@ -73,11 +73,11 @@ class TemporalConvEncoder(AbstractEncoder):
             layers.append(nn.BatchNorm1d(out_ch))
 
             # Activation
-            if activation == 'relu':
+            if activation == "relu":
                 layers.append(nn.ReLU(inplace=True))
-            elif activation == 'gelu':
+            elif activation == "gelu":
                 layers.append(nn.GELU())
-            elif activation == 'silu':
+            elif activation == "silu":
                 layers.append(nn.SiLU(inplace=True))
 
             # Dropout
@@ -87,21 +87,18 @@ class TemporalConvEncoder(AbstractEncoder):
         self.conv_layers = nn.Sequential(*layers)
 
         # Pooling
-        if pooling == 'adaptive':
+        if pooling == "adaptive":
             self.pool = nn.AdaptiveAvgPool1d(1)
-        elif pooling == 'mean':
+        elif pooling == "mean":
             self.pool = None
-        elif pooling == 'max':
+        elif pooling == "max":
             self.pool = None
 
         # Output projection
         self.output_proj = nn.Linear(channels[-1], output_dim)
 
     def forward(
-        self,
-        inputs: torch.Tensor,
-        mask: Optional[torch.Tensor] = None,
-        **kwargs
+        self, inputs: torch.Tensor, mask: Optional[torch.Tensor] = None, **kwargs
     ) -> torch.Tensor:
         """
         Encode history with temporal convolutions.
@@ -121,11 +118,11 @@ class TemporalConvEncoder(AbstractEncoder):
         x = self.conv_layers(x)
 
         # Pool
-        if self.pooling_method == 'adaptive':
+        if self.pooling_method == "adaptive":
             x = self.pool(x).squeeze(-1)
-        elif self.pooling_method == 'mean':
+        elif self.pooling_method == "mean":
             x = x.mean(dim=-1)
-        elif self.pooling_method == 'max':
+        elif self.pooling_method == "max":
             x = x.max(dim=-1)[0]
         else:
             raise ValueError(f"Unknown pooling method: {self.pooling_method}")
@@ -146,13 +143,13 @@ class TemporalConvEncoder(AbstractEncoder):
     def config(self) -> dict[str, Any]:
         """Get encoder configuration."""
         return {
-            'type': 'TemporalConvEncoder',
-            'input_dim': self.input_dim,
-            'output_dim': self.output_dim,
-            'channels': self.channels,
-            'kernel_sizes': self.kernel_sizes,
-            'strides': self.strides,
-            'activation': self.activation_name,
-            'dropout': self.dropout_rate,
-            'pooling': self.pooling_method,
+            "type": "TemporalConvEncoder",
+            "input_dim": self.input_dim,
+            "output_dim": self.output_dim,
+            "channels": self.channels,
+            "kernel_sizes": self.kernel_sizes,
+            "strides": self.strides,
+            "activation": self.activation_name,
+            "dropout": self.dropout_rate,
+            "pooling": self.pooling_method,
         }

@@ -60,9 +60,9 @@ def list_robots():
 
 
 __all__ = [
-    'ROBOT_REGISTRY',
-    'register_robot',
-    'get_robot',
-    'create_robot',
-    'list_robots',
+    "ROBOT_REGISTRY",
+    "register_robot",
+    "get_robot",
+    "create_robot",
+    "list_robots",
 ]

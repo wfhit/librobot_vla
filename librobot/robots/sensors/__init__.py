@@ -12,12 +12,12 @@ from .sensors import (
 )
 
 __all__ = [
-    'BaseSensor',
-    'Camera',
-    'DepthCamera',
-    'ForceTorqueSensor',
-    'JointEncoder',
-    'IMU',
-    'Lidar',
-    'Tactile',
+    "BaseSensor",
+    "Camera",
+    "DepthCamera",
+    "ForceTorqueSensor",
+    "JointEncoder",
+    "IMU",
+    "Lidar",
+    "Tactile",
 ]

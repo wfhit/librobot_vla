@@ -19,17 +19,14 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "gpu: marks tests that require GPU (deselect with '-m \"not gpu\"')"
     )
-    config.addinivalue_line(
-        "markers", "integration: marks integration tests"
-    )
-    config.addinivalue_line(
-        "markers", "benchmark: marks benchmark tests"
-    )
+    config.addinivalue_line("markers", "integration: marks integration tests")
+    config.addinivalue_line("markers", "benchmark: marks benchmark tests")
 
 
 # ============================================================================
 # Common Fixtures
 # ============================================================================
+
 
 @pytest.fixture(scope="session")
 def device():
@@ -59,6 +56,7 @@ def tmp_dir():
 # Model Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def model_config():
     """Standard model configuration for testing."""
@@ -70,7 +68,7 @@ def model_config():
         "dropout": 0.1,
         "action_dim": 7,
         "state_dim": 14,
-        "vocab_size": 10000
+        "vocab_size": 10000,
     }
 
 
@@ -85,13 +83,14 @@ def small_model_config():
         "dropout": 0.1,
         "action_dim": 7,
         "state_dim": 14,
-        "vocab_size": 1000
+        "vocab_size": 1000,
     }
 
 
 # ============================================================================
 # Data Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def sample_image(device):
@@ -127,7 +126,7 @@ def sample_trajectory(device):
         "states": torch.randn(seq_len, 14).to(device),
         "actions": torch.randn(seq_len, 7).to(device),
         "rewards": torch.randn(seq_len, 1).to(device),
-        "dones": torch.zeros(seq_len, dtype=torch.bool).to(device)
+        "dones": torch.zeros(seq_len, dtype=torch.bool).to(device),
     }
 
 
@@ -140,13 +139,14 @@ def sample_batch(device):
         "observations": torch.randn(batch_size, seq_len, 3, 224, 224).to(device),
         "states": torch.randn(batch_size, seq_len, 14).to(device),
         "actions": torch.randn(batch_size, seq_len, 7).to(device),
-        "attention_mask": torch.ones(batch_size, seq_len).to(device)
+        "attention_mask": torch.ones(batch_size, seq_len).to(device),
     }
 
 
 # ============================================================================
 # Training Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def training_config():
@@ -161,36 +161,26 @@ def training_config():
         "gradient_accumulation_steps": 1,
         "log_interval": 100,
         "eval_interval": 1000,
-        "save_interval": 5000
+        "save_interval": 5000,
     }
 
 
 @pytest.fixture
 def optimizer_config():
     """Standard optimizer configuration."""
-    return {
-        "type": "adam",
-        "lr": 1e-4,
-        "betas": (0.9, 0.999),
-        "eps": 1e-8,
-        "weight_decay": 0.01
-    }
+    return {"type": "adam", "lr": 1e-4, "betas": (0.9, 0.999), "eps": 1e-8, "weight_decay": 0.01}
 
 
 @pytest.fixture
 def scheduler_config():
     """Standard scheduler configuration."""
-    return {
-        "type": "cosine",
-        "warmup_steps": 1000,
-        "num_training_steps": 100000,
-        "num_cycles": 0.5
-    }
+    return {"type": "cosine", "warmup_steps": 1000, "num_training_steps": 100000, "num_cycles": 0.5}
 
 
 # ============================================================================
 # Robot Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def robot_config():
@@ -201,16 +191,17 @@ def robot_config():
         "control_frequency": 20,
         "joint_limits": {
             "lower": [-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973],
-            "upper": [2.8973, 1.7628, 2.8973, -0.0698, 2.8973, 3.7525, 2.8973]
+            "upper": [2.8973, 1.7628, 2.8973, -0.0698, 2.8973, 3.7525, 2.8973],
         },
         "velocity_limits": [2.1750, 2.1750, 2.1750, 2.1750, 2.6100, 2.6100, 2.6100],
-        "home_position": [0, -0.785, 0, -2.356, 0, 1.571, 0.785]
+        "home_position": [0, -0.785, 0, -2.356, 0, 1.571, 0.785],
     }
 
 
 # ============================================================================
 # Dataset Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def dataset_config(tmp_dir):
@@ -222,7 +213,7 @@ def dataset_config(tmp_dir):
         "test_split": 0.1,
         "num_workers": 4,
         "shuffle": True,
-        "pin_memory": True
+        "pin_memory": True,
     }
 
 
@@ -233,17 +224,18 @@ def episode_data():
     return {
         "observations": {
             "image": np.random.randn(num_steps, 3, 224, 224).astype(np.float32),
-            "state": np.random.randn(num_steps, 14).astype(np.float32)
+            "state": np.random.randn(num_steps, 14).astype(np.float32),
         },
         "actions": np.random.randn(num_steps, 7).astype(np.float32),
         "rewards": np.random.randn(num_steps, 1).astype(np.float32),
-        "dones": np.zeros(num_steps, dtype=bool)
+        "dones": np.zeros(num_steps, dtype=bool),
     }
 
 
 # ============================================================================
 # Inference Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def inference_config():
@@ -256,13 +248,14 @@ def inference_config():
         "top_p": 0.95,
         "num_beams": 1,
         "device": "cuda" if torch.cuda.is_available() else "cpu",
-        "precision": "fp32"
+        "precision": "fp32",
     }
 
 
 # ============================================================================
 # Utility Functions
 # ============================================================================
+
 
 def assert_tensor_close(tensor1, tensor2, rtol=1e-5, atol=1e-8):
     """Assert that two tensors are close."""
@@ -271,8 +264,7 @@ def assert_tensor_close(tensor1, tensor2, rtol=1e-5, atol=1e-8):
 
 def assert_shape_equal(tensor, expected_shape):
     """Assert that tensor has expected shape."""
-    assert tensor.shape == expected_shape, \
-        f"Expected shape {expected_shape}, got {tensor.shape}"
+    assert tensor.shape == expected_shape, f"Expected shape {expected_shape}, got {tensor.shape}"
 
 
 def count_parameters(model):

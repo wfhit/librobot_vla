@@ -73,4 +73,4 @@ class Excavator(AbstractRobot):
         }
 
 
-__all__ = ['Excavator']
+__all__ = ["Excavator"]

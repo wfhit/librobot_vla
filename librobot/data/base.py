@@ -78,10 +78,10 @@ class AbstractDataset(ABC):
             Action dimension
         """
         sample = self[0]
-        actions = sample.get('actions')
+        actions = sample.get("actions")
         if actions is None:
             raise ValueError("Dataset samples must contain 'actions' field")
-        if hasattr(actions, 'shape'):
+        if hasattr(actions, "shape"):
             return actions.shape[-1]
         return len(actions)
 
@@ -93,10 +93,10 @@ class AbstractDataset(ABC):
             State dimension
         """
         sample = self[0]
-        state = sample.get('proprioception')
+        state = sample.get("proprioception")
         if state is None:
             return 0
-        if hasattr(state, 'shape'):
+        if hasattr(state, "shape"):
             return state.shape[-1]
         return len(state)
 
@@ -137,10 +137,7 @@ class AbstractTokenizer(ABC):
 
     @abstractmethod
     def encode(
-        self,
-        text: Union[str, list[str]],
-        return_tensors: Optional[str] = None,
-        **kwargs
+        self, text: Union[str, list[str]], return_tensors: Optional[str] = None, **kwargs
     ) -> dict[str, Any]:
         """
         Encode text to token IDs.
@@ -162,7 +159,7 @@ class AbstractTokenizer(ABC):
         self,
         token_ids: Union[list[int], np.ndarray, Any],
         skip_special_tokens: bool = True,
-        **kwargs
+        **kwargs,
     ) -> str:
         """
         Decode token IDs to text.
@@ -179,10 +176,7 @@ class AbstractTokenizer(ABC):
 
     @abstractmethod
     def batch_encode(
-        self,
-        texts: list[str],
-        return_tensors: Optional[str] = None,
-        **kwargs
+        self, texts: list[str], return_tensors: Optional[str] = None, **kwargs
     ) -> dict[str, Any]:
         """
         Batch encode multiple texts.
@@ -202,7 +196,7 @@ class AbstractTokenizer(ABC):
         self,
         token_ids_batch: Union[list[list[int]], np.ndarray, Any],
         skip_special_tokens: bool = True,
-        **kwargs
+        **kwargs,
     ) -> list[str]:
         """
         Batch decode multiple token ID sequences.
@@ -217,11 +211,7 @@ class AbstractTokenizer(ABC):
         """
         pass
 
-    def __call__(
-        self,
-        text: Union[str, list[str]],
-        **kwargs
-    ) -> dict[str, Any]:
+    def __call__(self, text: Union[str, list[str]], **kwargs) -> dict[str, Any]:
         """
         Tokenize text (alias for encode).
 
@@ -256,6 +246,6 @@ class AbstractTokenizer(ABC):
 
 
 __all__ = [
-    'AbstractDataset',
-    'AbstractTokenizer',
+    "AbstractDataset",
+    "AbstractTokenizer",
 ]

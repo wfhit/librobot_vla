@@ -21,7 +21,8 @@ def collect_cli(args: Optional[list] = None) -> int:
 
     # Robot
     parser.add_argument(
-        "--robot", "-r",
+        "--robot",
+        "-r",
         type=str,
         required=True,
         help="Robot type (franka, so100, ur5, etc.)",
@@ -39,7 +40,8 @@ def collect_cli(args: Optional[list] = None) -> int:
 
     # Teleoperation
     parser.add_argument(
-        "--teleoperation", "-t",
+        "--teleoperation",
+        "-t",
         type=str,
         default="keyboard",
         choices=["keyboard", "spacemouse", "vr", "mocap", "leader_follower"],
@@ -53,7 +55,8 @@ def collect_cli(args: Optional[list] = None) -> int:
 
     # Recording
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         type=str,
         default="./collected_data",
         help="Output directory",
@@ -162,9 +165,9 @@ def run_collection(args) -> int:
 
             # Check for user input
             user_input = input("Continue? (y/n/q): ").lower()
-            if user_input == 'q':
+            if user_input == "q":
                 break
-            elif user_input == 'n':
+            elif user_input == "n":
                 continue
 
         print(f"\nCollection complete! {episode_count} episodes saved to {args.output}")
@@ -187,9 +190,9 @@ def setup_robot(args):
 
         connect_kwargs = {}
         if args.robot_ip:
-            connect_kwargs['ip'] = args.robot_ip
+            connect_kwargs["ip"] = args.robot_ip
         if args.robot_port:
-            connect_kwargs['port'] = args.robot_port
+            connect_kwargs["port"] = args.robot_port
 
         robot.connect(**connect_kwargs)
         return robot
@@ -208,6 +211,7 @@ def setup_teleoperation(args):
     class DummyTeleop:
         def get_action(self):
             import numpy as np
+
             return np.zeros(7)
 
     return DummyTeleop()
@@ -224,8 +228,9 @@ def setup_recorder(args):
 
         def save_episode(self, data):
             import json
+
             episode_path = self.output_dir / f"episode_{self.episode_count:06d}.json"
-            with open(episode_path, 'w') as f:
+            with open(episode_path, "w") as f:
                 json.dump({"episode": self.episode_count, "length": len(data)}, f)
             self.episode_count += 1
 
@@ -240,9 +245,9 @@ def record_episode(robot, teleop, args):
     episode_length = np.random.randint(50, 200)
 
     return {
-        'images': np.random.randint(0, 255, (episode_length, 480, 640, 3)),
-        'actions': np.random.randn(episode_length, 7),
-        'proprioception': np.random.randn(episode_length, 14),
+        "images": np.random.randint(0, 255, (episode_length, 480, 640, 3)),
+        "actions": np.random.randn(episode_length, 7),
+        "proprioception": np.random.randn(episode_length, 14),
     }
 
 

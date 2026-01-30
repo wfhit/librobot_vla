@@ -233,28 +233,21 @@ class WheelLoaderRobot(WheelLoader):
         # - Get IMU orientation
 
         return {
-            'vehicle_state': np.array([
-                self._steering_angle,
-                self._vehicle_speed,
-                self._bucket_angle,
-                self._boom_height
-            ]),
-            'hydraulic_state': np.array([
-                self._hydraulic_pressure,
-                0.0,  # flow_rate (TODO: implement)
-                0.0   # temperature (TODO: implement)
-            ]),
-            'engine_state': np.array([
-                self._engine_rpm,
-                self._fuel_level,
-                0.0   # temperature (TODO: implement)
-            ]),
-            'position': np.array([
-                self._latitude,
-                self._longitude,
-                self._altitude
-            ]),
-            'orientation': self._orientation[:3]  # Roll, pitch, yaw
+            "vehicle_state": np.array(
+                [self._steering_angle, self._vehicle_speed, self._bucket_angle, self._boom_height]
+            ),
+            "hydraulic_state": np.array(
+                [
+                    self._hydraulic_pressure,
+                    0.0,  # flow_rate (TODO: implement)
+                    0.0,  # temperature (TODO: implement)
+                ]
+            ),
+            "engine_state": np.array(
+                [self._engine_rpm, self._fuel_level, 0.0]  # temperature (TODO: implement)
+            ),
+            "position": np.array([self._latitude, self._longitude, self._altitude]),
+            "orientation": self._orientation[:3],  # Roll, pitch, yaw
         }
 
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
@@ -325,14 +318,14 @@ class WheelLoaderRobot(WheelLoader):
                 - 'imu': IMU data (if enabled)
         """
         observation = {
-            'proprioception': {
-                'steering_angle': self._steering_angle,
-                'vehicle_speed': self._vehicle_speed,
-                'bucket_angle': self._bucket_angle,
-                'boom_height': self._boom_height,
-                'hydraulic_pressure': self._hydraulic_pressure,
-                'engine_rpm': self._engine_rpm,
-                'fuel_level': self._fuel_level,
+            "proprioception": {
+                "steering_angle": self._steering_angle,
+                "vehicle_speed": self._vehicle_speed,
+                "bucket_angle": self._bucket_angle,
+                "boom_height": self._boom_height,
+                "hydraulic_pressure": self._hydraulic_pressure,
+                "engine_rpm": self._engine_rpm,
+                "fuel_level": self._fuel_level,
             }
         }
 
@@ -341,26 +334,26 @@ class WheelLoaderRobot(WheelLoader):
             # - Capture frames from all camera feeds
             # - Decode and preprocess images
             # - Synchronize timestamps
-            observation['images'] = {
-                'front': np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
-                'rear': np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
-                'bucket': np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
+            observation["images"] = {
+                "front": np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
+                "rear": np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
+                "bucket": np.zeros((*self.CAMERA_RESOLUTION, 3), dtype=np.uint8),
             }
 
         if self.gps_enabled:
             # TODO: Implement GPS data retrieval
-            observation['gps'] = {
-                'latitude': self._latitude,
-                'longitude': self._longitude,
-                'altitude': self._altitude,
+            observation["gps"] = {
+                "latitude": self._latitude,
+                "longitude": self._longitude,
+                "altitude": self._altitude,
             }
 
         if self.imu_enabled:
             # TODO: Implement IMU data retrieval
-            observation['imu'] = {
-                'linear_acceleration': self._linear_acceleration.copy(),
-                'angular_velocity': self._angular_velocity.copy(),
-                'orientation': self._orientation.copy(),
+            observation["imu"] = {
+                "linear_acceleration": self._linear_acceleration.copy(),
+                "angular_velocity": self._angular_velocity.copy(),
+                "orientation": self._orientation.copy(),
             }
 
         return observation
@@ -373,28 +366,14 @@ class WheelLoaderRobot(WheelLoader):
             Dictionary describing the 6-DOF action space with limits
         """
         return {
-            'shape': (6,),
-            'dtype': np.float32,
-            'bounds': {
-                'low': np.array([-1.0, 0.0, 0.0, -1.0, -1.0, -1.0]),
-                'high': np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
+            "shape": (6,),
+            "dtype": np.float32,
+            "bounds": {
+                "low": np.array([-1.0, 0.0, 0.0, -1.0, -1.0, -1.0]),
+                "high": np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
             },
-            'names': [
-                'steering',
-                'throttle',
-                'brake',
-                'bucket_tilt',
-                'boom_lift',
-                'transmission'
-            ],
-            'units': [
-                'normalized',
-                'normalized',
-                'normalized',
-                'normalized',
-                'normalized',
-                'gear'
-            ],
+            "names": ["steering", "throttle", "brake", "bucket_tilt", "boom_lift", "transmission"],
+            "units": ["normalized", "normalized", "normalized", "normalized", "normalized", "gear"],
         }
 
     def get_observation_space(self) -> dict[str, Any]:
@@ -405,40 +384,40 @@ class WheelLoaderRobot(WheelLoader):
             Dictionary describing observation space structure
         """
         obs_space = {
-            'proprioception': {
-                'shape': (7,),
-                'dtype': np.float32,
-                'names': [
-                    'steering_angle',
-                    'vehicle_speed',
-                    'bucket_angle',
-                    'boom_height',
-                    'hydraulic_pressure',
-                    'engine_rpm',
-                    'fuel_level'
+            "proprioception": {
+                "shape": (7,),
+                "dtype": np.float32,
+                "names": [
+                    "steering_angle",
+                    "vehicle_speed",
+                    "bucket_angle",
+                    "boom_height",
+                    "hydraulic_pressure",
+                    "engine_rpm",
+                    "fuel_level",
                 ],
             }
         }
 
         if self.camera_enabled:
-            obs_space['images'] = {
-                'front': {'shape': (*self.CAMERA_RESOLUTION, 3), 'dtype': np.uint8},
-                'rear': {'shape': (*self.CAMERA_RESOLUTION, 3), 'dtype': np.uint8},
-                'bucket': {'shape': (*self.CAMERA_RESOLUTION, 3), 'dtype': np.uint8},
+            obs_space["images"] = {
+                "front": {"shape": (*self.CAMERA_RESOLUTION, 3), "dtype": np.uint8},
+                "rear": {"shape": (*self.CAMERA_RESOLUTION, 3), "dtype": np.uint8},
+                "bucket": {"shape": (*self.CAMERA_RESOLUTION, 3), "dtype": np.uint8},
             }
 
         if self.gps_enabled:
-            obs_space['gps'] = {
-                'shape': (3,),
-                'dtype': np.float64,
-                'names': ['latitude', 'longitude', 'altitude'],
+            obs_space["gps"] = {
+                "shape": (3,),
+                "dtype": np.float64,
+                "names": ["latitude", "longitude", "altitude"],
             }
 
         if self.imu_enabled:
-            obs_space['imu'] = {
-                'linear_acceleration': {'shape': (3,), 'dtype': np.float32},
-                'angular_velocity': {'shape': (3,), 'dtype': np.float32},
-                'orientation': {'shape': (4,), 'dtype': np.float32},
+            obs_space["imu"] = {
+                "linear_acceleration": {"shape": (3,), "dtype": np.float32},
+                "angular_velocity": {"shape": (3,), "dtype": np.float32},
+                "orientation": {"shape": (4,), "dtype": np.float32},
             }
 
         return obs_space
@@ -488,21 +467,21 @@ class WheelLoaderRobot(WheelLoader):
         # - Check sensor calibration
 
         return {
-            'systems': {
-                'engine': 'OK',
-                'hydraulics': 'OK',
-                'transmission': 'OK',
-                'brakes': 'OK',
-                'steering': 'OK',
+            "systems": {
+                "engine": "OK",
+                "hydraulics": "OK",
+                "transmission": "OK",
+                "brakes": "OK",
+                "steering": "OK",
             },
-            'warnings': [],
-            'errors': [],
-            'maintenance': {
-                'oil_change_due': False,
-                'filter_change_due': False,
-                'inspection_due': False,
-            }
+            "warnings": [],
+            "errors": [],
+            "maintenance": {
+                "oil_change_due": False,
+                "filter_change_due": False,
+                "inspection_due": False,
+            },
         }
 
 
-__all__ = ['WheelLoaderRobot']
+__all__ = ["WheelLoaderRobot"]

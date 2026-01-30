@@ -96,7 +96,9 @@ class ActionSmoothingBuffer:
         if self._smoothed_action is None:
             self._smoothed_action = new_action
         else:
-            self._smoothed_action = self.alpha * new_action + (1 - self.alpha) * self._smoothed_action
+            self._smoothed_action = (
+                self.alpha * new_action + (1 - self.alpha) * self._smoothed_action
+            )
         return self._smoothed_action
 
     def _gaussian_smoothing(self) -> np.ndarray:
@@ -135,7 +137,7 @@ class HistoryBuffer:
             keys: Keys to track
         """
         self.history_length = history_length
-        self.keys = keys or ['images', 'proprioception', 'actions']
+        self.keys = keys or ["images", "proprioception", "actions"]
         self._buffers: dict[str, deque] = {k: deque(maxlen=history_length) for k in self.keys}
 
     def add(self, data: dict[str, Any]) -> None:
@@ -231,8 +233,8 @@ class ActionChunkBuffer:
 
 
 __all__ = [
-    'ActionBuffer',
-    'ActionSmoothingBuffer',
-    'HistoryBuffer',
-    'ActionChunkBuffer',
+    "ActionBuffer",
+    "ActionSmoothingBuffer",
+    "HistoryBuffer",
+    "ActionChunkBuffer",
 ]

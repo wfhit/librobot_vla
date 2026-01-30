@@ -42,12 +42,14 @@ class FetchRobot(MobileManipulator):
 
     def get_observation(self) -> dict[str, Any]:
         return {
-            "proprioception": np.concatenate([
-                self._base_position,
-                self._base_velocity,
-                self._arm_positions,
-                self._gripper_state,
-            ]),
+            "proprioception": np.concatenate(
+                [
+                    self._base_position,
+                    self._base_velocity,
+                    self._arm_positions,
+                    self._gripper_state,
+                ]
+            ),
         }
 
 
@@ -80,12 +82,10 @@ class TIAGoRobot(MobileManipulator):
         return True
 
     def get_observation(self) -> dict[str, Any]:
-        return {"proprioception": np.concatenate([
-            self._base_position, self._arm_positions
-        ])}
+        return {"proprioception": np.concatenate([self._base_position, self._arm_positions])}
 
 
 __all__ = [
-    'FetchRobot',
-    'TIAGoRobot',
+    "FetchRobot",
+    "TIAGoRobot",
 ]

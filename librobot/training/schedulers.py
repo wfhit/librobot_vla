@@ -49,7 +49,7 @@ class SchedulerBuilder:
         scheduler_type: str,
         num_training_steps: Optional[int] = None,
         num_warmup_steps: int = 0,
-        **scheduler_kwargs
+        **scheduler_kwargs,
     ):
         """
         Initialize scheduler builder.
@@ -87,7 +87,7 @@ class SchedulerBuilder:
             optimizer,
             num_training_steps=self.num_training_steps,
             num_warmup_steps=self.num_warmup_steps,
-            **self.scheduler_kwargs
+            **self.scheduler_kwargs,
         )
 
 
@@ -104,12 +104,7 @@ class LinearWarmupScheduler(LRScheduler):
         last_epoch: The index of last epoch
     """
 
-    def __init__(
-        self,
-        optimizer: Optimizer,
-        num_warmup_steps: int,
-        last_epoch: int = -1
-    ):
+    def __init__(self, optimizer: Optimizer, num_warmup_steps: int, last_epoch: int = -1):
         self.num_warmup_steps = num_warmup_steps
         super().__init__(optimizer, last_epoch)
 
@@ -118,8 +113,7 @@ class LinearWarmupScheduler(LRScheduler):
         if self.last_epoch < self.num_warmup_steps:
             # Linear warmup
             return [
-                base_lr * (self.last_epoch + 1) / self.num_warmup_steps
-                for base_lr in self.base_lrs
+                base_lr * (self.last_epoch + 1) / self.num_warmup_steps for base_lr in self.base_lrs
             ]
         # Constant after warmup
         return self.base_lrs
@@ -147,7 +141,7 @@ class CosineAnnealingWarmupScheduler(LRScheduler):
         num_warmup_steps: int = 0,
         min_lr_ratio: float = 0.0,
         num_cycles: float = 0.5,
-        last_epoch: int = -1
+        last_epoch: int = -1,
     ):
         self.num_training_steps = num_training_steps
         self.num_warmup_steps = num_warmup_steps
@@ -160,8 +154,7 @@ class CosineAnnealingWarmupScheduler(LRScheduler):
         if self.last_epoch < self.num_warmup_steps:
             # Linear warmup
             return [
-                base_lr * (self.last_epoch + 1) / self.num_warmup_steps
-                for base_lr in self.base_lrs
+                base_lr * (self.last_epoch + 1) / self.num_warmup_steps for base_lr in self.base_lrs
             ]
 
         # Cosine annealing
@@ -196,7 +189,7 @@ class LinearDecayScheduler(LRScheduler):
         num_training_steps: int,
         num_warmup_steps: int = 0,
         min_lr_ratio: float = 0.0,
-        last_epoch: int = -1
+        last_epoch: int = -1,
     ):
         self.num_training_steps = num_training_steps
         self.num_warmup_steps = num_warmup_steps
@@ -208,8 +201,7 @@ class LinearDecayScheduler(LRScheduler):
         if self.last_epoch < self.num_warmup_steps:
             # Linear warmup
             return [
-                base_lr * (self.last_epoch + 1) / self.num_warmup_steps
-                for base_lr in self.base_lrs
+                base_lr * (self.last_epoch + 1) / self.num_warmup_steps for base_lr in self.base_lrs
             ]
 
         # Linear decay
@@ -234,12 +226,7 @@ class ConstantScheduler(LRScheduler):
         last_epoch: The index of last epoch
     """
 
-    def __init__(
-        self,
-        optimizer: Optimizer,
-        num_warmup_steps: int = 0,
-        last_epoch: int = -1
-    ):
+    def __init__(self, optimizer: Optimizer, num_warmup_steps: int = 0, last_epoch: int = -1):
         self.num_warmup_steps = num_warmup_steps
         super().__init__(optimizer, last_epoch)
 
@@ -248,8 +235,7 @@ class ConstantScheduler(LRScheduler):
         if self.last_epoch < self.num_warmup_steps:
             # Linear warmup
             return [
-                base_lr * (self.last_epoch + 1) / self.num_warmup_steps
-                for base_lr in self.base_lrs
+                base_lr * (self.last_epoch + 1) / self.num_warmup_steps for base_lr in self.base_lrs
             ]
         # Constant after warmup
         return self.base_lrs
@@ -275,7 +261,7 @@ class PolynomialDecayScheduler(LRScheduler):
         num_warmup_steps: int = 0,
         power: float = 1.0,
         min_lr_ratio: float = 0.0,
-        last_epoch: int = -1
+        last_epoch: int = -1,
     ):
         self.num_training_steps = num_training_steps
         self.num_warmup_steps = num_warmup_steps
@@ -288,8 +274,7 @@ class PolynomialDecayScheduler(LRScheduler):
         if self.last_epoch < self.num_warmup_steps:
             # Linear warmup
             return [
-                base_lr * (self.last_epoch + 1) / self.num_warmup_steps
-                for base_lr in self.base_lrs
+                base_lr * (self.last_epoch + 1) / self.num_warmup_steps for base_lr in self.base_lrs
             ]
 
         # Polynomial decay
@@ -310,7 +295,7 @@ def build_constant_scheduler(
     optimizer: Optimizer,
     num_training_steps: Optional[int] = None,
     num_warmup_steps: int = 0,
-    **kwargs
+    **kwargs,
 ) -> LRScheduler:
     """
     Build constant LR scheduler with optional warmup.
@@ -333,7 +318,7 @@ def build_linear_scheduler(
     num_training_steps: int,
     num_warmup_steps: int = 0,
     min_lr_ratio: float = 0.0,
-    **kwargs
+    **kwargs,
 ) -> LRScheduler:
     """
     Build linear decay scheduler with optional warmup.
@@ -352,7 +337,7 @@ def build_linear_scheduler(
         optimizer,
         num_training_steps=num_training_steps,
         num_warmup_steps=num_warmup_steps,
-        min_lr_ratio=min_lr_ratio
+        min_lr_ratio=min_lr_ratio,
     )
 
 
@@ -363,7 +348,7 @@ def build_cosine_scheduler(
     num_warmup_steps: int = 0,
     min_lr_ratio: float = 0.0,
     num_cycles: float = 0.5,
-    **kwargs
+    **kwargs,
 ) -> LRScheduler:
     """
     Build cosine annealing scheduler with optional warmup.
@@ -384,7 +369,7 @@ def build_cosine_scheduler(
         num_training_steps=num_training_steps,
         num_warmup_steps=num_warmup_steps,
         min_lr_ratio=min_lr_ratio,
-        num_cycles=num_cycles
+        num_cycles=num_cycles,
     )
 
 
@@ -395,7 +380,7 @@ def build_polynomial_scheduler(
     num_warmup_steps: int = 0,
     power: float = 1.0,
     min_lr_ratio: float = 0.0,
-    **kwargs
+    **kwargs,
 ) -> LRScheduler:
     """
     Build polynomial decay scheduler with optional warmup.
@@ -416,7 +401,7 @@ def build_polynomial_scheduler(
         num_training_steps=num_training_steps,
         num_warmup_steps=num_warmup_steps,
         power=power,
-        min_lr_ratio=min_lr_ratio
+        min_lr_ratio=min_lr_ratio,
     )
 
 
@@ -426,7 +411,7 @@ def build_step_scheduler(
     num_training_steps: Optional[int] = None,
     step_size: int = 1000,
     gamma: float = 0.1,
-    **kwargs
+    **kwargs,
 ) -> LRScheduler:
     """
     Build step decay scheduler.
@@ -443,11 +428,7 @@ def build_step_scheduler(
     Returns:
         LRScheduler: Step scheduler instance
     """
-    return torch.optim.lr_scheduler.StepLR(
-        optimizer,
-        step_size=step_size,
-        gamma=gamma
-    )
+    return torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
 
 
 @register_scheduler("multistep")
@@ -456,7 +437,7 @@ def build_multistep_scheduler(
     num_training_steps: Optional[int] = None,
     milestones: list[int] = None,
     gamma: float = 0.1,
-    **kwargs
+    **kwargs,
 ) -> LRScheduler:
     """
     Build multi-step decay scheduler.
@@ -476,19 +457,12 @@ def build_multistep_scheduler(
     if milestones is None:
         milestones = []
 
-    return torch.optim.lr_scheduler.MultiStepLR(
-        optimizer,
-        milestones=milestones,
-        gamma=gamma
-    )
+    return torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=gamma)
 
 
 @register_scheduler("exponential")
 def build_exponential_scheduler(
-    optimizer: Optimizer,
-    num_training_steps: Optional[int] = None,
-    gamma: float = 0.95,
-    **kwargs
+    optimizer: Optimizer, num_training_steps: Optional[int] = None, gamma: float = 0.95, **kwargs
 ) -> LRScheduler:
     """
     Build exponential decay scheduler.
@@ -510,7 +484,7 @@ def build_scheduler(
     optimizer: Optimizer,
     num_training_steps: Optional[int] = None,
     num_warmup_steps: int = 0,
-    **scheduler_kwargs
+    **scheduler_kwargs,
 ) -> LRScheduler:
     """
     Convenience function to build a learning rate scheduler.
@@ -537,7 +511,7 @@ def build_scheduler(
         scheduler_type=scheduler_type,
         num_training_steps=num_training_steps,
         num_warmup_steps=num_warmup_steps,
-        **scheduler_kwargs
+        **scheduler_kwargs,
     )
     return builder.build(optimizer)
 

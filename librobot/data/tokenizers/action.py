@@ -65,11 +65,7 @@ class ActionTokenizer:
         # VQ codebook (if using VQ tokenization)
         self._codebook: Optional[np.ndarray] = None
 
-    def fit(
-        self,
-        actions: np.ndarray,
-        update_bounds: bool = True
-    ) -> 'ActionTokenizer':
+    def fit(self, actions: np.ndarray, update_bounds: bool = True) -> "ActionTokenizer":
         """
         Fit tokenizer to data.
 
@@ -96,14 +92,13 @@ class ActionTokenizer:
         """Fit VQ codebook using k-means."""
         try:
             from sklearn.cluster import KMeans
+
             kmeans = KMeans(n_clusters=self.num_bins, random_state=42)
             kmeans.fit(actions)
             self._codebook = kmeans.cluster_centers_
         except ImportError:
             # Fallback: uniform codebook
-            self._codebook = np.linspace(
-                self.min_val, self.max_val, self.num_bins
-            )
+            self._codebook = np.linspace(self.min_val, self.max_val, self.num_bins)
 
     def encode(
         self,
@@ -200,8 +195,7 @@ class ActionTokenizer:
 
         # Find nearest codebook entry for each action
         distances = np.sum(
-            (action[:, np.newaxis, :] - self._codebook[np.newaxis, :, :]) ** 2,
-            axis=2
+            (action[:, np.newaxis, :] - self._codebook[np.newaxis, :, :]) ** 2, axis=2
         )
         tokens = np.argmin(distances, axis=1) + self.action_token_offset
         return tokens[:, np.newaxis].repeat(self.action_dim, axis=1)
@@ -280,7 +274,9 @@ class ActionTokenizer:
             expanded = np.sign(compressed) * (np.power(1 + mu, np.abs(compressed)) - 1) / mu
 
             # Scale back to original range
-            action[:, d] = (expanded + 1) / 2 * (self.max_val[d] - self.min_val[d]) + self.min_val[d]
+            action[:, d] = (expanded + 1) / 2 * (self.max_val[d] - self.min_val[d]) + self.min_val[
+                d
+            ]
 
         return action
 
@@ -307,13 +303,9 @@ class ActionTokenizer:
         end = start + self.num_bins
         return start, end
 
-    def __call__(
-        self,
-        action: Union[np.ndarray, list[float]],
-        **kwargs
-    ) -> np.ndarray:
+    def __call__(self, action: Union[np.ndarray, list[float]], **kwargs) -> np.ndarray:
         """Encode action (alias)."""
         return self.encode(action, **kwargs)
 
 
-__all__ = ['ActionTokenizer']
+__all__ = ["ActionTokenizer"]

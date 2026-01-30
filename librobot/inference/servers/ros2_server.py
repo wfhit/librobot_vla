@@ -57,10 +57,7 @@ class ROS2Server(AbstractServer):
             self._is_running = True
 
             # Spin in background thread
-            self._spin_thread = threading.Thread(
-                target=rclpy.spin,
-                args=(self._node,)
-            )
+            self._spin_thread = threading.Thread(target=rclpy.spin, args=(self._node,))
             self._spin_thread.start()
 
         except ImportError:
@@ -73,17 +70,12 @@ class ROS2Server(AbstractServer):
 
             # Action publisher
             self._action_publisher = self._node.create_publisher(
-                Float32MultiArray,
-                self.action_topic,
-                10
+                Float32MultiArray, self.action_topic, 10
             )
 
             # Observation subscriber
             self._observation_subscriber = self._node.create_subscription(
-                Float32MultiArray,
-                self.observation_topic,
-                self._observation_callback,
-                10
+                Float32MultiArray, self.observation_topic, self._observation_callback, 10
             )
 
         except ImportError:
@@ -99,7 +91,7 @@ class ROS2Server(AbstractServer):
         # Process observation and publish action
         observation = {"proprioception": np.array(msg.data)}
 
-        if hasattr(self.model, 'get_action'):
+        if hasattr(self.model, "get_action"):
             action = self.model.get_action(observation, "")
         else:
             action = np.zeros(7)
@@ -136,11 +128,7 @@ class ROS2Server(AbstractServer):
 
         self._is_running = False
 
-    async def predict(
-        self,
-        request: dict[str, Any],
-        **kwargs
-    ) -> dict[str, Any]:
+    async def predict(self, request: dict[str, Any], **kwargs) -> dict[str, Any]:
         """Handle prediction request."""
         import numpy as np
 
@@ -153,7 +141,7 @@ class ROS2Server(AbstractServer):
         }
         instruction = request.get("instruction", "")
 
-        if hasattr(self.model, 'get_action'):
+        if hasattr(self.model, "get_action"):
             action = self.model.get_action(observation, instruction)
         else:
             action = np.zeros(7)
@@ -167,6 +155,7 @@ class ROS2Server(AbstractServer):
         """Load model."""
         try:
             import torch
+
             self.model = torch.load(model_path)
         except ImportError:
             pass
@@ -181,4 +170,4 @@ class ROS2Server(AbstractServer):
         }
 
 
-__all__ = ['ROS2Server']
+__all__ = ["ROS2Server"]

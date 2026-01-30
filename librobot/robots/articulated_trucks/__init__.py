@@ -5,7 +5,7 @@ from .articulated_truck_robot import ArticulatedTruckRobot
 
 __all__ = [
     # Base
-    'ArticulatedTruck',
+    "ArticulatedTruck",
     # Implementations
-    'ArticulatedTruckRobot',
+    "ArticulatedTruckRobot",
 ]

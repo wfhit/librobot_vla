@@ -39,7 +39,7 @@ class SlidingWindowAttention(nn.Module):
         self.dim = dim
         self.num_heads = num_heads
         self.head_dim = dim // num_heads
-        self.scale = self.head_dim ** -0.5
+        self.scale = self.head_dim**-0.5
         self.window_size = window_size
         self.causal = causal
 
@@ -83,7 +83,7 @@ class SlidingWindowAttention(nn.Module):
                 end = min(N, i + W // 2 + 1)
 
             # Extract window
-            q_i = q[:, :, i:i+1, :]
+            q_i = q[:, :, i : i + 1, :]
             k_window = k[:, :, start:end, :]
             v_window = v[:, :, start:end, :]
 
@@ -93,13 +93,13 @@ class SlidingWindowAttention(nn.Module):
             # Apply mask
             if attention_mask is not None:
                 mask_window = attention_mask[:, start:end].unsqueeze(1).unsqueeze(2)
-                attn = attn.masked_fill(mask_window == 0, float('-inf'))
+                attn = attn.masked_fill(mask_window == 0, float("-inf"))
 
             attn = attn.softmax(dim=-1)
             attn = self.attn_drop(attn)
 
             # Compute output
-            output[:, :, i:i+1, :] = attn @ v_window
+            output[:, :, i : i + 1, :] = attn @ v_window
 
         return output
 
@@ -133,11 +133,11 @@ class SlidingWindowAttention(nn.Module):
 
             if attention_mask is not None:
                 attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)
-                attn = attn.masked_fill(attention_mask == 0, float('-inf'))
+                attn = attn.masked_fill(attention_mask == 0, float("-inf"))
 
             if self.causal:
                 causal_mask = torch.tril(torch.ones(N, N, device=x.device, dtype=torch.bool))
-                attn = attn.masked_fill(~causal_mask, float('-inf'))
+                attn = attn.masked_fill(~causal_mask, float("-inf"))
 
             attn = attn.softmax(dim=-1)
             attn = self.attn_drop(attn)
@@ -153,4 +153,4 @@ class SlidingWindowAttention(nn.Module):
         return x
 
     def extra_repr(self) -> str:
-        return f'dim={self.dim}, num_heads={self.num_heads}, window_size={self.window_size}, causal={self.causal}'
+        return f"dim={self.dim}, num_heads={self.num_heads}, window_size={self.window_size}, causal={self.causal}"

@@ -21,7 +21,8 @@ def evaluate_cli(args: Optional[list] = None) -> int:
 
     # Model
     parser.add_argument(
-        "--checkpoint", "-c",
+        "--checkpoint",
+        "-c",
         type=str,
         required=True,
         help="Path to model checkpoint",
@@ -43,7 +44,8 @@ def evaluate_cli(args: Optional[list] = None) -> int:
 
     # Dataset evaluation
     parser.add_argument(
-        "--dataset", "-d",
+        "--dataset",
+        "-d",
         type=str,
         help="Dataset path for offline evaluation",
     )
@@ -77,7 +79,8 @@ def evaluate_cli(args: Optional[list] = None) -> int:
 
     # Output
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         type=str,
         default="./eval_results",
         help="Output directory for results",
@@ -171,6 +174,7 @@ def evaluate_real(args) -> dict:
 def save_results(results: dict, output_dir: str) -> None:
     """Save evaluation results."""
     import json
+
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     with open(Path(output_dir) / "results.json", "w") as f:

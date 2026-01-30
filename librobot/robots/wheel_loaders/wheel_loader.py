@@ -69,4 +69,4 @@ class WheelLoader(AbstractRobot):
         }
 
 
-__all__ = ['WheelLoader']
+__all__ = ["WheelLoader"]

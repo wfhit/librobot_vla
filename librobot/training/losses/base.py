@@ -27,10 +27,7 @@ class AbstractLoss(ABC, nn.Module):
 
     @abstractmethod
     def forward(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
         """
         Compute loss.
@@ -46,10 +43,7 @@ class AbstractLoss(ABC, nn.Module):
         pass
 
     def __call__(
-        self,
-        predictions: dict[str, torch.Tensor],
-        targets: dict[str, torch.Tensor],
-        **kwargs
+        self, predictions: dict[str, torch.Tensor], targets: dict[str, torch.Tensor], **kwargs
     ) -> torch.Tensor:
         """
         Compute weighted loss.
@@ -73,6 +67,6 @@ class AbstractLoss(ABC, nn.Module):
             Dictionary containing configuration
         """
         return {
-            'type': self.__class__.__name__,
-            'weight': self.weight,
+            "type": self.__class__.__name__,
+            "weight": self.weight,
         }

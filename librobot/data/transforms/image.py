@@ -10,8 +10,8 @@ class ImageTransform:
 
     def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply transform to sample."""
-        if 'images' in sample:
-            sample['images'] = self.transform(sample['images'])
+        if "images" in sample:
+            sample["images"] = self.transform(sample["images"])
         return sample
 
     def transform(self, image: np.ndarray) -> np.ndarray:
@@ -98,14 +98,14 @@ class RandomCrop(ImageTransform):
                 image = np.pad(
                     image,
                     ((0, 0), (self.padding, self.padding), (self.padding, self.padding)),
-                    mode='reflect'
+                    mode="reflect",
                 )
                 _, H, W = image.shape
             else:
                 image = np.pad(
                     image,
                     ((self.padding, self.padding), (self.padding, self.padding), (0, 0)),
-                    mode='reflect'
+                    mode="reflect",
                 )
                 H, W, _ = image.shape
 
@@ -114,9 +114,9 @@ class RandomCrop(ImageTransform):
         left = np.random.randint(0, max(1, W - self.size[1] + 1))
 
         if is_chw:
-            return image[:, top:top+self.size[0], left:left+self.size[1]]
+            return image[:, top : top + self.size[0], left : left + self.size[1]]
         else:
-            return image[top:top+self.size[0], left:left+self.size[1], :]
+            return image[top : top + self.size[0], left : left + self.size[1], :]
 
 
 class CenterCrop(ImageTransform):
@@ -136,12 +136,12 @@ class CenterCrop(ImageTransform):
             _, H, W = image.shape
             top = (H - self.size[0]) // 2
             left = (W - self.size[1]) // 2
-            return image[:, top:top+self.size[0], left:left+self.size[1]]
+            return image[:, top : top + self.size[0], left : left + self.size[1]]
         else:  # HWC
             H, W, _ = image.shape
             top = (H - self.size[0]) // 2
             left = (W - self.size[1]) // 2
-            return image[top:top+self.size[0], left:left+self.size[1], :]
+            return image[top : top + self.size[0], left : left + self.size[1], :]
 
 
 class ColorJitter(ImageTransform):
@@ -259,12 +259,12 @@ class ToTensor(ImageTransform):
 
 
 __all__ = [
-    'ImageTransform',
-    'Resize',
-    'RandomCrop',
-    'CenterCrop',
-    'ColorJitter',
-    'RandomHorizontalFlip',
-    'Normalize',
-    'ToTensor',
+    "ImageTransform",
+    "Resize",
+    "RandomCrop",
+    "CenterCrop",
+    "ColorJitter",
+    "RandomHorizontalFlip",
+    "Normalize",
+    "ToTensor",
 ]

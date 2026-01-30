@@ -288,12 +288,12 @@ class ActionTemporalSmoothing(ActionTransform):
 
 
 __all__ = [
-    'ActionTransform',
-    'NormalizeAction',
-    'DenormalizeAction',
-    'ClipAction',
-    'AddActionNoise',
-    'DeltaToAbsolute',
-    'AbsoluteToDelta',
-    'ActionTemporalSmoothing',
+    "ActionTransform",
+    "NormalizeAction",
+    "DenormalizeAction",
+    "ClipAction",
+    "AddActionNoise",
+    "DeltaToAbsolute",
+    "AbsoluteToDelta",
+    "ActionTemporalSmoothing",
 ]

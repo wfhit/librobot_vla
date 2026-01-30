@@ -39,7 +39,7 @@ class FlashAttention(nn.Module):
         self.dim = dim
         self.num_heads = num_heads
         self.head_dim = dim // num_heads
-        self.scale = self.head_dim ** -0.5
+        self.scale = self.head_dim**-0.5
         self.causal = causal
         self.attn_drop_p = attn_drop
 
@@ -48,6 +48,7 @@ class FlashAttention(nn.Module):
         if use_flash:
             try:
                 from flash_attn import flash_attn_func
+
                 self.flash_attn_func = flash_attn_func
                 self.has_flash = True
             except ImportError:
@@ -88,7 +89,9 @@ class FlashAttention(nn.Module):
 
             # flash_attn expects [batch, seq_len, num_heads, head_dim]
             x = self.flash_attn_func(
-                q, k, v,
+                q,
+                k,
+                v,
                 dropout_p=self.attn_drop_p if self.training else 0.0,
                 causal=self.causal,
             )
@@ -105,11 +108,11 @@ class FlashAttention(nn.Module):
                     attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)
                 elif attention_mask.dim() == 3:
                     attention_mask = attention_mask.unsqueeze(1)
-                attn = attn.masked_fill(attention_mask == 0, float('-inf'))
+                attn = attn.masked_fill(attention_mask == 0, float("-inf"))
 
             if self.causal:
                 causal_mask = torch.tril(torch.ones(N, N, device=x.device, dtype=torch.bool))
-                attn = attn.masked_fill(~causal_mask, float('-inf'))
+                attn = attn.masked_fill(~causal_mask, float("-inf"))
 
             attn = attn.softmax(dim=-1)
             attn = self.attn_drop(attn)
@@ -126,4 +129,4 @@ class FlashAttention(nn.Module):
         return x
 
     def extra_repr(self) -> str:
-        return f'dim={self.dim}, num_heads={self.num_heads}, causal={self.causal}, flash={self.has_flash}'
+        return f"dim={self.dim}, num_heads={self.num_heads}, causal={self.causal}, flash={self.has_flash}"

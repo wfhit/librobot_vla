@@ -1,6 +1,5 @@
 """LayerNorm implementation with optional bias."""
 
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -37,10 +36,10 @@ class LayerNorm(nn.Module):
             if bias:
                 self.bias = nn.Parameter(torch.zeros(normalized_shape))
             else:
-                self.register_parameter('bias', None)
+                self.register_parameter("bias", None)
         else:
-            self.register_parameter('weight', None)
-            self.register_parameter('bias', None)
+            self.register_parameter("weight", None)
+            self.register_parameter("bias", None)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -61,4 +60,6 @@ class LayerNorm(nn.Module):
         )
 
     def extra_repr(self) -> str:
-        return f'{self.normalized_shape}, eps={self.eps}, elementwise_affine={self.elementwise_affine}'
+        return (
+            f"{self.normalized_shape}, eps={self.eps}, elementwise_affine={self.elementwise_affine}"
+        )

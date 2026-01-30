@@ -123,11 +123,7 @@ class RESTServer(AbstractServer):
             self._server.should_exit = True
         self._is_running = False
 
-    async def predict(
-        self,
-        request: dict[str, Any],
-        **kwargs
-    ) -> dict[str, Any]:
+    async def predict(self, request: dict[str, Any], **kwargs) -> dict[str, Any]:
         """Handle prediction request."""
         import numpy as np
 
@@ -148,7 +144,7 @@ class RESTServer(AbstractServer):
         instruction = request.get("instruction", "")
 
         # Get action
-        if hasattr(self.model, 'get_action'):
+        if hasattr(self.model, "get_action"):
             action = self.model.get_action(observation, instruction)
         elif callable(self.model):
             action = self.model(observation, instruction)
@@ -161,8 +157,9 @@ class RESTServer(AbstractServer):
         """Load model for inference."""
         try:
             import torch
-            self.model = torch.load(model_path, map_location='cpu')
-            if hasattr(self.model, 'eval'):
+
+            self.model = torch.load(model_path, map_location="cpu")
+            if hasattr(self.model, "eval"):
                 self.model.eval()
         except ImportError:
             pass
@@ -179,4 +176,4 @@ class RESTServer(AbstractServer):
         }
 
 
-__all__ = ['RESTServer']
+__all__ = ["RESTServer"]
