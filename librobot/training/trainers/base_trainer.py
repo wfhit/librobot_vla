@@ -1,19 +1,17 @@
 """Base trainer class for VLA models."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Optional, Union
 from pathlib import Path
-import time
-import numpy as np
+from typing import Any, Callable, Optional
 
 
 class BaseTrainer(ABC):
     """
     Base trainer class for VLA models.
-    
+
     Provides common training loop functionality and hooks for customization.
     """
-    
+
     def __init__(
         self,
         model: Any,
@@ -22,7 +20,7 @@ class BaseTrainer(ABC):
         loss_fn: Optional[Callable] = None,
         train_dataloader: Optional[Any] = None,
         val_dataloader: Optional[Any] = None,
-        callbacks: Optional[List[Any]] = None,
+        callbacks: Optional[list[Any]] = None,
         max_epochs: int = 100,
         max_steps: Optional[int] = None,
         gradient_accumulation_steps: int = 1,
@@ -36,7 +34,7 @@ class BaseTrainer(ABC):
     ):
         """
         Initialize trainer.
-        
+
         Args:
             model: Model to train
             optimizer: Optimizer instance
@@ -73,100 +71,101 @@ class BaseTrainer(ABC):
         self.device = device
         self.mixed_precision = mixed_precision
         self.seed = seed
-        
+
         # Training state
         self.current_epoch = 0
         self.global_step = 0
-        self.best_val_loss = float('inf')
+        self.best_val_loss = float("inf")
         self._stop_training = False
-        
+
         # Metrics tracking
-        self.train_metrics: Dict[str, List[float]] = {}
-        self.val_metrics: Dict[str, List[float]] = {}
-        
+        self.train_metrics: dict[str, list[float]] = {}
+        self.val_metrics: dict[str, list[float]] = {}
+
         # Initialize callbacks
         for callback in self.callbacks:
             callback.set_trainer(self)
-    
-    def train(self) -> Dict[str, Any]:
+
+    def train(self) -> dict[str, Any]:
         """
         Run full training loop.
-        
+
         Returns:
             Training history dictionary
         """
-        self._call_callbacks('on_train_begin')
-        
+        self._call_callbacks("on_train_begin")
+
         try:
             for epoch in range(self.current_epoch, self.max_epochs):
                 if self._stop_training:
                     break
-                
+
                 self.current_epoch = epoch
-                self._call_callbacks('on_epoch_begin', epoch=epoch)
-                
+                self._call_callbacks("on_epoch_begin", epoch=epoch)
+
                 # Training epoch
-                train_loss = self._train_epoch()
-                
+                self._train_epoch()
+
                 # Validation
                 if self.val_dataloader and epoch % self.val_interval == 0:
                     val_loss = self._validate()
-                    
+
                     # Check for best model
                     if val_loss < self.best_val_loss:
                         self.best_val_loss = val_loss
                         if self.checkpoint_dir:
-                            self.save_checkpoint('best.pt')
-                
-                self._call_callbacks('on_epoch_end', epoch=epoch)
-                
+                            self.save_checkpoint("best.pt")
+
+                self._call_callbacks("on_epoch_end", epoch=epoch)
+
                 # Check max steps
                 if self.max_steps and self.global_step >= self.max_steps:
                     break
-        
+
         finally:
-            self._call_callbacks('on_train_end')
-        
+            self._call_callbacks("on_train_end")
+
         return self.get_training_history()
-    
+
     @abstractmethod
     def _train_epoch(self) -> float:
         """
         Train for one epoch.
-        
+
         Returns:
             Average training loss
         """
         pass
-    
+
     @abstractmethod
-    def _train_step(self, batch: Dict[str, Any]) -> Dict[str, Any]:
+    def _train_step(self, batch: dict[str, Any]) -> dict[str, Any]:
         """
         Perform single training step.
-        
+
         Args:
             batch: Training batch
-            
+
         Returns:
             Dictionary with loss and metrics
         """
         pass
-    
+
     def _validate(self) -> float:
         """
         Run validation.
-        
+
         Returns:
             Average validation loss
         """
         self.model.eval()
-        self._call_callbacks('on_validation_begin')
-        
+        self._call_callbacks("on_validation_begin")
+
         total_loss = 0
         num_batches = 0
-        
+
         try:
             import torch
+
             with torch.no_grad():
                 for batch in self.val_dataloader:
                     loss = self._validate_step(batch)
@@ -174,100 +173,102 @@ class BaseTrainer(ABC):
                     num_batches += 1
         except ImportError:
             pass
-        
+
         avg_loss = total_loss / max(num_batches, 1)
-        self._call_callbacks('on_validation_end', logs={'val_loss': avg_loss})
-        
+        self._call_callbacks("on_validation_end", logs={"val_loss": avg_loss})
+
         self.model.train()
         return avg_loss
-    
-    def _validate_step(self, batch: Dict[str, Any]) -> float:
+
+    def _validate_step(self, batch: dict[str, Any]) -> float:
         """
         Perform single validation step.
-        
+
         Args:
             batch: Validation batch
-            
+
         Returns:
             Validation loss value
         """
         # Default implementation - override for custom validation
         result = self._train_step(batch)
-        return result.get('loss', 0)
-    
+        return result.get("loss", 0)
+
     def _call_callbacks(self, method: str, **kwargs) -> None:
         """Call callback method on all callbacks."""
         for callback in self.callbacks:
             fn = getattr(callback, method, None)
             if fn:
                 fn(**kwargs)
-    
+
     def save_checkpoint(self, filename: str) -> None:
         """
         Save training checkpoint.
-        
+
         Args:
             filename: Checkpoint filename
         """
         if self.checkpoint_dir is None:
             return
-        
+
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
         path = self.checkpoint_dir / filename
-        
+
         try:
             import torch
+
             checkpoint = {
-                'epoch': self.current_epoch,
-                'global_step': self.global_step,
-                'model_state_dict': self.model.state_dict(),
-                'optimizer_state_dict': self.optimizer.state_dict(),
-                'best_val_loss': self.best_val_loss,
+                "epoch": self.current_epoch,
+                "global_step": self.global_step,
+                "model_state_dict": self.model.state_dict(),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+                "best_val_loss": self.best_val_loss,
             }
             if self.scheduler:
-                checkpoint['scheduler_state_dict'] = self.scheduler.state_dict()
+                checkpoint["scheduler_state_dict"] = self.scheduler.state_dict()
             torch.save(checkpoint, path)
         except ImportError:
             pass
-    
+
     def load_checkpoint(self, path: str) -> None:
         """
         Load training checkpoint.
-        
+
         Args:
             path: Path to checkpoint
         """
         try:
             import torch
+
             checkpoint = torch.load(path, map_location=self.device)
-            self.model.load_state_dict(checkpoint['model_state_dict'])
-            self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-            self.current_epoch = checkpoint.get('epoch', 0)
-            self.global_step = checkpoint.get('global_step', 0)
-            self.best_val_loss = checkpoint.get('best_val_loss', float('inf'))
-            if self.scheduler and 'scheduler_state_dict' in checkpoint:
-                self.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+            self.model.load_state_dict(checkpoint["model_state_dict"])
+            self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+            self.current_epoch = checkpoint.get("epoch", 0)
+            self.global_step = checkpoint.get("global_step", 0)
+            self.best_val_loss = checkpoint.get("best_val_loss", float("inf"))
+            if self.scheduler and "scheduler_state_dict" in checkpoint:
+                self.scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
         except (ImportError, FileNotFoundError):
             pass
-    
-    def get_training_history(self) -> Dict[str, Any]:
+
+    def get_training_history(self) -> dict[str, Any]:
         """
         Get training history.
-        
+
         Returns:
             Dictionary with training metrics
         """
         return {
-            'train_metrics': self.train_metrics,
-            'val_metrics': self.val_metrics,
-            'best_val_loss': self.best_val_loss,
-            'total_epochs': self.current_epoch + 1,
-            'total_steps': self.global_step,
+            "train_metrics": self.train_metrics,
+            "val_metrics": self.val_metrics,
+            "best_val_loss": self.best_val_loss,
+            "total_epochs": self.current_epoch + 1,
+            "total_steps": self.global_step,
         }
-    
+
     def stop_training(self) -> None:
         """Signal to stop training."""
         self._stop_training = True
 
 
-__all__ = ['BaseTrainer']
+__all__ = ["BaseTrainer"]

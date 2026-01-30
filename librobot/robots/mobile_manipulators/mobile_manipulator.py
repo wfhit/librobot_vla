@@ -1,11 +1,12 @@
 """Base class for mobile manipulator implementations.
 
 This module provides the base class for all mobile manipulator implementations.
-Specific mobile manipulator platforms should inherit from MobileManipulator 
+Specific mobile manipulator platforms should inherit from MobileManipulator
 and override methods as needed for their hardware.
 """
 
-from typing import Any, Dict
+from typing import Any
+
 import numpy as np
 
 from ..base import AbstractRobot
@@ -13,7 +14,7 @@ from ..base import AbstractRobot
 
 class MobileManipulator(AbstractRobot):
     """Base class for mobile manipulators."""
-    
+
     def __init__(
         self,
         robot_id: str,
@@ -33,21 +34,21 @@ class MobileManipulator(AbstractRobot):
         self.gripper_dof = gripper_dof
         self.base_dof = base_dof
         self.action_dim = arm_joints + gripper_dof + base_dof
-        
+
         self._arm_positions = np.zeros(arm_joints)
         self._gripper_state = np.zeros(gripper_dof)
         self._base_position = np.zeros(3)
         self._base_velocity = np.zeros(base_dof)
-    
-    def get_action_space(self) -> Dict[str, Any]:
+
+    def get_action_space(self) -> dict[str, Any]:
         return {
             "type": "continuous",
             "shape": (self.action_dim,),
             "low": -1.0,
             "high": 1.0,
         }
-    
-    def get_observation_space(self) -> Dict[str, Any]:
+
+    def get_observation_space(self) -> dict[str, Any]:
         return {
             "arm_positions": {"shape": (self.arm_joints,)},
             "gripper_state": {"shape": (self.gripper_dof,)},
@@ -56,4 +57,4 @@ class MobileManipulator(AbstractRobot):
         }
 
 
-__all__ = ['MobileManipulator']
+__all__ = ["MobileManipulator"]

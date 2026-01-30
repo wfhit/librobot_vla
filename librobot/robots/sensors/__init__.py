@@ -1,23 +1,23 @@
 """Robot sensors."""
 
 from .sensors import (
+    IMU,
     BaseSensor,
     Camera,
     DepthCamera,
     ForceTorqueSensor,
     JointEncoder,
-    IMU,
     Lidar,
     Tactile,
 )
 
 __all__ = [
-    'BaseSensor',
-    'Camera',
-    'DepthCamera',
-    'ForceTorqueSensor',
-    'JointEncoder',
-    'IMU',
-    'Lidar',
-    'Tactile',
+    "BaseSensor",
+    "Camera",
+    "DepthCamera",
+    "ForceTorqueSensor",
+    "JointEncoder",
+    "IMU",
+    "Lidar",
+    "Tactile",
 ]

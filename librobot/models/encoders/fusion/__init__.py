@@ -6,8 +6,8 @@ from .film import FiLMFusion
 from .gated import GatedFusion
 
 __all__ = [
-    'ConcatFusion',
-    'CrossAttentionFusion',
-    'FiLMFusion',
-    'GatedFusion',
+    "ConcatFusion",
+    "CrossAttentionFusion",
+    "FiLMFusion",
+    "GatedFusion",
 ]

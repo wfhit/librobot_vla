@@ -9,12 +9,12 @@ ROBOT_REGISTRY = GlobalRegistry.get_registry("robots")
 def register_robot(name=None, aliases=None, **kwargs):
     """
     Decorator to register a robot interface.
-    
+
     Args:
         name: Registration name
         aliases: List of aliases
         **kwargs: Additional metadata
-        
+
     Returns:
         Decorator function
     """
@@ -24,10 +24,10 @@ def register_robot(name=None, aliases=None, **kwargs):
 def get_robot(name):
     """
     Get registered robot class.
-    
+
     Args:
         name: Robot name or alias
-        
+
     Returns:
         Robot class
     """
@@ -37,12 +37,12 @@ def get_robot(name):
 def create_robot(name, *args, **kwargs):
     """
     Create robot instance.
-    
+
     Args:
         name: Robot name or alias
         *args: Positional arguments
         **kwargs: Keyword arguments
-        
+
     Returns:
         Robot instance
     """
@@ -52,7 +52,7 @@ def create_robot(name, *args, **kwargs):
 def list_robots():
     """
     List all registered robots.
-    
+
     Returns:
         List of robot names
     """
@@ -60,9 +60,9 @@ def list_robots():
 
 
 __all__ = [
-    'ROBOT_REGISTRY',
-    'register_robot',
-    'get_robot',
-    'create_robot',
-    'list_robots',
+    "ROBOT_REGISTRY",
+    "register_robot",
+    "get_robot",
+    "create_robot",
+    "list_robots",
 ]

@@ -1,29 +1,28 @@
 """Base class for excavator implementations.
 
 This module provides the base class for excavator robot implementations.
-Specific excavator platforms should inherit from ExcavatorRobot and override
+Specific excavator platforms should inherit from Excavator and override
 methods as needed for their hardware.
 """
 
-from typing import Any, Dict
-import numpy as np
+from typing import Any
 
 from ..base import AbstractRobot
 
 
-class ExcavatorRobot(AbstractRobot):
+class Excavator(AbstractRobot):
     """Base class for excavator robots.
-    
+
     Provides common functionality for excavator implementations.
     For a comprehensive reference implementation with full features,
-    see Excavator in excavator_robot.py.
+    see ExcavatorRobot in excavator_robot.py.
     """
-    
+
     # Common excavator specifications
     NUM_CAMERAS = 4
     HAS_GPS = True
     HAS_IMU = True
-    
+
     def __init__(
         self,
         robot_id: str,
@@ -42,7 +41,7 @@ class ExcavatorRobot(AbstractRobot):
         self.max_speed = max_speed
         self.max_swing_speed = max_swing_speed
         self.bucket_capacity = bucket_capacity
-        
+
         # State
         self._left_track_speed = 0.0
         self._right_track_speed = 0.0
@@ -52,16 +51,16 @@ class ExcavatorRobot(AbstractRobot):
         self._bucket_angle = 0.0
         self._engine_rpm = 0.0
         self._fuel_level = 1.0
-    
-    def get_action_space(self) -> Dict[str, Any]:
+
+    def get_action_space(self) -> dict[str, Any]:
         return {
             "type": "continuous",
             "shape": (7,),  # left_track, right_track, swing, boom, arm, bucket, throttle
             "low": [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 0.0],
             "high": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
         }
-    
-    def get_observation_space(self) -> Dict[str, Any]:
+
+    def get_observation_space(self) -> dict[str, Any]:
         return {
             "left_track_speed": {"shape": (), "dtype": "float32"},
             "right_track_speed": {"shape": (), "dtype": "float32"},
@@ -74,4 +73,4 @@ class ExcavatorRobot(AbstractRobot):
         }
 
 
-__all__ = ['ExcavatorRobot']
+__all__ = ["Excavator"]

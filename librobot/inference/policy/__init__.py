@@ -1,6 +1,6 @@
 """Policy wrappers for inference."""
 
-from .base import BasePolicy, DiffusionPolicy, AutoregressivePolicy, EnsemblePolicy
+from .base import AutoregressivePolicy, BasePolicy, DiffusionPolicy, EnsemblePolicy
 
 # VLAPolicy is an alias for BasePolicy to maintain API compatibility.
 # BasePolicy provides the core functionality needed for VLA inference:
@@ -14,9 +14,9 @@ from .base import BasePolicy, DiffusionPolicy, AutoregressivePolicy, EnsemblePol
 VLAPolicy = BasePolicy
 
 __all__ = [
-    'BasePolicy',
-    'DiffusionPolicy',
-    'AutoregressivePolicy',
-    'EnsemblePolicy',
-    'VLAPolicy',
+    "BasePolicy",
+    "DiffusionPolicy",
+    "AutoregressivePolicy",
+    "EnsemblePolicy",
+    "VLAPolicy",
 ]

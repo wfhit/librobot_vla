@@ -175,16 +175,16 @@ librobot_vla/
 │   │   │   └── humanoid_robot.py # Humanoid implementations (Figure, GR1, H1)
 │   │   │
 │   │   ├── wheel_loaders/    # Wheel loader interfaces
-│   │   │   ├── wheel_loader.py       # WheelLoaderRobot base class
-│   │   │   └── wheel_loader_robot.py # WheelLoader comprehensive implementation
+│   │   │   ├── wheel_loader.py       # WheelLoader base class
+│   │   │   └── wheel_loader_robot.py # WheelLoaderRobot comprehensive implementation
 │   │   │
 │   │   ├── excavators/       # Excavator interfaces
-│   │   │   ├── excavator.py       # ExcavatorRobot base class
-│   │   │   └── excavator_robot.py # Excavator comprehensive implementation
+│   │   │   ├── excavator.py       # Excavator base class
+│   │   │   └── excavator_robot.py # ExcavatorRobot comprehensive implementation
 │   │   │
 │   │   ├── articulated_trucks/  # Articulated truck interfaces
-│   │   │   ├── articulated_truck.py       # ArticulatedTruckRobot base class
-│   │   │   └── articulated_truck_robot.py # ArticulatedTruck comprehensive implementation
+│   │   │   ├── articulated_truck.py       # ArticulatedTruck base class
+│   │   │   └── articulated_truck_robot.py # ArticulatedTruckRobot comprehensive implementation
 │   │   │
 │   │   └── sensors/          # Sensor interfaces
 │   │

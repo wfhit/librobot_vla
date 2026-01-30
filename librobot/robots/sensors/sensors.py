@@ -1,13 +1,14 @@
 """Sensor implementations for robots."""
 
-from typing import Any, Dict, List, Optional, Tuple
 from abc import ABC, abstractmethod
+from typing import Any
+
 import numpy as np
 
 
 class BaseSensor(ABC):
     """Base class for sensors."""
-    
+
     def __init__(
         self,
         sensor_id: str,
@@ -21,21 +22,21 @@ class BaseSensor(ABC):
         self.sensor_id = sensor_id
         self.rate = rate
         self._is_active = False
-    
+
     @abstractmethod
-    def read(self) -> Dict[str, Any]:
+    def read(self) -> dict[str, Any]:
         """Read sensor data."""
         pass
-    
+
     def start(self) -> bool:
         """Start sensor."""
         self._is_active = True
         return True
-    
+
     def stop(self) -> None:
         """Stop sensor."""
         self._is_active = False
-    
+
     @property
     def is_active(self) -> bool:
         return self._is_active
@@ -43,46 +44,48 @@ class BaseSensor(ABC):
 
 class Camera(BaseSensor):
     """RGB camera sensor."""
-    
+
     def __init__(
         self,
         sensor_id: str = "camera",
-        resolution: Tuple[int, int] = (640, 480),
+        resolution: tuple[int, int] = (640, 480),
         fov: float = 60.0,
         rate: float = 30.0,
     ):
         super().__init__(sensor_id, rate)
         self.resolution = resolution
         self.fov = fov
-    
-    def read(self) -> Dict[str, Any]:
+
+    def read(self) -> dict[str, Any]:
         """Read camera image."""
         # Return dummy data
         return {
             "image": np.random.randint(0, 255, (*self.resolution, 3), dtype=np.uint8),
             "timestamp": 0.0,
         }
-    
+
     def get_intrinsics(self) -> np.ndarray:
         """Get camera intrinsic matrix."""
         fx = self.resolution[0] / (2 * np.tan(np.radians(self.fov / 2)))
         fy = fx
         cx = self.resolution[0] / 2
         cy = self.resolution[1] / 2
-        return np.array([
-            [fx, 0, cx],
-            [0, fy, cy],
-            [0, 0, 1],
-        ])
+        return np.array(
+            [
+                [fx, 0, cx],
+                [0, fy, cy],
+                [0, 0, 1],
+            ]
+        )
 
 
 class DepthCamera(Camera):
     """RGB-D camera sensor."""
-    
+
     def __init__(
         self,
         sensor_id: str = "depth_camera",
-        resolution: Tuple[int, int] = (640, 480),
+        resolution: tuple[int, int] = (640, 480),
         fov: float = 60.0,
         rate: float = 30.0,
         min_depth: float = 0.1,
@@ -91,20 +94,19 @@ class DepthCamera(Camera):
         super().__init__(sensor_id, resolution, fov, rate)
         self.min_depth = min_depth
         self.max_depth = max_depth
-    
-    def read(self) -> Dict[str, Any]:
+
+    def read(self) -> dict[str, Any]:
         """Read RGB and depth images."""
         base_data = super().read()
         base_data["depth"] = np.random.uniform(
-            self.min_depth, self.max_depth,
-            self.resolution
+            self.min_depth, self.max_depth, self.resolution
         ).astype(np.float32)
         return base_data
 
 
 class ForceTorqueSensor(BaseSensor):
     """Force-torque sensor."""
-    
+
     def __init__(
         self,
         sensor_id: str = "ft_sensor",
@@ -113,8 +115,8 @@ class ForceTorqueSensor(BaseSensor):
         super().__init__(sensor_id, rate)
         self.force_range = 100.0  # N
         self.torque_range = 10.0  # Nm
-    
-    def read(self) -> Dict[str, Any]:
+
+    def read(self) -> dict[str, Any]:
         """Read force-torque data."""
         return {
             "force": np.random.randn(3) * 0.1,  # fx, fy, fz
@@ -125,7 +127,7 @@ class ForceTorqueSensor(BaseSensor):
 
 class JointEncoder(BaseSensor):
     """Joint encoder sensor."""
-    
+
     def __init__(
         self,
         sensor_id: str = "encoder",
@@ -136,8 +138,8 @@ class JointEncoder(BaseSensor):
         super().__init__(sensor_id, rate)
         self.num_joints = num_joints
         self.resolution = resolution
-    
-    def read(self) -> Dict[str, Any]:
+
+    def read(self) -> dict[str, Any]:
         """Read joint encoder data."""
         return {
             "positions": np.zeros(self.num_joints),
@@ -148,15 +150,15 @@ class JointEncoder(BaseSensor):
 
 class IMU(BaseSensor):
     """Inertial measurement unit."""
-    
+
     def __init__(
         self,
         sensor_id: str = "imu",
         rate: float = 200.0,
     ):
         super().__init__(sensor_id, rate)
-    
-    def read(self) -> Dict[str, Any]:
+
+    def read(self) -> dict[str, Any]:
         """Read IMU data."""
         return {
             "acceleration": np.array([0, 0, 9.81]),  # m/s^2
@@ -168,7 +170,7 @@ class IMU(BaseSensor):
 
 class Lidar(BaseSensor):
     """LiDAR sensor."""
-    
+
     def __init__(
         self,
         sensor_id: str = "lidar",
@@ -179,29 +181,29 @@ class Lidar(BaseSensor):
         super().__init__(sensor_id, rate)
         self.num_beams = num_beams
         self.max_range = max_range
-    
-    def read(self) -> Dict[str, Any]:
+
+    def read(self) -> dict[str, Any]:
         """Read LiDAR scan."""
         return {
             "ranges": np.random.uniform(0.1, self.max_range, self.num_beams),
-            "angles": np.linspace(0, 2*np.pi, self.num_beams),
+            "angles": np.linspace(0, 2 * np.pi, self.num_beams),
             "timestamp": 0.0,
         }
 
 
 class Tactile(BaseSensor):
     """Tactile sensor (e.g., GelSight)."""
-    
+
     def __init__(
         self,
         sensor_id: str = "tactile",
-        resolution: Tuple[int, int] = (64, 64),
+        resolution: tuple[int, int] = (64, 64),
         rate: float = 30.0,
     ):
         super().__init__(sensor_id, rate)
         self.resolution = resolution
-    
-    def read(self) -> Dict[str, Any]:
+
+    def read(self) -> dict[str, Any]:
         """Read tactile data."""
         return {
             "image": np.random.randint(0, 255, (*self.resolution, 3), dtype=np.uint8),
@@ -211,12 +213,12 @@ class Tactile(BaseSensor):
 
 
 __all__ = [
-    'BaseSensor',
-    'Camera',
-    'DepthCamera',
-    'ForceTorqueSensor',
-    'JointEncoder',
-    'IMU',
-    'Lidar',
-    'Tactile',
+    "BaseSensor",
+    "Camera",
+    "DepthCamera",
+    "ForceTorqueSensor",
+    "JointEncoder",
+    "IMU",
+    "Lidar",
+    "Tactile",
 ]

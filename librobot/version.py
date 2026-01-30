@@ -16,7 +16,7 @@ VERSION_INFO = {
 def get_version() -> str:
     """
     Get the current version string.
-    
+
     Returns:
         str: Version string in format 'major.minor.patch'
     """
@@ -26,7 +26,7 @@ def get_version() -> str:
 def get_version_info() -> dict:
     """
     Get detailed version information.
-    
+
     Returns:
         dict: Dictionary containing version components
     """

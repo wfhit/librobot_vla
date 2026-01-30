@@ -7,57 +7,55 @@ Provides reusable building blocks including:
 - Activation functions (GELU, SwiGLU, GeGLU, Mish, QuickGELU)
 """
 
-from . import attention
-from . import positional
-from . import normalization
+from . import attention, normalization, positional
 
 # Activation functions
-from .activations import GELU, SwiGLU, GeGLU, Mish, QuickGELU
+from .activations import GELU, GeGLU, Mish, QuickGELU, SwiGLU
 
 # Attention mechanisms
 from .attention import (
-    StandardAttention,
-    FlashAttention,
     BlockWiseAttention,
+    FlashAttention,
     SlidingWindowAttention,
-)
-
-# Positional encodings
-from .positional import (
-    SinusoidalPositionalEncoding,
-    RotaryPositionEmbedding,
-    ALiBiPositionalBias,
+    StandardAttention,
 )
 
 # Normalization layers
 from .normalization import (
+    GroupNorm,
     LayerNorm,
     RMSNorm,
-    GroupNorm,
+)
+
+# Positional encodings
+from .positional import (
+    ALiBiPositionalBias,
+    RotaryPositionEmbedding,
+    SinusoidalPositionalEncoding,
 )
 
 __all__ = [
     # Submodules
-    'attention',
-    'positional',
-    'normalization',
+    "attention",
+    "positional",
+    "normalization",
     # Activations
-    'GELU',
-    'SwiGLU',
-    'GeGLU',
-    'Mish',
-    'QuickGELU',
+    "GELU",
+    "SwiGLU",
+    "GeGLU",
+    "Mish",
+    "QuickGELU",
     # Attention
-    'StandardAttention',
-    'FlashAttention',
-    'BlockWiseAttention',
-    'SlidingWindowAttention',
+    "StandardAttention",
+    "FlashAttention",
+    "BlockWiseAttention",
+    "SlidingWindowAttention",
     # Positional
-    'SinusoidalPositionalEncoding',
-    'RotaryPositionEmbedding',
-    'ALiBiPositionalBias',
+    "SinusoidalPositionalEncoding",
+    "RotaryPositionEmbedding",
+    "ALiBiPositionalBias",
     # Normalization
-    'LayerNorm',
-    'RMSNorm',
-    'GroupNorm',
+    "LayerNorm",
+    "RMSNorm",
+    "GroupNorm",
 ]

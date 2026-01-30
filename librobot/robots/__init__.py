@@ -22,108 +22,101 @@ Architecture:
         humanoid_robot.py   -> Figure01Robot, GR1Robot, UnitreeH1Robot
 
     wheel_loaders/
-        wheel_loader.py       -> WheelLoaderRobot (base class)
-        wheel_loader_robot.py -> WheelLoader (comprehensive)
+        wheel_loader.py       -> WheelLoader (base class)
+        wheel_loader_robot.py -> WheelLoaderRobot (comprehensive)
 
     excavators/
-        excavator.py       -> ExcavatorRobot (base class)
-        excavator_robot.py -> Excavator (comprehensive)
+        excavator.py       -> Excavator (base class)
+        excavator_robot.py -> ExcavatorRobot (comprehensive)
 
     articulated_trucks/
-        articulated_truck.py       -> ArticulatedTruckRobot (base class)
-        articulated_truck_robot.py -> ArticulatedTruck (comprehensive)
+        articulated_truck.py       -> ArticulatedTruck (base class)
+        articulated_truck_robot.py -> ArticulatedTruckRobot (comprehensive)
 """
 
-from .base import AbstractRobot
-from .registry import (
-    ROBOT_REGISTRY,
-    register_robot,
-    get_robot,
-    create_robot,
-    list_robots,
+# Import submodules
+from . import (
+    arms,
+    articulated_trucks,
+    excavators,
+    humanoids,
+    mobile,
+    mobile_manipulators,
+    sensors,
+    wheel_loaders,
 )
 
-# Import submodules
-from . import arms
-from . import mobile
-from . import mobile_manipulators
-from . import humanoids
-from . import wheel_loaders
-from . import excavators
-from . import articulated_trucks
-from . import sensors
-
 # Base classes
-from .arms import Arm
-from .mobile import MobileRobot
-from .mobile_manipulators import MobileManipulator
-from .humanoids import Humanoid
-from .wheel_loaders import WheelLoaderRobot
-from .excavators import ExcavatorRobot
-from .articulated_trucks import ArticulatedTruckRobot
-
 # Robot implementations
-from .arms import SO100Arm, FrankaArm, UR5Arm, xArmRobot, WidowXArm
-from .mobile import LeKiwiRobot, DifferentialDriveRobot
-from .mobile_manipulators import FetchRobot, TIAGoRobot
-from .humanoids import Figure01Robot, GR1Robot, UnitreeH1Robot
-from .wheel_loaders import WheelLoader
-from .excavators import Excavator
-from .articulated_trucks import ArticulatedTruck
-from .sensors import Camera, DepthCamera, ForceTorqueSensor, IMU, Lidar
+from .arms import Arm, FrankaArm, SO100Arm, UR5Arm, WidowXArm, xArmRobot
+from .articulated_trucks import ArticulatedTruck, ArticulatedTruckRobot
+from .base import AbstractRobot
+from .excavators import Excavator, ExcavatorRobot
+from .humanoids import Figure01Robot, GR1Robot, Humanoid, UnitreeH1Robot
+from .mobile import DifferentialDriveRobot, LeKiwiRobot, MobileRobot
+from .mobile_manipulators import FetchRobot, MobileManipulator, TIAGoRobot
+from .registry import (
+    ROBOT_REGISTRY,
+    create_robot,
+    get_robot,
+    list_robots,
+    register_robot,
+)
+from .sensors import IMU, Camera, DepthCamera, ForceTorqueSensor, Lidar
+from .wheel_loaders import WheelLoader, WheelLoaderRobot
 
 __all__ = [
     # Abstract base
-    'AbstractRobot',
+    "AbstractRobot",
     # Registry
-    'ROBOT_REGISTRY',
-    'register_robot',
-    'get_robot',
-    'create_robot',
-    'list_robots',
+    "ROBOT_REGISTRY",
+    "register_robot",
+    "get_robot",
+    "create_robot",
+    "list_robots",
     # Base classes
-    'Arm',
-    'MobileRobot',
-    'MobileManipulator',
-    'Humanoid',
-    'WheelLoaderRobot',
-    'ExcavatorRobot',
-    'ArticulatedTruckRobot',
+    "Arm",
+    "MobileRobot",
+    "MobileManipulator",
+    "Humanoid",
+    "WheelLoader",
+    "Excavator",
+    "ArticulatedTruck",
     # Arms
-    'SO100Arm',
-    'FrankaArm',
-    'UR5Arm',
-    'xArmRobot',
-    'WidowXArm',
+    "SO100Arm",
+    "FrankaArm",
+    "UR5Arm",
+    "xArmRobot",
+    "WidowXArm",
     # Mobile
-    'LeKiwiRobot',
-    'DifferentialDriveRobot',
+    "LeKiwiRobot",
+    "DifferentialDriveRobot",
     # Mobile Manipulators
-    'FetchRobot',
-    'TIAGoRobot',
+    "FetchRobot",
+    "TIAGoRobot",
     # Humanoids
-    'Figure01Robot',
-    'GR1Robot',
-    'UnitreeH1Robot',
+    "Figure01Robot",
+    "GR1Robot",
+    "UnitreeH1Robot",
     # Wheel Loaders
-    'WheelLoader',
+    "WheelLoaderRobot",
     # Excavators
-    'Excavator',
+    "ExcavatorRobot",
     # Articulated Trucks
-    'ArticulatedTruck',
+    "ArticulatedTruckRobot",
     # Sensors
-    'Camera',
-    'DepthCamera',
-    'ForceTorqueSensor',
-    'IMU',
-    'Lidar',
+    "Camera",
+    "DepthCamera",
+    "ForceTorqueSensor",
+    "IMU",
+    "Lidar",
     # Submodules
-    'arms',
-    'mobile',
-    'mobile_manipulators',
-    'humanoids',
-    'wheel_loaders',
-    'excavators',
-    'articulated_trucks',
-    'sensors',
+    "arms",
+    "mobile",
+    "mobile_manipulators",
+    "humanoids",
+    "wheel_loaders",
+    "excavators",
+    "articulated_trucks",
+    "sensors",
 ]

@@ -1,31 +1,31 @@
 """Loss functions for VLA training."""
 
 from .base import AbstractLoss
-from .mse import MSELoss, L1Loss, SmoothL1Loss, ActionLoss
-from .cross_entropy import CrossEntropyLoss, FocalLoss, TokenLoss, BCELoss
-from .diffusion import DiffusionLoss, DDPMLoss, ScoreMatchingLoss
-from .flow_matching import FlowMatchingLoss, RectifiedFlowLoss, OTCFMLoss, ConsistencyLoss
+from .cross_entropy import BCELoss, CrossEntropyLoss, FocalLoss, TokenLoss
+from .diffusion import DDPMLoss, DiffusionLoss, ScoreMatchingLoss
+from .flow_matching import ConsistencyLoss, FlowMatchingLoss, OTCFMLoss, RectifiedFlowLoss
+from .mse import ActionLoss, L1Loss, MSELoss, SmoothL1Loss
 
 __all__ = [
     # Base
-    'AbstractLoss',
+    "AbstractLoss",
     # Regression
-    'MSELoss',
-    'L1Loss',
-    'SmoothL1Loss',
-    'ActionLoss',
+    "MSELoss",
+    "L1Loss",
+    "SmoothL1Loss",
+    "ActionLoss",
     # Classification
-    'CrossEntropyLoss',
-    'FocalLoss',
-    'TokenLoss',
-    'BCELoss',
+    "CrossEntropyLoss",
+    "FocalLoss",
+    "TokenLoss",
+    "BCELoss",
     # Diffusion
-    'DiffusionLoss',
-    'DDPMLoss',
-    'ScoreMatchingLoss',
+    "DiffusionLoss",
+    "DDPMLoss",
+    "ScoreMatchingLoss",
     # Flow matching
-    'FlowMatchingLoss',
-    'RectifiedFlowLoss',
-    'OTCFMLoss',
-    'ConsistencyLoss',
+    "FlowMatchingLoss",
+    "RectifiedFlowLoss",
+    "OTCFMLoss",
+    "ConsistencyLoss",
 ]

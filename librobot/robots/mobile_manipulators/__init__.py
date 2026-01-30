@@ -5,8 +5,8 @@ from .mobile_manipulator_robot import FetchRobot, TIAGoRobot
 
 __all__ = [
     # Base classes
-    'MobileManipulator',
+    "MobileManipulator",
     # Implementations
-    'FetchRobot',
-    'TIAGoRobot',
+    "FetchRobot",
+    "TIAGoRobot",
 ]

@@ -6,6 +6,7 @@ See docs/design/data_pipeline.md for detailed design documentation.
 """
 
 from typing import Optional
+
 import torch
 import torch.nn as nn
 
@@ -13,18 +14,18 @@ import torch.nn as nn
 class ActionTransform(nn.Module):
     """
     Base class for action transforms.
-    
+
     All action transforms should inherit from this class to ensure
     consistent interface and composability.
     """
-    
+
     def forward(self, action: torch.Tensor) -> torch.Tensor:
         """
         Apply transform to action.
-        
+
         Args:
             action: Action tensor [batch_size, action_dim] or [action_dim]
-            
+
         Returns:
             Transformed action
         """
@@ -34,9 +35,9 @@ class ActionTransform(nn.Module):
 class NormalizeAction(ActionTransform):
     """
     Normalize actions using pre-computed statistics.
-    
+
     Transforms actions to zero mean and unit variance, or to [-1, 1] range.
-    
+
     Args:
         mean: Mean values for each action dimension
         std: Standard deviation for each action dimension
@@ -45,7 +46,7 @@ class NormalizeAction(ActionTransform):
         max_val: Maximum values (for minmax mode)
         eps: Small constant for numerical stability
     """
-    
+
     def __init__(
         self,
         mean: Optional[torch.Tensor] = None,
@@ -58,7 +59,7 @@ class NormalizeAction(ActionTransform):
         super().__init__()
         self.mode = mode
         self.eps = eps
-        
+
         if mode == "standard":
             if mean is None or std is None:
                 raise ValueError("mean and std required for standard normalization")
@@ -71,7 +72,7 @@ class NormalizeAction(ActionTransform):
             self.register_buffer("max_val", max_val)
         else:
             raise ValueError(f"Unknown mode: {mode}")
-    
+
     def forward(self, action: torch.Tensor) -> torch.Tensor:
         """Normalize action."""
         if self.mode == "standard":
@@ -87,9 +88,9 @@ class NormalizeAction(ActionTransform):
 class DenormalizeAction(ActionTransform):
     """
     Denormalize actions back to original scale.
-    
+
     Inverse of NormalizeAction.
-    
+
     Args:
         mean: Mean values for each action dimension
         std: Standard deviation for each action dimension
@@ -98,7 +99,7 @@ class DenormalizeAction(ActionTransform):
         max_val: Maximum values (for minmax mode)
         eps: Small constant for numerical stability
     """
-    
+
     def __init__(
         self,
         mean: Optional[torch.Tensor] = None,
@@ -111,7 +112,7 @@ class DenormalizeAction(ActionTransform):
         super().__init__()
         self.mode = mode
         self.eps = eps
-        
+
         if mode == "standard":
             if mean is None or std is None:
                 raise ValueError("mean and std required for standard normalization")
@@ -124,7 +125,7 @@ class DenormalizeAction(ActionTransform):
             self.register_buffer("max_val", max_val)
         else:
             raise ValueError(f"Unknown mode: {mode}")
-    
+
     def forward(self, action: torch.Tensor) -> torch.Tensor:
         """Denormalize action."""
         if self.mode == "standard":
@@ -140,12 +141,12 @@ class DenormalizeAction(ActionTransform):
 class ClipAction(ActionTransform):
     """
     Clip actions to specified range.
-    
+
     Args:
         min_val: Minimum action values
         max_val: Maximum action values
     """
-    
+
     def __init__(
         self,
         min_val: torch.Tensor,
@@ -154,7 +155,7 @@ class ClipAction(ActionTransform):
         super().__init__()
         self.register_buffer("min_val", min_val)
         self.register_buffer("max_val", max_val)
-    
+
     def forward(self, action: torch.Tensor) -> torch.Tensor:
         """Clip action."""
         # TODO: Implement
@@ -165,13 +166,13 @@ class ClipAction(ActionTransform):
 class AddActionNoise(ActionTransform):
     """
     Add Gaussian noise to actions for data augmentation.
-    
+
     Args:
         noise_std: Standard deviation of noise for each dimension
         clip_min: Optional minimum values for clipping after noise
         clip_max: Optional maximum values for clipping after noise
     """
-    
+
     def __init__(
         self,
         noise_std: torch.Tensor,
@@ -184,12 +185,12 @@ class AddActionNoise(ActionTransform):
             self.register_buffer("clip_min", clip_min)
         if clip_max is not None:
             self.register_buffer("clip_max", clip_max)
-    
+
     def forward(self, action: torch.Tensor) -> torch.Tensor:
         """Add noise to action."""
         if not self.training:
             return action
-        
+
         # TODO: Implement
         # TODO: Sample noise from normal distribution
         # TODO: Add noise to action
@@ -200,24 +201,24 @@ class AddActionNoise(ActionTransform):
 class DeltaToAbsolute(ActionTransform):
     """
     Convert delta actions to absolute actions.
-    
+
     Args:
         initial_state: Initial robot state to apply deltas from
     """
-    
+
     def __init__(self, initial_state: Optional[torch.Tensor] = None):
         super().__init__()
         self.current_state = initial_state
         if initial_state is not None:
             self.register_buffer("initial_state", initial_state)
-    
+
     def forward(self, delta_action: torch.Tensor) -> torch.Tensor:
         """Convert delta action to absolute."""
         # TODO: Implement
         # TODO: Integrate delta with current state
         # TODO: Update current state
         raise NotImplementedError("DeltaToAbsolute.forward not yet implemented")
-    
+
     def reset(self, initial_state: torch.Tensor):
         """Reset to new initial state."""
         self.current_state = initial_state
@@ -226,24 +227,24 @@ class DeltaToAbsolute(ActionTransform):
 class AbsoluteToDelta(ActionTransform):
     """
     Convert absolute actions to delta actions.
-    
+
     Args:
         previous_state: Previous robot state to compute deltas from
     """
-    
+
     def __init__(self, previous_state: Optional[torch.Tensor] = None):
         super().__init__()
         self.previous_state = previous_state
         if previous_state is not None:
             self.register_buffer("prev_state", previous_state)
-    
+
     def forward(self, absolute_action: torch.Tensor) -> torch.Tensor:
         """Convert absolute action to delta."""
         # TODO: Implement
         # TODO: Compute difference from previous state
         # TODO: Update previous state
         raise NotImplementedError("AbsoluteToDelta.forward not yet implemented")
-    
+
     def reset(self, previous_state: torch.Tensor):
         """Reset to new previous state."""
         self.previous_state = previous_state
@@ -252,15 +253,15 @@ class AbsoluteToDelta(ActionTransform):
 class ActionTemporalSmoothing(ActionTransform):
     """
     Apply temporal smoothing to action sequences.
-    
+
     Useful for reducing jittery actions and ensuring smooth robot motion.
-    
+
     Args:
         window_size: Size of smoothing window
         method: Smoothing method ("moving_average", "exponential")
         alpha: Exponential smoothing factor (for exponential method)
     """
-    
+
     def __init__(
         self,
         window_size: int = 3,
@@ -272,7 +273,7 @@ class ActionTemporalSmoothing(ActionTransform):
         self.method = method
         self.alpha = alpha
         self.action_buffer = []
-    
+
     def forward(self, action: torch.Tensor) -> torch.Tensor:
         """Apply temporal smoothing."""
         # TODO: Implement
@@ -280,19 +281,19 @@ class ActionTemporalSmoothing(ActionTransform):
         # TODO: Apply smoothing based on method
         # TODO: Maintain buffer size
         raise NotImplementedError("ActionTemporalSmoothing.forward not yet implemented")
-    
+
     def reset(self):
         """Clear action buffer."""
         self.action_buffer = []
 
 
 __all__ = [
-    'ActionTransform',
-    'NormalizeAction',
-    'DenormalizeAction',
-    'ClipAction',
-    'AddActionNoise',
-    'DeltaToAbsolute',
-    'AbsoluteToDelta',
-    'ActionTemporalSmoothing',
+    "ActionTransform",
+    "NormalizeAction",
+    "DenormalizeAction",
+    "ClipAction",
+    "AddActionNoise",
+    "DeltaToAbsolute",
+    "AbsoluteToDelta",
+    "ActionTemporalSmoothing",
 ]

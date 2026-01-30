@@ -158,8 +158,8 @@ librobot_vla/
 | Robot | Type | DOF | Interface Class |
 |-------|------|-----|-----------------|
 | SO-100 | Arm | 7 | `SO100Arm` |
-| Humanoid | Full body | 20+ | `HumanoidRobot` |
-| Wheel Loader | Mobile | Variable | `WheelLoader` |
+| Humanoid | Full body | 20+ | `Humanoid` |
+| Wheel Loader | Mobile | Variable | `WheelLoaderRobot` |
 
 ## Common Patterns
 

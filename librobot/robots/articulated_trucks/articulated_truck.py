@@ -1,29 +1,28 @@
 """Base class for articulated truck implementations.
 
 This module provides the base class for articulated truck robot implementations.
-Specific articulated truck platforms should inherit from ArticulatedTruckRobot
+Specific articulated truck platforms should inherit from ArticulatedTruck
 and override methods as needed for their hardware.
 """
 
-from typing import Any, Dict
-import numpy as np
+from typing import Any
 
 from ..base import AbstractRobot
 
 
-class ArticulatedTruckRobot(AbstractRobot):
+class ArticulatedTruck(AbstractRobot):
     """Base class for articulated truck robots.
-    
+
     Provides common functionality for articulated truck implementations.
     For a comprehensive reference implementation with full features,
-    see ArticulatedTruck in articulated_truck_robot.py.
+    see ArticulatedTruckRobot in articulated_truck_robot.py.
     """
-    
+
     # Common articulated truck specifications
     NUM_CAMERAS = 4
     HAS_GPS = True
     HAS_IMU = True
-    
+
     def __init__(
         self,
         robot_id: str,
@@ -42,7 +41,7 @@ class ArticulatedTruckRobot(AbstractRobot):
         self.max_speed = max_speed
         self.max_steering_angle = max_steering_angle
         self.payload_capacity = payload_capacity
-        
+
         # State
         self._steering_angle = 0.0
         self._vehicle_speed = 0.0
@@ -50,16 +49,16 @@ class ArticulatedTruckRobot(AbstractRobot):
         self._current_payload = 0.0
         self._engine_rpm = 0.0
         self._fuel_level = 1.0
-    
-    def get_action_space(self) -> Dict[str, Any]:
+
+    def get_action_space(self) -> dict[str, Any]:
         return {
             "type": "continuous",
             "shape": (5,),  # steering, throttle, brake, bed_tilt, gear
             "low": [-1.0, 0.0, 0.0, -1.0, -1.0],
             "high": [1.0, 1.0, 1.0, 1.0, 1.0],
         }
-    
-    def get_observation_space(self) -> Dict[str, Any]:
+
+    def get_observation_space(self) -> dict[str, Any]:
         return {
             "steering_angle": {"shape": (), "dtype": "float32"},
             "vehicle_speed": {"shape": (), "dtype": "float32"},
@@ -70,4 +69,4 @@ class ArticulatedTruckRobot(AbstractRobot):
         }
 
 
-__all__ = ['ArticulatedTruckRobot']
+__all__ = ["ArticulatedTruck"]

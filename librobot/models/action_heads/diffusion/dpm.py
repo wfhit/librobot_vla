@@ -1,10 +1,13 @@
 """DPM++ Solver action head."""
+
 import torch
-import torch.nn as nn
+
 from .ddpm import DDPMActionHead
+
 
 class DPMActionHead(DDPMActionHead):
     """DPM++ Solver for fast sampling."""
+
     def sample(self, embeddings: torch.Tensor, temperature: float = 1.0, **kwargs) -> torch.Tensor:
         batch_size = embeddings.size(0)
         x = torch.randn(batch_size, self.action_dim, device=embeddings.device) * temperature

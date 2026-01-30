@@ -17,10 +17,10 @@ from .registry import register_dataset
 class HDF5Dataset(EpisodicDataset):
     """
     Dataset implementation for HDF5 format.
-    
+
     This dataset supports custom HDF5 files with flexible schema for robotics data.
     HDF5 provides efficient storage and random access for large-scale datasets.
-    
+
     Expected HDF5 structure:
     ```
     /
@@ -39,7 +39,7 @@ class HDF5Dataset(EpisodicDataset):
         ├── state_stats/
         └── ...
     ```
-    
+
     Args:
         data_dir: Path to HDF5 file or directory containing HDF5 files
         split: Dataset split ("train", "val", "test")
@@ -53,7 +53,7 @@ class HDF5Dataset(EpisodicDataset):
         cache_images: Whether to cache images in memory
         **kwargs: Additional arguments
     """
-    
+
     def __init__(
         self,
         data_dir: str,
@@ -66,7 +66,7 @@ class HDF5Dataset(EpisodicDataset):
         task_key: str = "task",
         episode_prefix: str = "episode_",
         cache_images: bool = False,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(data_dir, split, transform, **kwargs)
         self.image_keys = image_keys or ["image"]
@@ -76,19 +76,19 @@ class HDF5Dataset(EpisodicDataset):
         self.task_key = task_key
         self.episode_prefix = episode_prefix
         self.cache_images = cache_images
-        
+
         # TODO: Open HDF5 file(s)
         # TODO: Parse episode structure
         # TODO: Build index mapping (flat index -> episode, step)
         # TODO: Load or compute statistics
         # TODO: Setup image cache if enabled
-        
+
     def __len__(self) -> int:
         """Get dataset length."""
         # TODO: Implement
         # TODO: Return total number of steps across all episodes
         raise NotImplementedError("HDF5Dataset.__len__ not yet implemented")
-    
+
     def __getitem__(self, idx: int) -> Dict[str, Any]:
         """Get a single sample."""
         # TODO: Implement
@@ -99,65 +99,65 @@ class HDF5Dataset(EpisodicDataset):
         # TODO: Load task if available
         # TODO: Apply transform
         raise NotImplementedError("HDF5Dataset.__getitem__ not yet implemented")
-    
+
     def get_stats(self) -> Dict[str, Dict[str, torch.Tensor]]:
         """Get dataset statistics."""
         # TODO: Implement
         # TODO: Load from metadata or compute on-the-fly
         raise NotImplementedError("HDF5Dataset.get_stats not yet implemented")
-    
+
     def get_observation_space(self) -> Dict[str, Any]:
         """Get observation space specification."""
         # TODO: Implement
         # TODO: Inspect HDF5 structure
         raise NotImplementedError("HDF5Dataset.get_observation_space not yet implemented")
-    
+
     def get_action_space(self) -> Dict[str, Any]:
         """Get action space specification."""
         # TODO: Implement
         # TODO: Inspect HDF5 structure
         raise NotImplementedError("HDF5Dataset.get_action_space not yet implemented")
-    
+
     def get_episode(self, episode_idx: int) -> Dict[str, Any]:
         """Get a full episode."""
         # TODO: Implement
         # TODO: Load full episode group from HDF5
         raise NotImplementedError("HDF5Dataset.get_episode not yet implemented")
-    
+
     def get_num_episodes(self) -> int:
         """Get number of episodes."""
         # TODO: Implement
         raise NotImplementedError("HDF5Dataset.get_num_episodes not yet implemented")
-    
+
     def get_episode_boundaries(self) -> List[Tuple[int, int]]:
         """Get episode boundaries."""
         # TODO: Implement
         raise NotImplementedError("HDF5Dataset.get_episode_boundaries not yet implemented")
-    
+
     def get_task_descriptions(self) -> Optional[List[str]]:
         """Get task descriptions."""
         # TODO: Implement
         # TODO: Extract task strings from episodes if available
         raise NotImplementedError("HDF5Dataset.get_task_descriptions not yet implemented")
-    
+
     def _build_index(self):
         """
         Build index mapping from flat index to (episode_idx, step_idx).
-        
+
         This enables efficient random access while maintaining episode structure.
         """
         # TODO: Implement
         raise NotImplementedError("HDF5Dataset._build_index not yet implemented")
-    
+
     def _load_image(self, episode_idx: int, step_idx: int, image_key: str) -> torch.Tensor:
         """
         Load image from HDF5 with optional caching.
-        
+
         Args:
             episode_idx: Episode index
             step_idx: Step index within episode
             image_key: Image observation key
-            
+
         Returns:
             Image tensor [C, H, W]
         """
@@ -166,18 +166,18 @@ class HDF5Dataset(EpisodicDataset):
         # TODO: Load from HDF5
         # TODO: Convert to PyTorch tensor and reorder dimensions
         raise NotImplementedError("HDF5Dataset._load_image not yet implemented")
-    
+
     def close(self):
         """Close HDF5 file handles."""
         # TODO: Implement
         # TODO: Close all open HDF5 files
         pass
-    
+
     def __del__(self):
         """Cleanup on deletion."""
         self.close()
 
 
 __all__ = [
-    'HDF5Dataset',
+    "HDF5Dataset",
 ]

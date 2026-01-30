@@ -1,40 +1,41 @@
 """Evaluation metrics and benchmarks for VLA models."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Optional
+
 import numpy as np
 
 
 class MetricBase:
     """Base class for evaluation metrics."""
-    
+
     def __init__(self, name: str):
         self.name = name
-        self._values: List[float] = []
-    
+        self._values: list[float] = []
+
     def reset(self) -> None:
         """Reset accumulated values."""
         self._values = []
-    
+
     def update(self, *args, **kwargs) -> None:
         """Update metric with new data."""
         raise NotImplementedError
-    
+
     def compute(self) -> float:
         """Compute final metric value."""
         if not self._values:
             return 0.0
         return np.mean(self._values)
-    
+
     def __repr__(self) -> str:
         return f"{self.name}: {self.compute():.4f}"
 
 
 class MSE(MetricBase):
     """Mean Squared Error metric."""
-    
+
     def __init__(self):
         super().__init__("MSE")
-    
+
     def update(
         self,
         predictions: np.ndarray,
@@ -46,10 +47,10 @@ class MSE(MetricBase):
 
 class MAE(MetricBase):
     """Mean Absolute Error metric."""
-    
+
     def __init__(self):
         super().__init__("MAE")
-    
+
     def update(
         self,
         predictions: np.ndarray,
@@ -61,11 +62,11 @@ class MAE(MetricBase):
 
 class SuccessRate(MetricBase):
     """Task success rate metric."""
-    
+
     def __init__(self, threshold: float = 0.05):
         super().__init__("Success Rate")
         self.threshold = threshold
-    
+
     def update(
         self,
         achieved_goal: np.ndarray,
@@ -78,10 +79,10 @@ class SuccessRate(MetricBase):
 
 class PositionError(MetricBase):
     """End-effector position error metric."""
-    
+
     def __init__(self):
         super().__init__("Position Error")
-    
+
     def update(
         self,
         predicted_pos: np.ndarray,
@@ -93,10 +94,10 @@ class PositionError(MetricBase):
 
 class RotationError(MetricBase):
     """Rotation error metric (in degrees)."""
-    
+
     def __init__(self):
         super().__init__("Rotation Error")
-    
+
     def update(
         self,
         predicted_rot: np.ndarray,  # quaternion
@@ -111,10 +112,10 @@ class RotationError(MetricBase):
 
 class TrajectoryLength(MetricBase):
     """Trajectory length metric."""
-    
+
     def __init__(self):
         super().__init__("Trajectory Length")
-    
+
     def update(self, trajectory: np.ndarray) -> None:
         """
         Args:
@@ -122,17 +123,17 @@ class TrajectoryLength(MetricBase):
         """
         if len(trajectory) < 2:
             return
-        
+
         length = np.sum(np.linalg.norm(np.diff(trajectory, axis=0), axis=1))
         self._values.append(length)
 
 
 class Smoothness(MetricBase):
     """Action smoothness metric (lower is smoother)."""
-    
+
     def __init__(self):
         super().__init__("Smoothness")
-    
+
     def update(self, actions: np.ndarray) -> None:
         """
         Args:
@@ -140,7 +141,7 @@ class Smoothness(MetricBase):
         """
         if len(actions) < 3:
             return
-        
+
         # Compute second derivative (acceleration)
         acc = np.diff(actions, n=2, axis=0)
         smoothness = np.mean(np.abs(acc))
@@ -149,11 +150,11 @@ class Smoothness(MetricBase):
 
 class EpisodeReturn(MetricBase):
     """Cumulative episode return."""
-    
+
     def __init__(self, gamma: float = 0.99):
         super().__init__("Episode Return")
         self.gamma = gamma
-    
+
     def update(self, rewards: np.ndarray) -> None:
         """
         Args:
@@ -167,8 +168,8 @@ class EpisodeReturn(MetricBase):
 
 class MetricCollection:
     """Collection of metrics for comprehensive evaluation."""
-    
-    def __init__(self, metrics: Optional[List[MetricBase]] = None):
+
+    def __init__(self, metrics: Optional[list[MetricBase]] = None):
         """
         Args:
             metrics: List of metrics to track
@@ -180,12 +181,12 @@ class MetricCollection:
             Smoothness(),
         ]
         self._metric_dict = {m.name: m for m in self.metrics}
-    
+
     def reset(self) -> None:
         """Reset all metrics."""
         for metric in self.metrics:
             metric.reset()
-    
+
     def update(self, **kwargs) -> None:
         """Update all applicable metrics."""
         for metric in self.metrics:
@@ -193,11 +194,11 @@ class MetricCollection:
                 metric.update(**kwargs)
             except (TypeError, KeyError):
                 pass  # Metric doesn't accept these arguments
-    
-    def compute(self) -> Dict[str, float]:
+
+    def compute(self) -> dict[str, float]:
         """Compute all metrics."""
         return {m.name: m.compute() for m in self.metrics}
-    
+
     def __getitem__(self, name: str) -> MetricBase:
         return self._metric_dict[name]
 
@@ -222,7 +223,7 @@ BENCHMARK_CONFIGS = {
 }
 
 
-def create_metrics(metric_names: List[str]) -> MetricCollection:
+def create_metrics(metric_names: list[str]) -> MetricCollection:
     """Create metrics collection from names."""
     metric_map = {
         "mse": MSE,
@@ -234,26 +235,26 @@ def create_metrics(metric_names: List[str]) -> MetricCollection:
         "smoothness": Smoothness,
         "episode_return": EpisodeReturn,
     }
-    
+
     metrics = []
     for name in metric_names:
         if name.lower() in metric_map:
             metrics.append(metric_map[name.lower()]())
-    
+
     return MetricCollection(metrics)
 
 
 __all__ = [
-    'MetricBase',
-    'MSE',
-    'MAE',
-    'SuccessRate',
-    'PositionError',
-    'RotationError',
-    'TrajectoryLength',
-    'Smoothness',
-    'EpisodeReturn',
-    'MetricCollection',
-    'create_metrics',
-    'BENCHMARK_CONFIGS',
+    "MetricBase",
+    "MSE",
+    "MAE",
+    "SuccessRate",
+    "PositionError",
+    "RotationError",
+    "TrajectoryLength",
+    "Smoothness",
+    "EpisodeReturn",
+    "MetricCollection",
+    "create_metrics",
+    "BENCHMARK_CONFIGS",
 ]
