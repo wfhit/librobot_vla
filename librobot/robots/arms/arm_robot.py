@@ -4,12 +4,13 @@ Specific robot arm implementations that extend the base arm pattern.
 Each implementation customizes joint counts, limits, and hardware interfaces.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
+
 import numpy as np
 
-from .arm import Arm
 from ..base import AbstractRobot
 from ..registry import register_robot
+from .arm import Arm
 
 
 @register_robot(name="franka", aliases=["franka_panda", "panda"])
@@ -29,7 +30,7 @@ class FrankaArm(Arm):
         ]
 
     def connect(self, **kwargs) -> bool:
-        ip = kwargs.get("ip", "172.16.0.2")
+        kwargs.get("ip", "172.16.0.2")
         self._is_connected = True
         return True
 
@@ -41,7 +42,7 @@ class FrankaArm(Arm):
         self._joint_positions = np.array([0, -0.785, 0, -2.356, 0, 1.571, 0.785])
         self._gripper_state = np.array([0.04])  # Open
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         return {
             "joint_positions": self._joint_positions.copy(),
             "joint_velocities": self._joint_velocities.copy(),
@@ -54,7 +55,7 @@ class FrankaArm(Arm):
         self._gripper_state = action[self.num_joints:]
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         return {
             "proprioception": np.concatenate([
                 self._joint_positions,
@@ -73,7 +74,7 @@ class UR5Arm(Arm):
         self.joint_limits = [(-2*np.pi, 2*np.pi)] * 6
 
     def connect(self, **kwargs) -> bool:
-        ip = kwargs.get("ip", "192.168.1.100")
+        kwargs.get("ip", "192.168.1.100")
         self._is_connected = True
         return True
 
@@ -83,7 +84,7 @@ class UR5Arm(Arm):
     def reset(self) -> None:
         self._joint_positions = np.zeros(self.num_joints)
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         return {
             "joint_positions": self._joint_positions.copy(),
             "joint_velocities": self._joint_velocities.copy(),
@@ -96,7 +97,7 @@ class UR5Arm(Arm):
             self._gripper_state = action[self.num_joints:]
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         return {"proprioception": np.concatenate([
             self._joint_positions, self._joint_velocities
         ])}
@@ -110,7 +111,7 @@ class xArmRobot(Arm):
         super().__init__(robot_id, num_joints=num_joints, gripper_dof=1)
 
     def connect(self, **kwargs) -> bool:
-        ip = kwargs.get("ip", "192.168.1.111")
+        kwargs.get("ip", "192.168.1.111")
         self._is_connected = True
         return True
 
@@ -120,7 +121,7 @@ class xArmRobot(Arm):
     def reset(self) -> None:
         self._joint_positions = np.zeros(self.num_joints)
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         return {
             "joint_positions": self._joint_positions.copy(),
             "joint_velocities": self._joint_velocities.copy(),
@@ -130,7 +131,7 @@ class xArmRobot(Arm):
         self._joint_positions = action[:self.num_joints]
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         return {"proprioception": self._joint_positions.copy()}
 
 
@@ -142,7 +143,7 @@ class WidowXArm(Arm):
         super().__init__(robot_id, num_joints=6, gripper_dof=1)
 
     def connect(self, **kwargs) -> bool:
-        port = kwargs.get("port", "/dev/ttyUSB0")
+        kwargs.get("port", "/dev/ttyUSB0")
         self._is_connected = True
         return True
 
@@ -152,14 +153,14 @@ class WidowXArm(Arm):
     def reset(self) -> None:
         self._joint_positions = np.zeros(self.num_joints)
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         return {"joint_positions": self._joint_positions.copy()}
 
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
         self._joint_positions = action[:self.num_joints]
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         return {"proprioception": self._joint_positions.copy()}
 
 
@@ -216,15 +217,15 @@ class SO100Arm(AbstractRobot):
         >>> # Basic usage with position control
         >>> with SO100Arm(robot_id="arm_001") as robot:
         ...     robot.connect(ip="192.168.1.100", port=30001)
-        ...     
+        ...
         ...     # Reset to home position
         ...     robot.reset()
-        ...     
+        ...
         ...     # Get current observation
         ...     obs = robot.get_observation()
         ...     wrist_cam = obs['images']['wrist_camera']
         ...     joint_pos = obs['proprioception']['joint_positions']
-        ...     
+        ...
         ...     # Execute joint position action
         ...     action = np.array([
         ...         0.0,    # joint_0 (base)
@@ -241,11 +242,11 @@ class SO100Arm(AbstractRobot):
         >>> # Advanced usage with end-effector control
         >>> robot = SO100Arm(robot_id="arm_002", control_mode="end_effector")
         >>> robot.connect(ip="192.168.1.101")
-        >>> 
+        >>>
         >>> # Move end-effector to target pose
         >>> ee_pose = np.array([0.3, 0.2, 0.4, 0.0, np.pi/2, 0.0])  # x, y, z, r, p, y
         >>> robot.move_to_pose(ee_pose)
-        >>> 
+        >>>
         >>> robot.disconnect()
     """
 
@@ -377,7 +378,7 @@ class SO100Arm(AbstractRobot):
 
         print(f"[{self.robot_id}] Reset to home position")
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         """
         Get current arm state.
 
@@ -467,7 +468,7 @@ class SO100Arm(AbstractRobot):
     def _execute_velocity_action(self, action: np.ndarray, **kwargs) -> bool:
         """Execute velocity control action."""
         joint_velocities = action[:7]
-        gripper_velocity = action[7]
+        action[7]
 
         # Clip velocities to limits
         joint_velocities = np.clip(
@@ -528,7 +529,7 @@ class SO100Arm(AbstractRobot):
         """Check if position is within workspace limits."""
         return np.all(position >= self.WORKSPACE_MIN) and np.all(position <= self.WORKSPACE_MAX)
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         """
         Get current observation from arm sensors.
 
@@ -560,7 +561,7 @@ class SO100Arm(AbstractRobot):
 
         return observation
 
-    def get_action_space(self) -> Dict[str, Any]:
+    def get_action_space(self) -> dict[str, Any]:
         """
         Get action space specification.
 
@@ -597,7 +598,7 @@ class SO100Arm(AbstractRobot):
             'control_mode': self.control_mode,
         }
 
-    def get_observation_space(self) -> Dict[str, Any]:
+    def get_observation_space(self) -> dict[str, Any]:
         """
         Get observation space specification.
 
@@ -693,7 +694,7 @@ class SO100Arm(AbstractRobot):
         print(f"[{self.robot_id}] Calibration completed")
         return True
 
-    def get_diagnostics(self) -> Dict[str, Any]:
+    def get_diagnostics(self) -> dict[str, Any]:
         """
         Get comprehensive diagnostics information.
 

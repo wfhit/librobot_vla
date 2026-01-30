@@ -1,14 +1,15 @@
 """Performance profiling utilities for debugging and optimization."""
 
-import time
 import cProfile
 import pstats
+import time
+from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
-from typing import Optional, Union, Dict, Any, Callable
-from contextlib import contextmanager
+from typing import Any, Callable, Optional, Union
+
 import torch
-from torch.profiler import profile, ProfilerActivity, schedule, tensorboard_trace_handler
+from torch.profiler import ProfilerActivity, profile, schedule, tensorboard_trace_handler
 
 
 class Profiler:
@@ -231,7 +232,7 @@ class TorchProfiler:
         self.profiler.export_chrome_trace(str(path))
 
 
-def profile_function(func: Callable, *args, **kwargs) -> Dict[str, Any]:
+def profile_function(func: Callable, *args, **kwargs) -> dict[str, Any]:
     """
     Profile a function call and return timing information.
 
@@ -265,7 +266,7 @@ def benchmark_function(
     num_iterations: int = 100,
     warmup: int = 10,
     **kwargs
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Benchmark a function with multiple iterations.
 

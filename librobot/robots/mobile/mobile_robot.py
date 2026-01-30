@@ -1,10 +1,11 @@
 """Mobile robot implementations."""
 
-from typing import Any, Dict
+from typing import Any
+
 import numpy as np
 
-from .mobile import MobileRobot
 from ..registry import register_robot
+from .mobile import MobileRobot
 
 
 @register_robot(name="lekiwi", aliases=["le_kiwi"])
@@ -30,7 +31,7 @@ class LeKiwiRobot(MobileRobot):
         self._position = np.zeros(3)
         self._velocity = np.zeros(2)
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         return {
             "position": self._position.copy(),
             "orientation": self._orientation.copy(),
@@ -43,7 +44,7 @@ class LeKiwiRobot(MobileRobot):
         self._position[:2] += action[:2] * dt
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         return {
             "proprioception": np.concatenate([
                 self._position,
@@ -78,7 +79,7 @@ class DifferentialDriveRobot(MobileRobot):
         self._position = np.zeros(3)
         self._velocity = np.zeros(2)
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         return {
             "position": self._position.copy(),
             "velocity": self._velocity.copy(),
@@ -97,7 +98,7 @@ class DifferentialDriveRobot(MobileRobot):
         self._velocity = action[:2].copy()
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         return {"proprioception": np.concatenate([self._position, self._velocity])}
 
 

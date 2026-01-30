@@ -9,29 +9,17 @@ Provides various action prediction mechanisms including:
 - Flow matching heads (FlowMatching, OTCFM, RectifiedFlow)
 """
 
-from .base import AbstractActionHead
-from .registry import (
-    ACTION_HEAD_REGISTRY,
-    register_action_head,
-    get_action_head,
-    create_action_head,
-    list_action_heads,
-)
-
-# Core action heads
-from .mlp_oft import MLPActionHead
 from .autoregressive_fast import FASTActionHead
-from .transformer_act import ACTActionHead
-from .hybrid import HybridActionHead
+from .base import AbstractActionHead
 
 # Diffusion-based action heads
 from .diffusion import (
-    DDPMActionHead,
+    ConsistencyActionHead,
     DDIMActionHead,
+    DDPMActionHead,
+    DiT,
     DPMActionHead,
     UNet1D,
-    DiT,
-    ConsistencyActionHead,
 )
 
 # Flow matching action heads
@@ -40,6 +28,18 @@ from .flow_matching import (
     OTCFMHead,
     RectifiedFlowHead,
 )
+from .hybrid import HybridActionHead
+
+# Core action heads
+from .mlp_oft import MLPActionHead
+from .registry import (
+    ACTION_HEAD_REGISTRY,
+    create_action_head,
+    get_action_head,
+    list_action_heads,
+    register_action_head,
+)
+from .transformer_act import ACTActionHead
 
 __all__ = [
     # Base and registry

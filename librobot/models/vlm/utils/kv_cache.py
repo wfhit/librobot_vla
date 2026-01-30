@@ -1,6 +1,7 @@
 """KV cache for efficient inference."""
+
 import torch
-from typing import Optional, Tuple
+
 
 class KVCache:
     """Key-Value cache for transformer inference."""
@@ -11,7 +12,7 @@ class KVCache:
         self.cache_v = torch.zeros(max_batch_size, num_heads, max_seq_len, head_dim, device=device)
         self.seq_len = 0
 
-    def update(self, k: torch.Tensor, v: torch.Tensor, start_pos: int = 0) -> Tuple[torch.Tensor, torch.Tensor]:
+    def update(self, k: torch.Tensor, v: torch.Tensor, start_pos: int = 0) -> tuple[torch.Tensor, torch.Tensor]:
         """Update cache with new key-value pairs."""
         batch_size, num_heads, seq_len, head_dim = k.shape
         self.cache_k[:batch_size, :, start_pos:start_pos+seq_len] = k

@@ -9,10 +9,8 @@ This module provides implementations for:
 - Zero-shot and few-shot capabilities
 """
 
-import os
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from dataclasses import dataclass
+from typing import Any, Callable, Optional
 
 import numpy as np
 
@@ -107,8 +105,8 @@ class RLPolicyWrapper:
 
     def get_action_and_value(
         self,
-        observation: Dict[str, Any],
-    ) -> Tuple[np.ndarray, float, float]:
+        observation: dict[str, Any],
+    ) -> tuple[np.ndarray, float, float]:
         """
         Get action, value, and log probability.
 
@@ -151,7 +149,7 @@ class RLPolicyWrapper:
         env: Any,
         total_timesteps: int = 100000,
         callback: Optional[Callable] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Train the VLA model with RL.
 
@@ -164,7 +162,7 @@ class RLPolicyWrapper:
             Training statistics
         """
         try:
-            from stable_baselines3 import PPO, SAC, TD3, DDPG
+            from stable_baselines3 import DDPG, PPO, SAC, TD3
             from stable_baselines3.common.callbacks import BaseCallback
 
             # Select algorithm
@@ -276,7 +274,7 @@ class VideoImitationLearner:
         self,
         video_path: str,
         max_frames: int = 500,
-    ) -> List[np.ndarray]:
+    ) -> list[np.ndarray]:
         """Extract frames from video at specified frame rate."""
         try:
             import cv2
@@ -309,7 +307,7 @@ class VideoImitationLearner:
 
     def infer_actions_from_frames(
         self,
-        frames: List[np.ndarray],
+        frames: list[np.ndarray],
         task_instruction: str,
     ) -> np.ndarray:
         """Infer robot actions from video frames.
@@ -321,7 +319,7 @@ class VideoImitationLearner:
 
         for i in range(len(frames) - 1):
             current_frame = frames[i]
-            next_frame = frames[i + 1]
+            frames[i + 1]
 
             # Use VLA model to infer action
             # This is a simplified approach - real implementation
@@ -340,7 +338,7 @@ class VideoImitationLearner:
         video_path: str,
         task_instruction: str,
         num_epochs: int = 10,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Learn from a video demonstration.
 
@@ -415,7 +413,7 @@ class MultiRobotCoordinator:
 
     def __init__(
         self,
-        vla_models: List[Any],
+        vla_models: list[Any],
         config: Optional[MultiRobotConfig] = None,
     ):
         self.vla_models = vla_models
@@ -424,9 +422,9 @@ class MultiRobotCoordinator:
 
     def get_coordinated_actions(
         self,
-        observations: List[Dict[str, Any]],
+        observations: list[dict[str, Any]],
         shared_goal: Optional[str] = None,
-    ) -> List[np.ndarray]:
+    ) -> list[np.ndarray]:
         """
         Get coordinated actions for all robots.
 
@@ -450,9 +448,9 @@ class MultiRobotCoordinator:
 
     def _centralized_control(
         self,
-        observations: List[Dict[str, Any]],
+        observations: list[dict[str, Any]],
         shared_goal: Optional[str] = None,
-    ) -> List[np.ndarray]:
+    ) -> list[np.ndarray]:
         """Centralized control with global state."""
         # Aggregate all observations
         global_obs = self._aggregate_observations(observations)
@@ -474,9 +472,9 @@ class MultiRobotCoordinator:
 
     def _decentralized_control(
         self,
-        observations: List[Dict[str, Any]],
+        observations: list[dict[str, Any]],
         shared_goal: Optional[str] = None,
-    ) -> List[np.ndarray]:
+    ) -> list[np.ndarray]:
         """Decentralized control with message passing."""
         actions = []
         new_messages = []
@@ -506,9 +504,9 @@ class MultiRobotCoordinator:
 
     def _independent_control(
         self,
-        observations: List[Dict[str, Any]],
+        observations: list[dict[str, Any]],
         shared_goal: Optional[str] = None,
-    ) -> List[np.ndarray]:
+    ) -> list[np.ndarray]:
         """Independent control without coordination."""
         actions = []
 
@@ -524,8 +522,8 @@ class MultiRobotCoordinator:
 
     def _aggregate_observations(
         self,
-        observations: List[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        observations: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         """Aggregate observations from all robots."""
         # Combine images (could use more sophisticated fusion)
         images = [obs.get("image") for obs in observations if "image" in obs]
@@ -539,7 +537,7 @@ class MultiRobotCoordinator:
 
     def _generate_message(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         action: np.ndarray,
         robot_id: int,
     ) -> np.ndarray:
@@ -598,8 +596,8 @@ class SimToRealAdapter:
 
     def apply_domain_randomization(
         self,
-        observation: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        observation: dict[str, Any],
+    ) -> dict[str, Any]:
         """Apply domain randomization to observation."""
         result = observation.copy()
 
@@ -631,7 +629,7 @@ class SimToRealAdapter:
 
     def adapt_to_real(
         self,
-        real_data: List[Dict[str, Any]],
+        real_data: list[dict[str, Any]],
         num_epochs: int = 5,
     ) -> Any:
         """
@@ -653,7 +651,7 @@ class SimToRealAdapter:
 
     def _fine_tune_adaptation(
         self,
-        real_data: List[Dict[str, Any]],
+        real_data: list[dict[str, Any]],
         num_epochs: int,
     ) -> Any:
         """Simple fine-tuning on real data."""
@@ -669,7 +667,7 @@ class SimToRealAdapter:
 
     def _domain_adaptation(
         self,
-        real_data: List[Dict[str, Any]],
+        real_data: list[dict[str, Any]],
         num_epochs: int,
     ) -> Any:
         """Domain adaptation using adversarial training."""
@@ -710,15 +708,15 @@ class OnlineLearner:
         self.update_frequency = update_frequency
         self.learning_rate = learning_rate
 
-        self._buffer: List[Dict[str, Any]] = []
+        self._buffer: list[dict[str, Any]] = []
         self._step_count = 0
 
     def add_experience(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         action: np.ndarray,
         reward: float,
-        next_observation: Dict[str, Any],
+        next_observation: dict[str, Any],
         done: bool = False,
     ) -> None:
         """Add experience to replay buffer."""
@@ -740,7 +738,7 @@ class OnlineLearner:
         if self._step_count % self.update_frequency == 0:
             self.update()
 
-    def update(self) -> Dict[str, float]:
+    def update(self) -> dict[str, float]:
         """Update model from buffer."""
         if len(self._buffer) < self.update_frequency:
             return {}
@@ -804,7 +802,7 @@ class ZeroShotAdapter:
         self.vla_model = vla_model
         self.task_decomposer = task_decomposer or self._default_decomposer
 
-    def _default_decomposer(self, task: str) -> List[str]:
+    def _default_decomposer(self, task: str) -> list[str]:
         """Default task decomposition into subtasks."""
         # Simple heuristic decomposition
         # In practice, could use LLM for decomposition
@@ -824,10 +822,10 @@ class ZeroShotAdapter:
 
     def execute_task(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         task: str,
         max_steps: int = 100,
-    ) -> List[np.ndarray]:
+    ) -> list[np.ndarray]:
         """
         Execute a zero-shot task.
 
@@ -863,9 +861,9 @@ class ZeroShotAdapter:
 
     def compose_skills(
         self,
-        observation: Dict[str, Any],
-        skill_sequence: List[str],
-    ) -> List[np.ndarray]:
+        observation: dict[str, Any],
+        skill_sequence: list[str],
+    ) -> list[np.ndarray]:
         """Compose multiple skills sequentially."""
         actions = []
 
@@ -899,11 +897,11 @@ class FewShotAdapter:
     ):
         self.vla_model = vla_model
         self.max_demonstrations = max_demonstrations
-        self._demonstrations: List[Dict[str, Any]] = []
+        self._demonstrations: list[dict[str, Any]] = []
 
     def add_demonstration(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         action: np.ndarray,
         task_description: Optional[str] = None,
     ) -> None:
@@ -928,7 +926,7 @@ class FewShotAdapter:
 
     def predict_with_demos(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         task_description: Optional[str] = None,
     ) -> np.ndarray:
         """
@@ -1057,7 +1055,7 @@ class EdgeDeployer:
     def distill(
         self,
         student_model: Any,
-        train_data: List[Dict[str, Any]],
+        train_data: list[dict[str, Any]],
         temperature: float = 4.0,
     ) -> Any:
         """

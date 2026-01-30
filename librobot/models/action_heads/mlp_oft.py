@@ -1,7 +1,9 @@
 """MLP action head for OpenVLA-OFT."""
 import torch
 import torch.nn as nn
+
 from .base import AbstractActionHead
+
 
 class MLPActionHead(AbstractActionHead):
     """Simple MLP for action regression."""

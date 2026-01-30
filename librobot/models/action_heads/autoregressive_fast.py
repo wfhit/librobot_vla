@@ -1,7 +1,9 @@
 """Autoregressive FAST tokenized actions."""
 import torch
 import torch.nn as nn
+
 from .base import AbstractActionHead
+
 
 class FASTActionHead(AbstractActionHead):
     """FAST autoregressive discrete action head."""

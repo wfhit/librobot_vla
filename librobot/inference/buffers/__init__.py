@@ -2,9 +2,9 @@
 
 from .action_buffer import (
     ActionBuffer,
+    ActionChunkBuffer,
     ActionSmoothingBuffer,
     HistoryBuffer,
-    ActionChunkBuffer,
 )
 
 __all__ = [

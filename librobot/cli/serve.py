@@ -1,10 +1,9 @@
 """Serve CLI command for inference server."""
 
 import argparse
-from pathlib import Path
-from typing import Optional
-import sys
 import asyncio
+import sys
+from typing import Optional
 
 
 def serve_cli(args: Optional[list] = None) -> int:
@@ -158,7 +157,6 @@ def run_server(args) -> int:
 
 def load_model(args):
     """Load model for inference."""
-    from librobot.inference.policy import BasePolicy
 
     # Try loading optimized model first
     if args.onnx:

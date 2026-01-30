@@ -1,7 +1,8 @@
 """Buffers for action smoothing and history."""
 
-from typing import Any, Deque, Dict, List, Optional
 from collections import deque
+from typing import Any, Optional
+
 import numpy as np
 
 
@@ -20,7 +21,7 @@ class ActionBuffer:
         """
         self.buffer_size = buffer_size
         self.action_dim = action_dim
-        self._buffer: Deque[np.ndarray] = deque(maxlen=buffer_size)
+        self._buffer: deque[np.ndarray] = deque(maxlen=buffer_size)
 
     def add(self, action: np.ndarray) -> None:
         """Add action to buffer."""
@@ -67,7 +68,7 @@ class ActionSmoothingBuffer:
         self.smoothing_type = smoothing_type
         self.alpha = alpha
 
-        self._buffer: Deque[np.ndarray] = deque(maxlen=window_size)
+        self._buffer: deque[np.ndarray] = deque(maxlen=window_size)
         self._smoothed_action: Optional[np.ndarray] = None
 
     def add(self, action: np.ndarray) -> np.ndarray:
@@ -126,7 +127,7 @@ class HistoryBuffer:
     def __init__(
         self,
         history_length: int = 4,
-        keys: List[str] = None,
+        keys: list[str] = None,
     ):
         """
         Args:
@@ -135,9 +136,9 @@ class HistoryBuffer:
         """
         self.history_length = history_length
         self.keys = keys or ['images', 'proprioception', 'actions']
-        self._buffers: Dict[str, Deque] = {k: deque(maxlen=history_length) for k in self.keys}
+        self._buffers: dict[str, deque] = {k: deque(maxlen=history_length) for k in self.keys}
 
-    def add(self, data: Dict[str, Any]) -> None:
+    def add(self, data: dict[str, Any]) -> None:
         """Add data to history."""
         for key in self.keys:
             if key in data:
@@ -151,7 +152,7 @@ class HistoryBuffer:
             return None
         return np.stack(list(buffer)[-n:])
 
-    def get_all(self) -> Dict[str, np.ndarray]:
+    def get_all(self) -> dict[str, np.ndarray]:
         """Get all history."""
         return {k: self.get(k) for k in self.keys if self._buffers[k]}
 
@@ -182,7 +183,7 @@ class ActionChunkBuffer:
 
         self._chunk: Optional[np.ndarray] = None
         self._index: int = 0
-        self._chunk_history: Deque[np.ndarray] = deque(maxlen=3)
+        self._chunk_history: deque[np.ndarray] = deque(maxlen=3)
 
     def set_chunk(self, chunk: np.ndarray) -> None:
         """Set a new action chunk."""

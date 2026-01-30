@@ -2,20 +2,19 @@
 
 import asyncio
 import time
-from typing import Any, Dict, List, Optional, Union
 from pathlib import Path
+from typing import Any, Optional, Union
 
 import torch
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, status
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from librobot.utils import get_logger
-from librobot.inference.server.base_server import AbstractServer
 from librobot.inference.policy import VLAPolicy
-
+from librobot.inference.server.base_server import AbstractServer
+from librobot.utils import get_logger
 
 logger = get_logger(__name__)
 
@@ -30,19 +29,19 @@ class HealthResponse(BaseModel):
 
 class PredictRequest(BaseModel):
     """Prediction request model."""
-    image: Optional[Union[List[List[List[float]]], str]] = Field(
+    image: Optional[Union[list[list[list[float]]], str]] = Field(
         None,
         description="Image as nested list or base64 string"
     )
     text: Optional[str] = Field(None, description="Text instruction")
-    state: Optional[List[float]] = Field(None, description="Robot state")
+    state: Optional[list[float]] = Field(None, description="Robot state")
     return_logits: bool = Field(False, description="Return raw logits")
 
 
 class PredictResponse(BaseModel):
     """Prediction response model."""
-    actions: List[List[float]] = Field(..., description="Predicted actions")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    actions: list[list[float]] = Field(..., description="Predicted actions")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
     inference_time: float = Field(..., description="Inference time in seconds")
 
 
@@ -136,7 +135,7 @@ class RESTServer(AbstractServer):
     def _setup_routes(self) -> None:
         """Setup API routes."""
 
-        @self.app.get("/", response_model=Dict[str, str])
+        @self.app.get("/", response_model=dict[str, str])
         async def root():
             """Root endpoint."""
             return {
@@ -270,9 +269,9 @@ class RESTServer(AbstractServer):
 
     async def predict(
         self,
-        request: Dict[str, Any],
+        request: dict[str, Any],
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Handle prediction request.
 
@@ -329,7 +328,7 @@ class RESTServer(AbstractServer):
         else:
             logger.warning(f"Model path does not exist: {model_path}")
 
-    def get_server_info(self) -> Dict[str, Any]:
+    def get_server_info(self) -> dict[str, Any]:
         """
         Get server information.
 

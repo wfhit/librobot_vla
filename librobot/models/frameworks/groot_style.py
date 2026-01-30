@@ -1,16 +1,16 @@
 """NVIDIA GR00T-style VLA framework implementation."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .base import AbstractVLA
-from ..vlm.base import AbstractVLM
-from ..encoders.state.mlp_encoder import MLPStateEncoder
-from ..encoders.fusion.film import FiLMFusion
 from ..action_heads.diffusion.ddpm import DDPMActionHead
+from ..encoders.fusion.film import FiLMFusion
+from ..encoders.state.mlp_encoder import MLPStateEncoder
+from ..vlm.base import AbstractVLM
+from .base import AbstractVLA
 
 
 class GR00TVLA(AbstractVLA):
@@ -118,11 +118,11 @@ class GR00TVLA(AbstractVLA):
     def forward(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Forward pass of GR00T VLA.
 
@@ -214,7 +214,7 @@ class GR00TVLA(AbstractVLA):
     def predict_action(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         **kwargs
     ) -> torch.Tensor:
@@ -243,10 +243,10 @@ class GR00TVLA(AbstractVLA):
 
     def compute_loss(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
 
@@ -267,7 +267,7 @@ class GR00TVLA(AbstractVLA):
 
         return losses
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """
         Get framework configuration.
 

@@ -1,6 +1,7 @@
 """Policy wrappers for VLA inference."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
+
 import numpy as np
 
 
@@ -32,7 +33,7 @@ class BasePolicy:
 
     def __call__(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         instruction: str = "",
     ) -> np.ndarray:
         """
@@ -49,7 +50,7 @@ class BasePolicy:
 
     def get_action(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         instruction: str = "",
     ) -> np.ndarray:
         """Get action from observation."""
@@ -73,9 +74,9 @@ class BasePolicy:
 
     def _prepare_inputs(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         instruction: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Prepare model inputs."""
         import torch
 
@@ -104,7 +105,7 @@ class BasePolicy:
 
         return inputs
 
-    def _extract_action(self, outputs: Dict[str, Any]) -> Any:
+    def _extract_action(self, outputs: dict[str, Any]) -> Any:
         """Extract action from model outputs."""
         if isinstance(outputs, dict):
             if 'actions' in outputs:
@@ -119,9 +120,9 @@ class BasePolicy:
 
     def predict(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         return_logits: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Predict actions from observation.
 
@@ -160,7 +161,7 @@ class DiffusionPolicy(BasePolicy):
 
     def get_action(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         instruction: str = "",
     ) -> np.ndarray:
         """Get action using diffusion sampling."""
@@ -203,7 +204,7 @@ class AutoregressivePolicy(BasePolicy):
 
     def get_action(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         instruction: str = "",
     ) -> np.ndarray:
         """Get action via autoregressive generation."""
@@ -233,7 +234,7 @@ class EnsemblePolicy(BasePolicy):
 
     def __init__(
         self,
-        policies: List[BasePolicy],
+        policies: list[BasePolicy],
         aggregation: str = "mean",
     ):
         """
@@ -247,7 +248,7 @@ class EnsemblePolicy(BasePolicy):
 
     def get_action(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         instruction: str = "",
     ) -> np.ndarray:
         """Get ensemble action."""

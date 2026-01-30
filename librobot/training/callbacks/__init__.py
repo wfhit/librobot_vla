@@ -2,8 +2,8 @@
 
 from .base import AbstractCallback
 from .checkpoint import CheckpointCallback, ModelCheckpoint
+from .early_stopping import EarlyStopping, GradientMonitor, LearningRateScheduler
 from .logging import LoggingCallback, TensorBoardCallback, WandBCallback
-from .early_stopping import EarlyStopping, LearningRateScheduler, GradientMonitor
 
 __all__ = [
     # Base

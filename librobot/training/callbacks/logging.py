@@ -1,9 +1,9 @@
 """Logging callbacks for training."""
 
-from typing import Any, Dict, List, Optional
-from pathlib import Path
 import json
 import time
+from pathlib import Path
+from typing import Any, Optional
 
 from .base import AbstractCallback
 
@@ -28,20 +28,20 @@ class LoggingCallback(AbstractCallback):
         self.log_interval = log_interval
         self.verbose = verbose
 
-        self.history: Dict[str, List[float]] = {}
-        self.epoch_metrics: Dict[str, float] = {}
+        self.history: dict[str, list[float]] = {}
+        self.epoch_metrics: dict[str, float] = {}
         self._batch_count = 0
         self._epoch_start_time = 0
 
         if self.log_dir:
             self.log_dir.mkdir(parents=True, exist_ok=True)
 
-    def on_train_begin(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_train_begin(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Called at training start."""
         if self.verbose:
             print("Training started...")
 
-    def on_epoch_begin(self, epoch: int, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_epoch_begin(self, epoch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """Called at epoch start."""
         self._epoch_start_time = time.time()
         self._batch_count = 0
@@ -51,7 +51,7 @@ class LoggingCallback(AbstractCallback):
             print(f"\nEpoch {epoch + 1}")
             print("-" * 40)
 
-    def on_batch_end(self, batch: int, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_batch_end(self, batch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """Called at batch end."""
         self._batch_count += 1
         logs = logs or {}
@@ -69,7 +69,7 @@ class LoggingCallback(AbstractCallback):
             loss = logs.get('loss', 0)
             print(f"  Batch {batch}: loss = {loss:.4f}")
 
-    def on_epoch_end(self, epoch: int, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_epoch_end(self, epoch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """Called at epoch end."""
         logs = logs or {}
         epoch_time = time.time() - self._epoch_start_time
@@ -88,7 +88,7 @@ class LoggingCallback(AbstractCallback):
                 if isinstance(value, (int, float)):
                     print(f"  {key}: {value:.4f}")
 
-    def on_train_end(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_train_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Called at training end."""
         if self.verbose:
             print("\nTraining completed!")
@@ -122,7 +122,7 @@ class TensorBoardCallback(AbstractCallback):
         self.writer = None
         self._batch_count = 0
 
-    def on_train_begin(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_train_begin(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Initialize TensorBoard writer."""
         try:
             from torch.utils.tensorboard import SummaryWriter
@@ -130,7 +130,7 @@ class TensorBoardCallback(AbstractCallback):
         except ImportError:
             print("TensorBoard not available")
 
-    def on_batch_end(self, batch: int, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_batch_end(self, batch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """Log batch metrics."""
         if self.writer is None:
             return
@@ -143,7 +143,7 @@ class TensorBoardCallback(AbstractCallback):
                 if isinstance(value, (int, float)):
                     self.writer.add_scalar(f'train/{key}', value, global_step)
 
-    def on_validation_end(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_validation_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Log validation metrics."""
         if self.writer is None:
             return
@@ -155,7 +155,7 @@ class TensorBoardCallback(AbstractCallback):
             if isinstance(value, (int, float)):
                 self.writer.add_scalar(f'val/{key}', value, global_step)
 
-    def on_train_end(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_train_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Close TensorBoard writer."""
         if self.writer:
             self.writer.close()
@@ -168,7 +168,7 @@ class WandBCallback(AbstractCallback):
         self,
         project: str,
         name: Optional[str] = None,
-        config: Optional[Dict] = None,
+        config: Optional[dict] = None,
         log_interval: int = 10,
     ):
         """
@@ -185,7 +185,7 @@ class WandBCallback(AbstractCallback):
         self.log_interval = log_interval
         self._wandb = None
 
-    def on_train_begin(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_train_begin(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Initialize W&B run."""
         try:
             import wandb
@@ -198,7 +198,7 @@ class WandBCallback(AbstractCallback):
         except ImportError:
             print("wandb not available")
 
-    def on_batch_end(self, batch: int, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_batch_end(self, batch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """Log batch metrics."""
         if self._wandb is None:
             return
@@ -207,10 +207,10 @@ class WandBCallback(AbstractCallback):
         global_step = self.trainer.global_step if self.trainer else batch
 
         if global_step % self.log_interval == 0:
-            self._wandb.log({f'train/{k}': v for k, v in logs.items() 
+            self._wandb.log({f'train/{k}': v for k, v in logs.items()
                            if isinstance(v, (int, float))}, step=global_step)
 
-    def on_validation_end(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_validation_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Log validation metrics."""
         if self._wandb is None:
             return
@@ -220,7 +220,7 @@ class WandBCallback(AbstractCallback):
         self._wandb.log({f'val/{k}': v for k, v in logs.items()
                        if isinstance(v, (int, float))}, step=global_step)
 
-    def on_train_end(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_train_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Finish W&B run."""
         if self._wandb:
             self._wandb.finish()

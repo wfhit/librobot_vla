@@ -1,11 +1,9 @@
 """Sliding window attention for long sequences."""
 
-import math
-from typing import Optional, Tuple
+from typing import Optional
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class SlidingWindowAttention(nn.Module):
@@ -110,7 +108,7 @@ class SlidingWindowAttention(nn.Module):
         x: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,
         return_attention: bool = False,
-    ) -> torch.Tensor | Tuple[torch.Tensor, torch.Tensor]:
+    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         """
         Forward pass.
 

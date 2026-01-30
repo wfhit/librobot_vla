@@ -1,10 +1,8 @@
 """Hyperparameter tuning utilities using Ray Tune and Optuna."""
 
-import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Optional
 
 from librobot.utils.logging import get_logger
 
@@ -22,7 +20,7 @@ class SearchSpace:
         >>> space.add_loguniform("weight_decay", 1e-6, 1e-2)
     """
 
-    params: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    params: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     def add_uniform(self, name: str, low: float, high: float) -> "SearchSpace":
         """Add uniform distribution parameter."""
@@ -34,7 +32,7 @@ class SearchSpace:
         self.params[name] = {"type": "loguniform", "low": low, "high": high}
         return self
 
-    def add_choice(self, name: str, choices: List[Any]) -> "SearchSpace":
+    def add_choice(self, name: str, choices: list[Any]) -> "SearchSpace":
         """Add categorical choice parameter."""
         self.params[name] = {"type": "choice", "choices": choices}
         return self
@@ -49,7 +47,7 @@ class SearchSpace:
         self.params[name] = {"type": "quniform", "low": low, "high": high, "q": q}
         return self
 
-    def to_ray(self) -> Dict[str, Any]:
+    def to_ray(self) -> dict[str, Any]:
         """Convert to Ray Tune search space."""
         try:
             from ray import tune
@@ -74,7 +72,7 @@ class SearchSpace:
         except ImportError:
             raise ImportError("ray[tune] required for Ray Tune. Install with: pip install ray[tune]")
 
-    def to_optuna(self, trial) -> Dict[str, Any]:
+    def to_optuna(self, trial) -> dict[str, Any]:
         """Convert to Optuna trial suggestions."""
         optuna_params = {}
 
@@ -123,7 +121,7 @@ class TuningConfig:
     grace_period: int = 1
     reduction_factor: int = 2
     time_budget_s: Optional[int] = None
-    resources_per_trial: Dict[str, float] = field(default_factory=lambda: {"cpu": 1, "gpu": 0.5})
+    resources_per_trial: dict[str, float] = field(default_factory=lambda: {"cpu": 1, "gpu": 0.5})
     local_dir: str = "./ray_results"
 
 
@@ -136,12 +134,12 @@ class AbstractTuner(ABC):
         train_fn: Callable,
         search_space: SearchSpace,
         config: TuningConfig,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run hyperparameter tuning."""
         pass
 
     @abstractmethod
-    def get_best_config(self) -> Dict[str, Any]:
+    def get_best_config(self) -> dict[str, Any]:
         """Get best hyperparameter configuration."""
         pass
 
@@ -182,7 +180,7 @@ class RayTuner(AbstractTuner):
         train_fn: Callable,
         search_space: SearchSpace,
         config: TuningConfig,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Run hyperparameter tuning with Ray Tune.
 
@@ -197,10 +195,14 @@ class RayTuner(AbstractTuner):
         try:
             from ray import tune
             from ray.tune import CLIReporter
-            from ray.tune.schedulers import ASHAScheduler, PopulationBasedTraining, MedianStoppingRule
-            from ray.tune.search.optuna import OptunaSearch
-            from ray.tune.search.hyperopt import HyperOptSearch
+            from ray.tune.schedulers import (
+                ASHAScheduler,
+                MedianStoppingRule,
+                PopulationBasedTraining,
+            )
             from ray.tune.search import BasicVariantGenerator
+            from ray.tune.search.hyperopt import HyperOptSearch
+            from ray.tune.search.optuna import OptunaSearch
 
             # Create search algorithm
             if config.search_algorithm == "bayesian":
@@ -282,7 +284,7 @@ class RayTuner(AbstractTuner):
                 f"ray[tune] required for Ray Tune. Install with: pip install 'ray[tune]': {e}"
             )
 
-    def get_best_config(self) -> Dict[str, Any]:
+    def get_best_config(self) -> dict[str, Any]:
         """Get best hyperparameter configuration."""
         if self._best_config is None:
             raise RuntimeError("No tuning results available. Run tune() first.")
@@ -332,7 +334,7 @@ class OptunaTuner(AbstractTuner):
         train_fn: Callable,
         search_space: SearchSpace,
         config: TuningConfig,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Run hyperparameter tuning with Optuna.
 
@@ -426,7 +428,7 @@ class OptunaTuner(AbstractTuner):
         n_jobs: int = 1,
         direction: str = "minimize",
         study_name: Optional[str] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Direct Optuna optimization interface.
 
@@ -464,7 +466,7 @@ class OptunaTuner(AbstractTuner):
         except ImportError as e:
             raise ImportError(f"optuna required. Install with: pip install optuna: {e}")
 
-    def get_best_config(self) -> Dict[str, Any]:
+    def get_best_config(self) -> dict[str, Any]:
         """Get best hyperparameter configuration."""
         if self._study is None:
             raise RuntimeError("No tuning results available. Run tune() first.")

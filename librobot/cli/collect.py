@@ -1,9 +1,9 @@
 """Data collection CLI command."""
 
 import argparse
+import sys
 from pathlib import Path
 from typing import Optional
-import sys
 
 
 def collect_cli(args: Optional[list] = None) -> int:
@@ -123,7 +123,7 @@ def collect_cli(args: Optional[list] = None) -> int:
 def run_collection(args) -> int:
     """Run data collection."""
     try:
-        print(f"Starting data collection...")
+        print("Starting data collection...")
         print(f"  Robot: {args.robot}")
         print(f"  Teleoperation: {args.teleoperation}")
         print(f"  Output: {args.output}")
@@ -180,7 +180,7 @@ def run_collection(args) -> int:
 
 def setup_robot(args):
     """Setup robot connection."""
-    from librobot.robots import get_robot, create_robot
+    from librobot.robots import create_robot
 
     try:
         robot = create_robot(args.robot)

@@ -1,6 +1,6 @@
 """MLP encoder for robot state."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import torch
 import torch.nn as nn
@@ -29,7 +29,7 @@ class MLPStateEncoder(AbstractEncoder):
         self,
         input_dim: int,
         output_dim: int,
-        hidden_dims: List[int] = [256, 256],
+        hidden_dims: list[int] = [256, 256],
         activation: str = 'relu',
         dropout: float = 0.0,
         norm: Optional[str] = 'layer',
@@ -96,7 +96,6 @@ class MLPStateEncoder(AbstractEncoder):
         Returns:
             Encoded embeddings [batch_size, output_dim] or [batch_size, seq_len, output_dim]
         """
-        original_shape = inputs.shape
 
         # Handle both 2D and 3D inputs
         if inputs.dim() == 3:
@@ -133,7 +132,7 @@ class MLPStateEncoder(AbstractEncoder):
             raise ValueError(f"Unsupported input shape: {input_shape}")
 
     @property
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """Get encoder configuration."""
         return {
             'type': 'MLPStateEncoder',

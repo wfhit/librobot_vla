@@ -1,7 +1,9 @@
 """Abstract base classes for datasets and tokenizers."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, Union
+from collections.abc import Iterator
+from typing import Any, Optional, Union
+
 import numpy as np
 
 
@@ -37,7 +39,7 @@ class AbstractDataset(ABC):
         pass
 
     @abstractmethod
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
+    def __getitem__(self, idx: int) -> dict[str, Any]:
         """
         Get a sample from the dataset.
 
@@ -55,7 +57,7 @@ class AbstractDataset(ABC):
         pass
 
     @abstractmethod
-    def get_statistics(self) -> Dict[str, Any]:
+    def get_statistics(self) -> dict[str, Any]:
         """
         Get dataset statistics for normalization.
 
@@ -98,7 +100,7 @@ class AbstractDataset(ABC):
             return state.shape[-1]
         return len(state)
 
-    def __iter__(self) -> Iterator[Dict[str, Any]]:
+    def __iter__(self) -> Iterator[dict[str, Any]]:
         """Iterate over the dataset."""
         for i in range(len(self)):
             yield self[i]
@@ -136,10 +138,10 @@ class AbstractTokenizer(ABC):
     @abstractmethod
     def encode(
         self,
-        text: Union[str, List[str]],
+        text: Union[str, list[str]],
         return_tensors: Optional[str] = None,
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Encode text to token IDs.
 
@@ -158,7 +160,7 @@ class AbstractTokenizer(ABC):
     @abstractmethod
     def decode(
         self,
-        token_ids: Union[List[int], np.ndarray, Any],
+        token_ids: Union[list[int], np.ndarray, Any],
         skip_special_tokens: bool = True,
         **kwargs
     ) -> str:
@@ -178,10 +180,10 @@ class AbstractTokenizer(ABC):
     @abstractmethod
     def batch_encode(
         self,
-        texts: List[str],
+        texts: list[str],
         return_tensors: Optional[str] = None,
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Batch encode multiple texts.
 
@@ -198,10 +200,10 @@ class AbstractTokenizer(ABC):
     @abstractmethod
     def batch_decode(
         self,
-        token_ids_batch: Union[List[List[int]], np.ndarray, Any],
+        token_ids_batch: Union[list[list[int]], np.ndarray, Any],
         skip_special_tokens: bool = True,
         **kwargs
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Batch decode multiple token ID sequences.
 
@@ -217,9 +219,9 @@ class AbstractTokenizer(ABC):
 
     def __call__(
         self,
-        text: Union[str, List[str]],
+        text: Union[str, list[str]],
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Tokenize text (alias for encode).
 

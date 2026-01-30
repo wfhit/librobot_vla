@@ -1,11 +1,12 @@
 """Action buffering and smoothing for stable robot control."""
 
 from collections import deque
-from typing import Any, Deque, List, Optional, Union
+from typing import Optional, Union
+
 import numpy as np
 import torch
-from librobot.utils import get_logger
 
+from librobot.utils import get_logger
 
 logger = get_logger(__name__)
 
@@ -48,7 +49,7 @@ class ActionBuffer:
         self.smoothing_method = smoothing_method
         self.alpha = alpha
 
-        self._buffer: Deque[Union[np.ndarray, torch.Tensor]] = deque(maxlen=buffer_size)
+        self._buffer: deque[Union[np.ndarray, torch.Tensor]] = deque(maxlen=buffer_size)
         self._smoothed_action: Optional[Union[np.ndarray, torch.Tensor]] = None
 
     def add(self, action: Union[np.ndarray, torch.Tensor]) -> None:
@@ -140,12 +141,12 @@ class ActionBuffer:
 
         if isinstance(current_action, torch.Tensor):
             self._smoothed_action = (
-                self.alpha * current_action + 
+                self.alpha * current_action +
                 (1 - self.alpha) * self._smoothed_action
             )
         else:
             self._smoothed_action = (
-                self.alpha * current_action + 
+                self.alpha * current_action +
                 (1 - self.alpha) * self._smoothed_action
             )
 
@@ -165,8 +166,8 @@ class ActionBuffer:
         if isinstance(self._buffer[0], torch.Tensor):
             stacked = torch.stack(list(self._buffer), dim=0)
             weights_tensor = torch.tensor(
-                weights, 
-                dtype=stacked.dtype, 
+                weights,
+                dtype=stacked.dtype,
                 device=stacked.device
             ).reshape(-1, *([1] * (stacked.ndim - 1)))
             return (stacked * weights_tensor).sum(dim=0)
@@ -233,7 +234,7 @@ class TemporalEnsembleBuffer:
 
         # Buffer stores list of action sequences with their timestamps
         # Each entry: (timestamp, action_sequence)
-        self._buffer: Deque = deque(maxlen=ensemble_size)
+        self._buffer: deque = deque(maxlen=ensemble_size)
         self._current_step = 0
 
     def add_prediction(
@@ -295,7 +296,7 @@ class TemporalEnsembleBuffer:
 
     def _aggregate_mean(
         self,
-        actions: List[Union[np.ndarray, torch.Tensor]]
+        actions: list[Union[np.ndarray, torch.Tensor]]
     ) -> Union[np.ndarray, torch.Tensor]:
         """Compute mean of actions."""
         if isinstance(actions[0], torch.Tensor):
@@ -305,8 +306,8 @@ class TemporalEnsembleBuffer:
 
     def _aggregate_weighted_mean(
         self,
-        actions: List[Union[np.ndarray, torch.Tensor]],
-        weights: List[float]
+        actions: list[Union[np.ndarray, torch.Tensor]],
+        weights: list[float]
     ) -> Union[np.ndarray, torch.Tensor]:
         """Compute weighted mean of actions."""
         weights_normalized = np.array(weights) / np.sum(weights)
@@ -326,7 +327,7 @@ class TemporalEnsembleBuffer:
 
     def _aggregate_median(
         self,
-        actions: List[Union[np.ndarray, torch.Tensor]]
+        actions: list[Union[np.ndarray, torch.Tensor]]
     ) -> Union[np.ndarray, torch.Tensor]:
         """Compute median of actions."""
         if isinstance(actions[0], torch.Tensor):

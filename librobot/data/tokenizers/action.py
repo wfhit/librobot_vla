@@ -1,6 +1,7 @@
 """Action tokenizer for robot actions."""
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
+
 import numpy as np
 
 
@@ -106,7 +107,7 @@ class ActionTokenizer:
 
     def encode(
         self,
-        action: Union[np.ndarray, List[float]],
+        action: Union[np.ndarray, list[float]],
         normalize: bool = False,
     ) -> np.ndarray:
         """
@@ -207,7 +208,7 @@ class ActionTokenizer:
 
     def decode(
         self,
-        tokens: Union[np.ndarray, List[int]],
+        tokens: Union[np.ndarray, list[int]],
         denormalize: bool = False,
     ) -> np.ndarray:
         """
@@ -292,7 +293,7 @@ class ActionTokenizer:
         indices = np.clip(indices, 0, len(self._codebook) - 1)
         return self._codebook[indices]
 
-    def get_token_for_action_dim(self, dim: int) -> Tuple[int, int]:
+    def get_token_for_action_dim(self, dim: int) -> tuple[int, int]:
         """
         Get token range for a specific action dimension.
 
@@ -308,7 +309,7 @@ class ActionTokenizer:
 
     def __call__(
         self,
-        action: Union[np.ndarray, List[float]],
+        action: Union[np.ndarray, list[float]],
         **kwargs
     ) -> np.ndarray:
         """Encode action (alias)."""

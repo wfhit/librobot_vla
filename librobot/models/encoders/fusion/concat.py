@@ -1,6 +1,6 @@
 """Simple concatenation fusion."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import torch
 import torch.nn as nn
@@ -21,7 +21,7 @@ class ConcatFusion(nn.Module):
 
     def __init__(
         self,
-        input_dims: List[int],
+        input_dims: list[int],
         output_dim: Optional[int] = None,
         use_layernorm: bool = True,
     ):
@@ -75,7 +75,7 @@ class ConcatFusion(nn.Module):
 
         return x
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """Get fusion configuration."""
         return {
             'type': 'ConcatFusion',

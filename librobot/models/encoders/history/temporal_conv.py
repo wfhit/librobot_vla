@@ -1,6 +1,6 @@
 """Temporal convolutional encoder for history."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import torch
 import torch.nn as nn
@@ -30,9 +30,9 @@ class TemporalConvEncoder(AbstractEncoder):
         self,
         input_dim: int,
         output_dim: int,
-        channels: List[int] = [64, 128, 256],
-        kernel_sizes: List[int] = [3, 3, 3],
-        strides: List[int] = [1, 2, 2],
+        channels: list[int] = [64, 128, 256],
+        kernel_sizes: list[int] = [3, 3, 3],
+        strides: list[int] = [1, 2, 2],
         activation: str = 'relu',
         dropout: float = 0.0,
         pooling: str = 'adaptive',
@@ -143,7 +143,7 @@ class TemporalConvEncoder(AbstractEncoder):
             raise ValueError(f"Expected 3D input, got shape: {input_shape}")
 
     @property
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """Get encoder configuration."""
         return {
             'type': 'TemporalConvEncoder',

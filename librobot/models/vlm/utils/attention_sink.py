@@ -2,6 +2,7 @@
 import torch
 import torch.nn as nn
 
+
 class AttentionSink(nn.Module):
     """Attention sink tokens for streaming."""
     def __init__(self, num_sink_tokens: int = 4, window_size: int = 1024):

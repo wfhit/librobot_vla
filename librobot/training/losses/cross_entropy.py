@@ -1,6 +1,7 @@
 """Cross-entropy and classification losses."""
 
-from typing import Any, Dict, Optional
+from typing import Optional
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -37,8 +38,8 @@ class CrossEntropyLoss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         """Compute cross-entropy loss."""
@@ -80,8 +81,8 @@ class FocalLoss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         logits = predictions.get('logits')
@@ -135,8 +136,8 @@ class TokenLoss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         logits = predictions.get('action_logits')
@@ -146,7 +147,7 @@ class TokenLoss(AbstractLoss):
             return torch.tensor(0.0)
 
         # Ensure correct shapes
-        B = logits.shape[0]
+        logits.shape[0]
 
         if logits.dim() == 3:  # [B, T, V]
             logits = logits.reshape(-1, logits.shape[-1])
@@ -172,8 +173,8 @@ class BCELoss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         logits = predictions.get('logits')

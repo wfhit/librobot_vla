@@ -2,12 +2,13 @@
 
 import gc
 import os
-from typing import Optional, Dict, Any
+from typing import Any, Optional
+
 import psutil
 import torch
 
 
-def get_memory_info() -> Dict[str, Any]:
+def get_memory_info() -> dict[str, Any]:
     """
     Get current memory usage information.
 
@@ -55,18 +56,18 @@ def print_memory_info() -> None:
     print("Memory Usage")
     print("="*60)
 
-    print(f"\nCPU:")
+    print("\nCPU:")
     print(f"  RSS: {info['cpu']['rss_mb']:.2f} MB")
     print(f"  VMS: {info['cpu']['vms_mb']:.2f} MB")
     print(f"  Percent: {info['cpu']['percent']:.2f}%")
 
-    print(f"\nSystem:")
+    print("\nSystem:")
     print(f"  Total: {info['system']['total_mb']:.2f} MB")
     print(f"  Available: {info['system']['available_mb']:.2f} MB")
     print(f"  Percent: {info['system']['percent']:.2f}%")
 
     if 'gpu' in info:
-        print(f"\nGPU:")
+        print("\nGPU:")
         for device, stats in info['gpu'].items():
             print(f"  {device}:")
             print(f"    Allocated: {stats['allocated_mb']:.2f} MB")
@@ -134,8 +135,8 @@ class MemoryTracker:
         """
         self.name = name
         self.verbose = verbose
-        self.start_info: Optional[Dict] = None
-        self.end_info: Optional[Dict] = None
+        self.start_info: Optional[dict] = None
+        self.end_info: Optional[dict] = None
         self.delta_mb: float = 0.0
 
     def __enter__(self):

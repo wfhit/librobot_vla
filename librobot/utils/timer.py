@@ -1,10 +1,10 @@
 """Timing utilities for performance measurement."""
 
-import time
-from contextlib import contextmanager
-from typing import Dict, Optional, List
-from collections import defaultdict
 import threading
+import time
+from collections import defaultdict
+from contextlib import contextmanager
+from typing import Optional
 
 
 class Timer:
@@ -110,7 +110,7 @@ class TimerRegistry:
 
     def __init__(self):
         """Initialize timer registry."""
-        self._timings: Dict[str, List[float]] = defaultdict(list)
+        self._timings: dict[str, list[float]] = defaultdict(list)
         self._lock = threading.Lock()
 
     @contextmanager
@@ -146,7 +146,7 @@ class TimerRegistry:
         with self._lock:
             self._timings[name].append(elapsed)
 
-    def get_timings(self, name: str) -> List[float]:
+    def get_timings(self, name: str) -> list[float]:
         """
         Get all timings for a specific name.
 
@@ -159,7 +159,7 @@ class TimerRegistry:
         with self._lock:
             return self._timings[name].copy()
 
-    def get_stats(self) -> Dict[str, Dict[str, float]]:
+    def get_stats(self) -> dict[str, dict[str, float]]:
         """
         Get statistics for all timers.
 

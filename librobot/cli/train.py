@@ -1,9 +1,8 @@
 """Training CLI command."""
 
 import argparse
-from pathlib import Path
-from typing import Optional
 import sys
+from typing import Optional
 
 
 def train_cli(args: Optional[list] = None) -> int:
@@ -151,7 +150,7 @@ def train_cli(args: Optional[list] = None) -> int:
 def run_training(args) -> int:
     """Execute training with parsed arguments."""
     try:
-        print(f"Starting training...")
+        print("Starting training...")
         print(f"  Model: {args.model}")
         print(f"  VLM: {args.vlm}")
         print(f"  Dataset: {args.dataset}")
@@ -160,9 +159,8 @@ def run_training(args) -> int:
         print(f"  Output: {args.output}")
 
         # Load config if provided
-        config = {}
         if args.config:
-            config = load_config(args.config)
+            load_config(args.config)
 
         # Setup model
         from librobot.models import create_vla
@@ -173,16 +171,16 @@ def run_training(args) -> int:
         )
 
         # Setup dataset
-        from librobot.data.datasets import LeRobotDataset, HDF5Dataset
+        from librobot.data.datasets import HDF5Dataset, LeRobotDataset
         if args.data_format == "lerobot":
-            dataset = LeRobotDataset(args.dataset)
+            LeRobotDataset(args.dataset)
         else:
-            dataset = HDF5Dataset(args.dataset)
+            HDF5Dataset(args.dataset)
 
         # Setup trainer
         if args.deepspeed:
             from librobot.training.trainers import DeepSpeedTrainer
-            trainer = DeepSpeedTrainer(
+            DeepSpeedTrainer(
                 model=model,
                 train_dataloader=None,  # Would create dataloader
                 max_epochs=args.epochs,
@@ -190,7 +188,7 @@ def run_training(args) -> int:
             )
         elif args.accelerate:
             from librobot.training.trainers import AccelerateTrainer
-            trainer = AccelerateTrainer(
+            AccelerateTrainer(
                 model=model,
                 optimizer=None,  # Would create optimizer
                 train_dataloader=None,
@@ -211,7 +209,7 @@ def load_config(path: str) -> dict:
     """Load configuration from YAML file."""
     try:
         import yaml
-        with open(path, 'r') as f:
+        with open(path) as f:
             return yaml.safe_load(f)
     except ImportError:
         return {}

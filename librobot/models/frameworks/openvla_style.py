@@ -1,14 +1,13 @@
 """Berkeley OpenVLA-style VLA framework implementation."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
-from .base import AbstractVLA
-from ..vlm.base import AbstractVLM
 from ..action_heads.mlp_oft import MLPActionHead
+from ..vlm.base import AbstractVLM
+from .base import AbstractVLA
 
 
 class OpenVLA(AbstractVLA):
@@ -140,11 +139,11 @@ class OpenVLA(AbstractVLA):
     def forward(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Forward pass of OpenVLA.
 
@@ -222,7 +221,7 @@ class OpenVLA(AbstractVLA):
     def predict_action(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         **kwargs
     ) -> torch.Tensor:
@@ -251,10 +250,10 @@ class OpenVLA(AbstractVLA):
 
     def compute_loss(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
 
@@ -279,7 +278,7 @@ class OpenVLA(AbstractVLA):
 
         return losses
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """
         Get framework configuration.
 
@@ -295,7 +294,7 @@ class OpenVLA(AbstractVLA):
             'action_token_pattern': self.action_token_pattern,
         }
 
-    def get_trainable_params(self) -> List[str]:
+    def get_trainable_params(self) -> list[str]:
         """
         Get names of trainable parameters.
 

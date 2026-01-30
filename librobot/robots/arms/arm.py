@@ -5,7 +5,8 @@ Specific robot arm platforms should inherit from Arm and override
 methods as needed for their hardware.
 """
 
-from typing import Any, Dict
+from typing import Any
+
 import numpy as np
 
 from ..base import AbstractRobot
@@ -45,7 +46,7 @@ class Arm(AbstractRobot):
         self._gripper_state = np.zeros(gripper_dof)
         self._ee_pose = np.zeros(7)  # xyz + quaternion
 
-    def get_action_space(self) -> Dict[str, Any]:
+    def get_action_space(self) -> dict[str, Any]:
         return {
             "type": "continuous",
             "shape": (self.action_dim,),
@@ -53,7 +54,7 @@ class Arm(AbstractRobot):
             "high": 1.0,
         }
 
-    def get_observation_space(self) -> Dict[str, Any]:
+    def get_observation_space(self) -> dict[str, Any]:
         return {
             "joint_positions": {"shape": (self.num_joints,)},
             "joint_velocities": {"shape": (self.num_joints,)},

@@ -1,13 +1,13 @@
 """Learning rate scheduler builders with registry support."""
 
 import math
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Optional
+
 import torch
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
 
 from librobot.utils.registry import Registry
-
 
 # Global scheduler registry
 SCHEDULER_REGISTRY = Registry("schedulers")
@@ -454,7 +454,7 @@ def build_step_scheduler(
 def build_multistep_scheduler(
     optimizer: Optimizer,
     num_training_steps: Optional[int] = None,
-    milestones: List[int] = None,
+    milestones: list[int] = None,
     gamma: float = 0.1,
     **kwargs
 ) -> LRScheduler:
@@ -542,7 +542,7 @@ def build_scheduler(
     return builder.build(optimizer)
 
 
-def get_scheduler_names() -> List[str]:
+def get_scheduler_names() -> list[str]:
     """
     Get list of registered scheduler names.
 

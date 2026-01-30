@@ -1,6 +1,6 @@
 """MLP encoder for history with temporal pooling."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import torch
 import torch.nn as nn
@@ -28,7 +28,7 @@ class MLPHistoryEncoder(AbstractEncoder):
         self,
         input_dim: int,
         output_dim: int,
-        hidden_dims: List[int] = [256, 256],
+        hidden_dims: list[int] = [256, 256],
         pooling: str = 'mean',
         activation: str = 'relu',
         dropout: float = 0.0,
@@ -133,7 +133,7 @@ class MLPHistoryEncoder(AbstractEncoder):
             raise ValueError(f"Expected 3D input, got shape: {input_shape}")
 
     @property
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """Get encoder configuration."""
         return {
             'type': 'MLPHistoryEncoder',

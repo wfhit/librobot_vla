@@ -1,9 +1,10 @@
 """KV cache management for efficient transformer inference."""
 
-from typing import Any, Dict, List, Optional, Tuple, Union
-import torch
-from librobot.utils import get_logger
+from typing import Optional, Union
 
+import torch
+
+from librobot.utils import get_logger
 
 logger = get_logger(__name__)
 
@@ -36,10 +37,10 @@ class KVCache:
         self.device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Cache storage: List of (key, value) tuples for each layer
-        self._cache: Optional[List[Tuple[torch.Tensor, torch.Tensor]]] = None
+        self._cache: Optional[list[tuple[torch.Tensor, torch.Tensor]]] = None
         self._current_length = 0
 
-    def get(self) -> Optional[List[Tuple[torch.Tensor, torch.Tensor]]]:
+    def get(self) -> Optional[list[tuple[torch.Tensor, torch.Tensor]]]:
         """
         Get cached key-value pairs.
 
@@ -50,7 +51,7 @@ class KVCache:
 
     def update(
         self,
-        new_kv: Optional[Union[List[Tuple[torch.Tensor, torch.Tensor]], Tuple]],
+        new_kv: Optional[Union[list[tuple[torch.Tensor, torch.Tensor]], tuple]],
     ) -> None:
         """
         Update cache with new key-value pairs.
@@ -148,7 +149,7 @@ class KVCache:
 
         return self
 
-    def get_memory_usage(self) -> Dict[str, float]:
+    def get_memory_usage(self) -> dict[str, float]:
         """
         Get memory usage statistics.
 
@@ -234,7 +235,7 @@ class MultiHeadKVCache:
         self._cache_keys = None
         self._cache_values = None
 
-    def get(self, layer_idx: Optional[int] = None) -> Optional[Tuple[torch.Tensor, torch.Tensor]]:
+    def get(self, layer_idx: Optional[int] = None) -> Optional[tuple[torch.Tensor, torch.Tensor]]:
         """
         Get cached key-value pairs.
 
@@ -335,7 +336,7 @@ class StaticKVCache:
         layer_idx: int,
         start_pos: int,
         end_pos: int,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Get cache slice for specific layer and position range.
 

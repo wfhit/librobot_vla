@@ -1,7 +1,9 @@
 """Base flow matching model."""
 import torch
 import torch.nn as nn
+
 from ..base import AbstractActionHead
+
 
 class FlowMatchingHead(AbstractActionHead):
     """Flow matching action head."""

@@ -1,7 +1,7 @@
 """Robot arm implementations."""
 
 from .arm import Arm
-from .arm_robot import FrankaArm, UR5Arm, xArmRobot, WidowXArm, SO100Arm
+from .arm_robot import FrankaArm, SO100Arm, UR5Arm, WidowXArm, xArmRobot
 
 __all__ = [
     # Base

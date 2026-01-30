@@ -1,8 +1,7 @@
 """DDIM (Denoising Diffusion Implicit Models) action head."""
 
-from typing import Any, Dict
 import torch
-import torch.nn as nn
+
 from .ddpm import DDPMActionHead
 
 

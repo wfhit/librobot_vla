@@ -1,13 +1,14 @@
 """State transforms for proprioceptive data."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional
+
 import numpy as np
 
 
 class StateTransform:
     """Base class for state transforms."""
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply transform to sample."""
         if 'proprioception' in sample:
             sample['proprioception'] = self.transform(sample['proprioception'])
@@ -100,7 +101,7 @@ class StateNoise(StateTransform):
 class StateSelect(StateTransform):
     """Select specific indices from state."""
 
-    def __init__(self, indices: List[int]):
+    def __init__(self, indices: list[int]):
         """
         Args:
             indices: Indices to select
@@ -115,14 +116,14 @@ class StateSelect(StateTransform):
 class StateStack(StateTransform):
     """Stack multiple state components."""
 
-    def __init__(self, keys: List[str]):
+    def __init__(self, keys: list[str]):
         """
         Args:
             keys: Keys to stack into state
         """
         self.keys = keys
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Stack state components."""
         components = []
         for key in self.keys:
@@ -144,7 +145,7 @@ class StateHistory(StateTransform):
     def __init__(
         self,
         history_length: int = 4,
-        keys: List[str] = ['proprioception'],
+        keys: list[str] = ['proprioception'],
     ):
         """
         Args:
@@ -153,9 +154,9 @@ class StateHistory(StateTransform):
         """
         self.history_length = history_length
         self.keys = keys
-        self._history: Dict[str, List[np.ndarray]] = {k: [] for k in keys}
+        self._history: dict[str, list[np.ndarray]] = {k: [] for k in keys}
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Add history to sample."""
         for key in self.keys:
             if key in sample:

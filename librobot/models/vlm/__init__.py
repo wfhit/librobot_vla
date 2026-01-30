@@ -1,20 +1,15 @@
 """VLM (Vision-Language Model) module."""
 
+# Import VLM implementations to register them
+from . import florence, internvl, llava, paligemma, qwen_vl
 from .base import AbstractVLM
 from .registry import (
     VLM_REGISTRY,
-    register_vlm,
-    get_vlm,
     create_vlm,
+    get_vlm,
     list_vlms,
+    register_vlm,
 )
-
-# Import VLM implementations to register them
-from . import qwen_vl
-from . import florence
-from . import paligemma
-from . import internvl
-from . import llava
 
 __all__ = [
     'AbstractVLM',

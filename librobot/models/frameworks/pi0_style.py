@@ -1,14 +1,14 @@
 """Physical Intelligence π0-style VLA framework implementation."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import torch
 import torch.nn as nn
 
-from .base import AbstractVLA
-from ..vlm.base import AbstractVLM
-from ..encoders.state.tokenizer_encoder import TokenizerStateEncoder
 from ..action_heads.flow_matching.flow_model import FlowMatchingHead
+from ..encoders.state.tokenizer_encoder import TokenizerStateEncoder
+from ..vlm.base import AbstractVLM
+from .base import AbstractVLA
 
 
 class Pi0VLA(AbstractVLA):
@@ -120,11 +120,11 @@ class Pi0VLA(AbstractVLA):
     def forward(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Forward pass of π0 VLA.
 
@@ -208,7 +208,7 @@ class Pi0VLA(AbstractVLA):
     def predict_action(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         **kwargs
     ) -> torch.Tensor:
@@ -237,10 +237,10 @@ class Pi0VLA(AbstractVLA):
 
     def compute_loss(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
 
@@ -268,7 +268,7 @@ class Pi0VLA(AbstractVLA):
 
         return losses
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """
         Get framework configuration.
 

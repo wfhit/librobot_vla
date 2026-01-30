@@ -1,6 +1,6 @@
 """Gated fusion mechanism."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import torch
 import torch.nn as nn
@@ -23,7 +23,7 @@ class GatedFusion(nn.Module):
 
     def __init__(
         self,
-        input_dims: List[int],
+        input_dims: list[int],
         output_dim: int,
         gate_activation: str = 'sigmoid',
         use_context: bool = False,
@@ -118,7 +118,7 @@ class GatedFusion(nn.Module):
 
         return output
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """Get fusion configuration."""
         return {
             'type': 'GatedFusion',

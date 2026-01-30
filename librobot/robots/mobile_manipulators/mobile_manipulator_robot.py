@@ -1,10 +1,11 @@
 """Mobile manipulator implementations."""
 
-from typing import Any, Dict
+from typing import Any
+
 import numpy as np
 
-from .mobile_manipulator import MobileManipulator
 from ..registry import register_robot
+from .mobile_manipulator import MobileManipulator
 
 
 @register_robot(name="fetch", aliases=["fetch_robot"])
@@ -25,7 +26,7 @@ class FetchRobot(MobileManipulator):
         self._arm_positions = np.zeros(self.arm_joints)
         self._base_position = np.zeros(3)
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         return {
             "arm_positions": self._arm_positions.copy(),
             "gripper_state": self._gripper_state.copy(),
@@ -39,7 +40,7 @@ class FetchRobot(MobileManipulator):
         self._gripper_state = action[9:]
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         return {
             "proprioception": np.concatenate([
                 self._base_position,
@@ -68,7 +69,7 @@ class TIAGoRobot(MobileManipulator):
         self._arm_positions = np.zeros(self.arm_joints)
         self._base_position = np.zeros(3)
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         return {
             "arm_positions": self._arm_positions.copy(),
             "gripper_state": self._gripper_state.copy(),
@@ -78,7 +79,7 @@ class TIAGoRobot(MobileManipulator):
     def execute_action(self, action: np.ndarray, **kwargs) -> bool:
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         return {"proprioception": np.concatenate([
             self._base_position, self._arm_positions
         ])}

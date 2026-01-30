@@ -1,7 +1,6 @@
 """Rotary Position Embedding (RoPE)."""
 
-import math
-from typing import Optional, Tuple
+from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -63,7 +62,7 @@ class RotaryPositionEmbedding(nn.Module):
         q: torch.Tensor,
         k: torch.Tensor,
         position_ids: Optional[torch.Tensor] = None,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Apply rotary position embedding to queries and keys.
 
@@ -104,7 +103,7 @@ class RotaryPositionEmbedding(nn.Module):
         q: torch.Tensor,
         k: torch.Tensor,
         offset: int = 0,
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Apply rotary embedding with position offset (for KV caching).
 

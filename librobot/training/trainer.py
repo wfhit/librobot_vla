@@ -1,33 +1,26 @@
 """Main trainer class with training loop orchestration."""
 
-import os
-import time
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
-from dataclasses import dataclass, field
+from typing import Any, Optional, Union
 
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
 from torch.cuda.amp import GradScaler
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
+from torch.utils.data import DataLoader
 
-from librobot.utils.logging import get_logger
-from librobot.utils.checkpoint import Checkpoint
 from librobot.training.callbacks.base import AbstractCallback
-from librobot.training.losses.base import AbstractLoss
-from librobot.training.optimizers import build_optimizer
-from librobot.training.schedulers import build_scheduler
 from librobot.training.distributed import (
-    DistributedConfig,
-    setup_distributed,
     cleanup_distributed,
-    wrap_model_distributed,
     is_main_process,
-    barrier,
+    setup_distributed,
+    wrap_model_distributed,
 )
-
+from librobot.training.losses.base import AbstractLoss
+from librobot.utils.checkpoint import Checkpoint
+from librobot.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -139,7 +132,7 @@ class Trainer:
         loss_fn: Optional[Union[nn.Module, AbstractLoss]] = None,
         optimizer: Optional[Optimizer] = None,
         scheduler: Optional[LRScheduler] = None,
-        callbacks: Optional[List[AbstractCallback]] = None,
+        callbacks: Optional[list[AbstractCallback]] = None,
         device: Optional[Union[str, torch.device]] = None,
     ):
         """
@@ -241,7 +234,7 @@ class Trainer:
         if self.config.use_tensorboard:
             logger.info("TensorBoard logging requested but not yet implemented")
 
-    def train(self) -> Dict[str, Any]:
+    def train(self) -> dict[str, Any]:
         """
         Run training loop.
 
@@ -304,7 +297,7 @@ class Trainer:
             if self.global_step >= self.config.max_steps:
                 break
 
-    def _train_epoch(self) -> Dict[str, float]:
+    def _train_epoch(self) -> dict[str, float]:
         """
         Train for one epoch.
 
@@ -339,14 +332,14 @@ class Trainer:
                 )
 
             # Validation
-            if (self.config.eval_interval and 
+            if (self.config.eval_interval and
                 self.val_dataloader is not None and
                 self.global_step % self.config.eval_interval == 0):
                 val_metrics = self.validate()
                 logger.info(f"Validation metrics: {val_metrics}")
 
             # Checkpointing
-            if (self.config.save_interval and 
+            if (self.config.save_interval and
                 self.global_step % self.config.save_interval == 0):
                 self.save_checkpoint(step=self.global_step, metrics={"loss": loss})
 
@@ -441,7 +434,7 @@ class Trainer:
         return loss.item() * self.config.gradient_accumulation_steps
 
     @torch.no_grad()
-    def validate(self) -> Dict[str, float]:
+    def validate(self) -> dict[str, float]:
         """
         Run validation loop.
 
@@ -497,7 +490,7 @@ class Trainer:
         self,
         epoch: Optional[int] = None,
         step: Optional[int] = None,
-        metrics: Optional[Dict[str, float]] = None,
+        metrics: Optional[dict[str, float]] = None,
     ) -> None:
         """
         Save training checkpoint.
@@ -598,7 +591,7 @@ class Trainer:
 
 
 def create_trainer(
-    config: Union[TrainerConfig, Dict[str, Any]],
+    config: Union[TrainerConfig, dict[str, Any]],
     model: nn.Module,
     train_dataloader: DataLoader,
     val_dataloader: Optional[DataLoader] = None,

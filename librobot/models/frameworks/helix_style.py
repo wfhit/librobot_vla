@@ -1,13 +1,13 @@
 """Figure AI Helix-style 3-tier hierarchical VLA framework implementation."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .base import AbstractVLA
 from ..vlm.base import AbstractVLM
+from .base import AbstractVLA
 
 
 class HelixVLA(AbstractVLA):
@@ -175,7 +175,7 @@ class HelixVLA(AbstractVLA):
     def high_level_planning(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         **kwargs
     ) -> torch.Tensor:
         """
@@ -269,12 +269,12 @@ class HelixVLA(AbstractVLA):
     def forward(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
         action_sequences: Optional[torch.Tensor] = None,
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Forward pass of Helix VLA (all three tiers).
 
@@ -289,7 +289,7 @@ class HelixVLA(AbstractVLA):
         Returns:
             Dictionary containing outputs from all three levels
         """
-        batch_size = images.size(0)
+        images.size(0)
 
         # ============================================
         # HIGH-LEVEL: Planning
@@ -353,7 +353,7 @@ class HelixVLA(AbstractVLA):
     def predict_action(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         return_sequence: bool = False,
         **kwargs
@@ -389,10 +389,10 @@ class HelixVLA(AbstractVLA):
 
     def compute_loss(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
 
@@ -419,7 +419,7 @@ class HelixVLA(AbstractVLA):
 
         return losses
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """
         Get framework configuration.
 

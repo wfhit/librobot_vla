@@ -2,6 +2,7 @@
 import torch
 import torch.nn as nn
 
+
 class LoRAAdapter(nn.Module):
     """LoRA adapter for efficient fine-tuning."""
     def __init__(self, in_features: int, out_features: int, rank: int = 8, alpha: float = 16):

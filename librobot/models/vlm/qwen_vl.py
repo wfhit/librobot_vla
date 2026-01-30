@@ -1,22 +1,19 @@
 """Qwen2-VL and Qwen3-VL Vision-Language Models."""
 
-import math
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
 
-from .base import AbstractVLM
-from .registry import register_vlm
-from ..components.attention.flash_attention import FlashAttention
-from ..components.positional.rotary import RotaryPositionEmbedding
 from ..components.normalization.rmsnorm import RMSNorm
+from ..components.positional.rotary import RotaryPositionEmbedding
 from .adapters.lora import LoRAAdapter
 from .adapters.qlora import QLoRAAdapter
-from .utils.kv_cache import KVCache
+from .base import AbstractVLM
+from .registry import register_vlm
 
 
 @dataclass
@@ -76,7 +73,7 @@ class VisionRotaryEmbedding(nn.Module):
         inv_freq = 1.0 / (theta ** (torch.arange(0, dim, 2).float() / dim))
         self.register_buffer("inv_freq", inv_freq)
 
-    def forward(self, coords: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, coords: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Args:
             coords: [batch_size, num_patches, 3] (height, width, temporal)
@@ -303,9 +300,9 @@ class QwenLanguageAttention(nn.Module):
         x: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,
         position_ids: Optional[torch.Tensor] = None,
-        past_kv: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
+        past_kv: Optional[tuple[torch.Tensor, torch.Tensor]] = None,
         use_cache: bool = False,
-    ) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]]]:
+    ) -> tuple[torch.Tensor, Optional[tuple[torch.Tensor, torch.Tensor]]]:
         B, L, _ = x.shape
 
         q = self.q_proj(x).view(B, L, self.num_heads, self.head_dim).transpose(1, 2)
@@ -378,9 +375,9 @@ class QwenLanguageBlock(nn.Module):
         x: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,
         position_ids: Optional[torch.Tensor] = None,
-        past_kv: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
+        past_kv: Optional[tuple[torch.Tensor, torch.Tensor]] = None,
         use_cache: bool = False,
-    ) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]]]:
+    ) -> tuple[torch.Tensor, Optional[tuple[torch.Tensor, torch.Tensor]]]:
         residual = x
         x = self.input_layernorm(x)
         x, present_kv = self.self_attn(x, attention_mask, position_ids, past_kv, use_cache)
@@ -412,10 +409,10 @@ class QwenLanguageModel(nn.Module):
         input_ids: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,
         position_ids: Optional[torch.Tensor] = None,
-        past_kvs: Optional[List[Tuple[torch.Tensor, torch.Tensor]]] = None,
+        past_kvs: Optional[list[tuple[torch.Tensor, torch.Tensor]]] = None,
         inputs_embeds: Optional[torch.Tensor] = None,
         use_cache: bool = False,
-    ) -> Tuple[torch.Tensor, Optional[List[Tuple[torch.Tensor, torch.Tensor]]]]:
+    ) -> tuple[torch.Tensor, Optional[list[tuple[torch.Tensor, torch.Tensor]]]]:
         if inputs_embeds is None:
             inputs_embeds = self.embed_tokens(input_ids)
 
@@ -464,7 +461,7 @@ class QwenVL(AbstractVLM):
 
     def __init__(
         self,
-        config: Union[QwenVLConfig, Dict[str, Any]],
+        config: Union[QwenVLConfig, dict[str, Any]],
         pretrained: Optional[str] = None,
         freeze_vision: bool = False,
         freeze_language: bool = False,
@@ -540,7 +537,7 @@ class QwenVL(AbstractVLM):
 
     def encode_text(
         self,
-        text: Union[str, List[str]],
+        text: Union[str, list[str]],
         tokenizer: Optional[Any] = None,
         **kwargs
     ) -> torch.Tensor:
@@ -573,13 +570,13 @@ class QwenVL(AbstractVLM):
         input_ids: Optional[torch.Tensor] = None,
         attention_mask: Optional[torch.Tensor] = None,
         position_ids: Optional[torch.Tensor] = None,
-        past_kvs: Optional[List[Tuple[torch.Tensor, torch.Tensor]]] = None,
+        past_kvs: Optional[list[tuple[torch.Tensor, torch.Tensor]]] = None,
         inputs_embeds: Optional[torch.Tensor] = None,
         labels: Optional[torch.Tensor] = None,
         use_cache: bool = False,
         return_dict: bool = True,
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Forward pass.
 
@@ -748,7 +745,7 @@ class QwenVL(AbstractVLM):
         return self._config.hidden_size
 
     @property
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """Get model configuration."""
         return {
             "model_type": "qwen-vl",

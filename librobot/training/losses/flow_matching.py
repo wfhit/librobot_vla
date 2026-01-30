@@ -1,8 +1,7 @@
 """Flow matching loss functions."""
 
-from typing import Any, Dict, Optional
+
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 
 from .base import AbstractLoss
@@ -29,8 +28,8 @@ class FlowMatchingLoss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         """Compute flow matching loss."""
@@ -63,8 +62,8 @@ class RectifiedFlowLoss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         v_pred = predictions.get('velocity')
@@ -100,14 +99,14 @@ class OTCFMLoss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         v_pred = predictions.get('velocity')
         x0 = targets.get('x0')
         x1 = targets.get('x1')
-        t = targets.get('t')
+        targets.get('t')
 
         if v_pred is None or x0 is None or x1 is None:
             return torch.tensor(0.0)
@@ -132,8 +131,8 @@ class ConsistencyLoss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         # f(x_t, t) should equal f(x_s, s) for any s, t on the same trajectory
@@ -150,7 +149,7 @@ class ConsistencyLoss(AbstractLoss):
 
 __all__ = [
     'FlowMatchingLoss',
-    'RectifiedFlowLoss', 
+    'RectifiedFlowLoss',
     'OTCFMLoss',
     'ConsistencyLoss',
 ]

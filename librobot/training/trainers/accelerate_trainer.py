@@ -1,8 +1,6 @@
 """Accelerate-based trainer for distributed training."""
 
-from typing import Any, Callable, Dict, List, Optional, Union
-from pathlib import Path
-import time
+from typing import Any, Callable, Optional
 
 from .base_trainer import BaseTrainer
 
@@ -27,7 +25,7 @@ class AccelerateTrainer(BaseTrainer):
         loss_fn: Optional[Callable] = None,
         train_dataloader: Optional[Any] = None,
         val_dataloader: Optional[Any] = None,
-        callbacks: Optional[List[Any]] = None,
+        callbacks: Optional[list[Any]] = None,
         max_epochs: int = 100,
         max_steps: Optional[int] = None,
         gradient_accumulation_steps: int = 1,
@@ -39,7 +37,7 @@ class AccelerateTrainer(BaseTrainer):
         mixed_precision: str = "fp16",
         seed: int = 42,
         # Accelerate-specific
-        accelerate_config: Optional[Dict] = None,
+        accelerate_config: Optional[dict] = None,
         logging_dir: Optional[str] = None,
         project_name: str = "vla_training",
     ):
@@ -168,7 +166,7 @@ class AccelerateTrainer(BaseTrainer):
 
         return total_loss / max(num_batches, 1)
 
-    def _train_step(self, batch: Dict[str, Any]) -> Dict[str, Any]:
+    def _train_step(self, batch: dict[str, Any]) -> dict[str, Any]:
         """Perform single training step with Accelerate."""
         try:
             import torch
@@ -192,7 +190,7 @@ class AccelerateTrainer(BaseTrainer):
                     # Gradient clipping
                     if self.gradient_clip_val:
                         self.accelerator.clip_grad_norm_(
-                            self.model.parameters(), 
+                            self.model.parameters(),
                             self.gradient_clip_val
                         )
 
@@ -210,14 +208,14 @@ class AccelerateTrainer(BaseTrainer):
         except ImportError:
             return self._train_step_basic(batch)
 
-    def _train_step_basic(self, batch: Dict[str, Any]) -> Dict[str, Any]:
+    def _train_step_basic(self, batch: dict[str, Any]) -> dict[str, Any]:
         """Basic training step without Accelerate."""
         try:
             import torch
 
             # Move batch to device
             if isinstance(batch, dict):
-                batch = {k: v.to(self.device) if hasattr(v, 'to') else v 
+                batch = {k: v.to(self.device) if hasattr(v, 'to') else v
                         for k, v in batch.items()}
 
             # Forward
@@ -253,7 +251,7 @@ class AccelerateTrainer(BaseTrainer):
         except ImportError:
             return {'loss': 0.0}
 
-    def _log_metrics(self, metrics: Dict[str, Any]) -> None:
+    def _log_metrics(self, metrics: dict[str, Any]) -> None:
         """Log metrics using Accelerate's tracker."""
         if self.accelerator and self.accelerator.is_main_process:
             self.accelerator.log(metrics, step=self.global_step)

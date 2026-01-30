@@ -1,20 +1,21 @@
 """Compose transforms together."""
 
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Optional
+
 import numpy as np
 
 
 class Compose:
     """Compose multiple transforms together."""
 
-    def __init__(self, transforms: List[Callable]):
+    def __init__(self, transforms: list[Callable]):
         """
         Args:
             transforms: List of transform functions
         """
         self.transforms = transforms
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply all transforms in sequence."""
         for t in self.transforms:
             sample = t(sample)
@@ -44,7 +45,7 @@ class RandomApply:
         self.transform = transform
         self.p = p
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply transform with probability p."""
         if np.random.random() < self.p:
             return self.transform(sample)
@@ -54,14 +55,14 @@ class RandomApply:
 class RandomChoice:
     """Randomly choose one transform from a list."""
 
-    def __init__(self, transforms: List[Callable]):
+    def __init__(self, transforms: list[Callable]):
         """
         Args:
             transforms: List of transforms to choose from
         """
         self.transforms = transforms
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply randomly chosen transform."""
         t = np.random.choice(self.transforms)
         return t(sample)
@@ -70,7 +71,7 @@ class RandomChoice:
 class Identity:
     """Identity transform (no-op)."""
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Return sample unchanged."""
         return sample
 
@@ -85,7 +86,7 @@ class Lambda:
         """
         self.func = func
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply function."""
         return self.func(sample)
 
@@ -93,14 +94,14 @@ class Lambda:
 class KeyRename:
     """Rename keys in sample."""
 
-    def __init__(self, mapping: Dict[str, str]):
+    def __init__(self, mapping: dict[str, str]):
         """
         Args:
             mapping: Old key -> New key mapping
         """
         self.mapping = mapping
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Rename keys."""
         for old_key, new_key in self.mapping.items():
             if old_key in sample:
@@ -111,14 +112,14 @@ class KeyRename:
 class KeySelect:
     """Select only specified keys from sample."""
 
-    def __init__(self, keys: List[str]):
+    def __init__(self, keys: list[str]):
         """
         Args:
             keys: Keys to keep
         """
         self.keys = keys
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Select keys."""
         return {k: sample[k] for k in self.keys if k in sample}
 
@@ -128,7 +129,7 @@ class ToTensor:
 
     def __init__(
         self,
-        keys: Optional[List[str]] = None,
+        keys: Optional[list[str]] = None,
         device: str = "cpu",
     ):
         """
@@ -139,7 +140,7 @@ class ToTensor:
         self.keys = keys
         self.device = device
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Convert to tensors."""
         try:
             import torch

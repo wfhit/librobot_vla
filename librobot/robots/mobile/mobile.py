@@ -5,7 +5,8 @@ Specific mobile robot platforms should inherit from MobileRobot and override
 methods as needed for their hardware.
 """
 
-from typing import Any, Dict
+from typing import Any
+
 import numpy as np
 
 from ..base import AbstractRobot
@@ -38,7 +39,7 @@ class MobileRobot(AbstractRobot):
         self._orientation = np.array([0, 0, 0, 1])  # quaternion
         self._velocity = np.zeros(2)  # linear, angular
 
-    def get_action_space(self) -> Dict[str, Any]:
+    def get_action_space(self) -> dict[str, Any]:
         if self.drive_type == "differential":
             return {
                 "type": "continuous",
@@ -55,7 +56,7 @@ class MobileRobot(AbstractRobot):
             }
         return {}
 
-    def get_observation_space(self) -> Dict[str, Any]:
+    def get_observation_space(self) -> dict[str, Any]:
         return {
             "position": {"shape": (3,)},
             "orientation": {"shape": (4,)},

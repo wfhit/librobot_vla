@@ -2,12 +2,11 @@
 
 import asyncio
 from concurrent import futures
-from typing import Any, Dict, Optional
 from pathlib import Path
+from typing import Any, Optional
 
-from librobot.utils import get_logger
 from librobot.inference.server.base_server import AbstractServer
-
+from librobot.utils import get_logger
 
 logger = get_logger(__name__)
 
@@ -133,9 +132,9 @@ class GRPCServer(AbstractServer):
 
     async def predict(
         self,
-        request: Dict[str, Any],
+        request: dict[str, Any],
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Handle prediction request.
 
@@ -195,7 +194,7 @@ class GRPCServer(AbstractServer):
         else:
             logger.warning(f"Model path does not exist: {model_path}")
 
-    def get_server_info(self) -> Dict[str, Any]:
+    def get_server_info(self) -> dict[str, Any]:
         """
         Get server information.
 

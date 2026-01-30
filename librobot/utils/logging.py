@@ -1,11 +1,9 @@
 """Structured logging system with multiple levels and formatters."""
 
-import sys
 import logging
+import sys
 from pathlib import Path
 from typing import Optional, Union
-from datetime import datetime
-
 
 # Define log levels
 DEBUG = logging.DEBUG

@@ -6,7 +6,8 @@ including C++/CUDA extensions and batched operations.
 See docs/design/data_pipeline.md for detailed design documentation.
 """
 
-from typing import Optional, Union
+from typing import Optional
+
 import torch
 import torch.nn as nn
 

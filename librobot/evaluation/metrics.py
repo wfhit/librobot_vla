@@ -1,6 +1,7 @@
 """Evaluation metrics and benchmarks for VLA models."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Optional
+
 import numpy as np
 
 
@@ -9,7 +10,7 @@ class MetricBase:
 
     def __init__(self, name: str):
         self.name = name
-        self._values: List[float] = []
+        self._values: list[float] = []
 
     def reset(self) -> None:
         """Reset accumulated values."""
@@ -168,7 +169,7 @@ class EpisodeReturn(MetricBase):
 class MetricCollection:
     """Collection of metrics for comprehensive evaluation."""
 
-    def __init__(self, metrics: Optional[List[MetricBase]] = None):
+    def __init__(self, metrics: Optional[list[MetricBase]] = None):
         """
         Args:
             metrics: List of metrics to track
@@ -194,7 +195,7 @@ class MetricCollection:
             except (TypeError, KeyError):
                 pass  # Metric doesn't accept these arguments
 
-    def compute(self) -> Dict[str, float]:
+    def compute(self) -> dict[str, float]:
         """Compute all metrics."""
         return {m.name: m.compute() for m in self.metrics}
 
@@ -222,7 +223,7 @@ BENCHMARK_CONFIGS = {
 }
 
 
-def create_metrics(metric_names: List[str]) -> MetricCollection:
+def create_metrics(metric_names: list[str]) -> MetricCollection:
     """Create metrics collection from names."""
     metric_map = {
         "mse": MSE,

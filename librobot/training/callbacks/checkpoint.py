@@ -1,8 +1,7 @@
 """Checkpoint callback for saving models."""
 
-from typing import Any, Dict, Optional
 from pathlib import Path
-import json
+from typing import Any, Optional
 
 from .base import AbstractCallback
 
@@ -44,7 +43,7 @@ class CheckpointCallback(AbstractCallback):
 
         self.save_dir.mkdir(parents=True, exist_ok=True)
 
-    def on_epoch_end(self, epoch: int, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_epoch_end(self, epoch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """Save checkpoint at epoch end."""
         logs = logs or {}
 
@@ -64,7 +63,7 @@ class CheckpointCallback(AbstractCallback):
                 self.best_value = current_value
                 self._save_checkpoint("best.pt", epoch, logs)
 
-    def on_train_end(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_train_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Save last checkpoint."""
         if self.save_last and self.trainer:
             self._save_checkpoint("last.pt", self.trainer.current_epoch, logs or {})
@@ -73,7 +72,7 @@ class CheckpointCallback(AbstractCallback):
         self,
         filename: str,
         epoch: int,
-        logs: Dict[str, Any]
+        logs: dict[str, Any]
     ) -> None:
         """Save a checkpoint."""
         if self.trainer is None:

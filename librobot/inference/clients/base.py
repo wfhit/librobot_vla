@@ -1,7 +1,7 @@
 """Inference clients for connecting to servers."""
 
-from typing import Any, Dict, Optional, List
 import asyncio
+from typing import Any, Optional
 
 
 class BaseClient:
@@ -26,7 +26,7 @@ class BaseClient:
         images: Any,
         proprioception: Optional[Any] = None,
         instruction: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get prediction from server."""
         raise NotImplementedError
 
@@ -53,11 +53,11 @@ class RESTClient(BaseClient):
         images: Any,
         proprioception: Optional[Any] = None,
         instruction: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Send prediction request."""
         try:
-            import requests
             import numpy as np
+            import requests
 
             payload = {
                 "images": np.asarray(images).tolist(),
@@ -119,9 +119,10 @@ class WebSocketClient(BaseClient):
         images: Any,
         proprioception: Optional[Any] = None,
         instruction: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Send prediction request asynchronously."""
         import json
+
         import numpy as np
 
         if not self._websocket:
@@ -146,7 +147,7 @@ class WebSocketClient(BaseClient):
         images: Any,
         proprioception: Optional[Any] = None,
         instruction: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Synchronous prediction wrapper."""
         return asyncio.get_event_loop().run_until_complete(
             self.predict_async(images, proprioception, instruction)
@@ -186,7 +187,7 @@ class GRPCClient(BaseClient):
         images: Any,
         proprioception: Optional[Any] = None,
         instruction: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Send prediction request."""
         import numpy as np
 

@@ -1,7 +1,7 @@
 """Florence-2 Vision-Language Model."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 import torch
 import torch.nn as nn
@@ -9,7 +9,6 @@ import torch.nn.functional as F
 
 from .base import AbstractVLM
 from .registry import register_vlm
-from ..components.normalization.layernorm import LayerNorm
 
 
 @dataclass
@@ -17,9 +16,9 @@ class FlorenceConfig:
     """Configuration for Florence-2 model."""
 
     # Vision encoder config (DaViT backbone)
-    vision_hidden_sizes: List[int] = None  # [96, 192, 384, 768] for base
-    vision_num_heads: List[int] = None  # [3, 6, 12, 24] for base
-    vision_depths: List[int] = None  # [1, 1, 9, 1] for base
+    vision_hidden_sizes: list[int] = None  # [96, 192, 384, 768] for base
+    vision_num_heads: list[int] = None  # [3, 6, 12, 24] for base
+    vision_depths: list[int] = None  # [1, 1, 9, 1] for base
     vision_patch_size: int = 4
     vision_window_size: int = 12
     vision_in_channels: int = 3
@@ -42,8 +41,8 @@ class FlorenceConfig:
     use_flash_attn: bool = False
 
     # Task-specific config
-    task_tokens: Dict[str, int] = None
-    prompt_templates: Dict[str, str] = None
+    task_tokens: dict[str, int] = None
+    prompt_templates: dict[str, str] = None
 
     # Model variant
     variant: str = "florence-2-base"  # florence-2-base, florence-2-large
@@ -475,7 +474,7 @@ class Florence2(AbstractVLM):
 
     def __init__(
         self,
-        config: Union[FlorenceConfig, Dict[str, Any]],
+        config: Union[FlorenceConfig, dict[str, Any]],
         pretrained: Optional[str] = None,
         freeze_vision: bool = False,
     ):
@@ -533,7 +532,7 @@ class Florence2(AbstractVLM):
 
     def encode_text(
         self,
-        text: Union[str, List[str]],
+        text: Union[str, list[str]],
         tokenizer: Optional[Any] = None,
         **kwargs
     ) -> torch.Tensor:
@@ -570,7 +569,7 @@ class Florence2(AbstractVLM):
         task: Optional[str] = None,
         return_dict: bool = True,
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Forward pass.
 
@@ -717,7 +716,7 @@ class Florence2(AbstractVLM):
         return self._config.hidden_size
 
     @property
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """Get model configuration."""
         return {
             "model_type": "florence-2",

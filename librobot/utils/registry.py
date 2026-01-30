@@ -1,13 +1,11 @@
 """Central registry system for component registration and discovery."""
 
-import inspect
+import builtins
 import importlib
+import inspect
 import pkgutil
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set, Type, TypeVar, Union
-from functools import wraps
 import threading
-
+from typing import Any, Callable, Optional, TypeVar
 
 T = TypeVar('T')
 
@@ -30,21 +28,21 @@ class Registry:
 
     Examples:
         >>> registry = Registry("models")
-        >>> 
+        >>>
         >>> # Register with decorator
         >>> @registry.register("my_model")
         >>> class MyModel:
         ...     pass
-        >>> 
+        >>>
         >>> # Register explicitly
         >>> registry.register("another_model", AnotherModel)
-        >>> 
+        >>>
         >>> # Register with aliases
         >>> registry.register("model", MyModel, aliases=["m", "default"])
-        >>> 
+        >>>
         >>> # Get registered class
         >>> model_cls = registry.get("my_model")
-        >>> 
+        >>>
         >>> # Create instance
         >>> model = registry.create("my_model", param1=value1)
     """
@@ -57,16 +55,16 @@ class Registry:
             name: Name of this registry
         """
         self.name = name
-        self._registry: Dict[str, Type] = {}
-        self._aliases: Dict[str, str] = {}
-        self._metadata: Dict[str, Dict[str, Any]] = {}
+        self._registry: dict[str, type] = {}
+        self._aliases: dict[str, str] = {}
+        self._metadata: dict[str, dict[str, Any]] = {}
         self._lock = threading.RLock()
 
     def register(
         self,
         name: Optional[str] = None,
-        obj: Optional[Type] = None,
-        aliases: Optional[List[str]] = None,
+        obj: Optional[type] = None,
+        aliases: Optional[list[str]] = None,
         force: bool = False,
         **metadata
     ) -> Callable:
@@ -90,16 +88,16 @@ class Registry:
             >>> @registry.register("my_class")
             >>> class MyClass:
             ...     pass
-            >>> 
+            >>>
             >>> # Direct registration
             >>> registry.register("my_class", MyClass)
-            >>> 
+            >>>
             >>> # With aliases
             >>> @registry.register("model", aliases=["m", "default"])
             >>> class Model:
             ...     pass
         """
-        def decorator(obj_to_register: Type) -> Type:
+        def decorator(obj_to_register: type) -> type:
             # Determine registration name
             reg_name = name
             if reg_name is None:
@@ -168,7 +166,7 @@ class Registry:
             for alias in aliases_to_remove:
                 del self._aliases[alias]
 
-    def get(self, name: str, default: Optional[Type] = None) -> Optional[Type]:
+    def get(self, name: str, default: Optional[type] = None) -> Optional[type]:
         """
         Get registered object by name or alias.
 
@@ -184,7 +182,7 @@ class Registry:
             actual_name = self._aliases.get(name, name)
             return self._registry.get(actual_name, default)
 
-    def get_metadata(self, name: str) -> Optional[Dict[str, Any]]:
+    def get_metadata(self, name: str) -> Optional[dict[str, Any]]:
         """
         Get metadata for registered object.
 
@@ -230,7 +228,7 @@ class Registry:
             actual_name = self._aliases.get(name, name)
             return actual_name in self._registry
 
-    def list(self) -> List[str]:
+    def list(self) -> list[str]:
         """
         List all registered names.
 
@@ -240,7 +238,7 @@ class Registry:
         with self._lock:
             return sorted(self._registry.keys())
 
-    def list_with_aliases(self) -> Dict[str, List[str]]:
+    def list_with_aliases(self) -> dict[str, builtins.list[str]]:
         """
         List all registered names with their aliases.
 
@@ -266,8 +264,8 @@ class Registry:
     def auto_discover(
         self,
         package_name: str,
-        base_class: Optional[Type] = None,
-        exclude: Optional[Set[str]] = None
+        base_class: Optional[type] = None,
+        exclude: Optional[set[str]] = None
     ) -> int:
         """
         Auto-discover and register classes from a package.
@@ -336,7 +334,7 @@ class Registry:
         """Check if name is registered."""
         return self.contains(name)
 
-    def __getitem__(self, name: str) -> Type:
+    def __getitem__(self, name: str) -> type:
         """Get registered object."""
         obj = self.get(name)
         if obj is None:
@@ -362,14 +360,14 @@ class GlobalRegistry:
     Examples:
         >>> # Get or create a registry
         >>> model_registry = GlobalRegistry.get_registry("models")
-        >>> 
+        >>>
         >>> # Register in registry
         >>> @model_registry.register("my_model")
         >>> class MyModel:
         ...     pass
     """
 
-    _registries: Dict[str, Registry] = {}
+    _registries: dict[str, Registry] = {}
     _lock = threading.RLock()
 
     @classmethod
@@ -389,7 +387,7 @@ class GlobalRegistry:
             return cls._registries[name]
 
     @classmethod
-    def list_registries(cls) -> List[str]:
+    def list_registries(cls) -> list[str]:
         """
         List all registry names.
 
@@ -406,7 +404,7 @@ class GlobalRegistry:
             cls._registries.clear()
 
 
-def build_from_config(config: Dict[str, Any], registry: Registry, **kwargs) -> Any:
+def build_from_config(config: dict[str, Any], registry: Registry, **kwargs) -> Any:
     """
     Build object from configuration.
 

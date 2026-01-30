@@ -3,7 +3,7 @@
 import random
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 
@@ -23,9 +23,9 @@ class AugmentationConfig:
         probability: Global probability of applying augmentations
         seed: Random seed for reproducibility
     """
-    image_augmentations: List[str] = field(default_factory=lambda: ["color_jitter", "random_crop"])
-    action_augmentations: List[str] = field(default_factory=list)
-    state_augmentations: List[str] = field(default_factory=list)
+    image_augmentations: list[str] = field(default_factory=lambda: ["color_jitter", "random_crop"])
+    action_augmentations: list[str] = field(default_factory=list)
+    state_augmentations: list[str] = field(default_factory=list)
     probability: float = 0.5
     seed: Optional[int] = None
 
@@ -111,9 +111,9 @@ class RandomCrop(AbstractAugmentation):
 
     def __init__(
         self,
-        crop_size: Union[int, Tuple[int, int]] = 224,
-        scale: Tuple[float, float] = (0.8, 1.0),
-        ratio: Tuple[float, float] = (0.75, 1.33),
+        crop_size: Union[int, tuple[int, int]] = 224,
+        scale: tuple[float, float] = (0.8, 1.0),
+        ratio: tuple[float, float] = (0.75, 1.33),
         p: float = 0.5,
     ):
         super().__init__(p)
@@ -241,8 +241,8 @@ class GaussianBlur(AbstractAugmentation):
 
     def __init__(
         self,
-        kernel_size: Tuple[int, int] = (5, 9),
-        sigma: Tuple[float, float] = (0.1, 2.0),
+        kernel_size: tuple[int, int] = (5, 9),
+        sigma: tuple[float, float] = (0.1, 2.0),
         p: float = 0.5,
     ):
         super().__init__(p)
@@ -270,8 +270,8 @@ class Normalize(AbstractAugmentation):
 
     def __init__(
         self,
-        mean: Optional[Tuple[float, float, float]] = None,
-        std: Optional[Tuple[float, float, float]] = None,
+        mean: Optional[tuple[float, float, float]] = None,
+        std: Optional[tuple[float, float, float]] = None,
         p: float = 1.0,
     ):
         super().__init__(p)
@@ -354,7 +354,7 @@ class ActionScaling(AbstractAugmentation):
 
     def __init__(
         self,
-        scale_range: Tuple[float, float] = (0.9, 1.1),
+        scale_range: tuple[float, float] = (0.9, 1.1),
         p: float = 0.5,
     ):
         super().__init__(p)
@@ -379,7 +379,7 @@ class ActionMixup(AbstractAugmentation):
         super().__init__(p)
         self.alpha = alpha
 
-    def __call__(self, actions_pair: Tuple[np.ndarray, np.ndarray]) -> np.ndarray:
+    def __call__(self, actions_pair: tuple[np.ndarray, np.ndarray]) -> np.ndarray:
         if random.random() > self.p:
             return actions_pair[0]
 
@@ -444,7 +444,7 @@ class StateDropout(AbstractAugmentation):
 class Compose:
     """Compose multiple augmentations."""
 
-    def __init__(self, augmentations: List[AbstractAugmentation]):
+    def __init__(self, augmentations: list[AbstractAugmentation]):
         self.augmentations = augmentations
 
     def __call__(self, data: Any) -> Any:
@@ -460,7 +460,7 @@ class Compose:
 class RandomChoice:
     """Randomly choose one augmentation from a list."""
 
-    def __init__(self, augmentations: List[AbstractAugmentation]):
+    def __init__(self, augmentations: list[AbstractAugmentation]):
         self.augmentations = augmentations
 
     def __call__(self, data: Any) -> Any:
@@ -473,7 +473,7 @@ class OneOf:
 
     def __init__(
         self,
-        augmentations: List[AbstractAugmentation],
+        augmentations: list[AbstractAugmentation],
         p: float = 0.5,
     ):
         self.augmentations = augmentations
@@ -501,9 +501,9 @@ class VLADataAugmentation:
 
     def __init__(
         self,
-        image_augs: Optional[List[str]] = None,
-        action_augs: Optional[List[str]] = None,
-        state_augs: Optional[List[str]] = None,
+        image_augs: Optional[list[str]] = None,
+        action_augs: Optional[list[str]] = None,
+        state_augs: Optional[list[str]] = None,
         p: float = 0.5,
     ):
         self.p = p
@@ -546,7 +546,7 @@ class VLADataAugmentation:
             state_aug_map[name] for name in state_augs if name in state_aug_map
         ])
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply augmentations to a sample."""
         if random.random() > self.p:
             return sample

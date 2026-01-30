@@ -1,12 +1,13 @@
 """Optimizer builders with registry support."""
 
-from typing import Any, Callable, Dict, Iterable, List, Optional, Union
+from collections.abc import Iterable
+from typing import Any, Optional, Union
+
 import torch
 import torch.nn as nn
 from torch.optim import Optimizer
 
 from librobot.utils.registry import Registry
-
 
 # Global optimizer registry
 OPTIMIZER_REGISTRY = Registry("optimizers")
@@ -41,7 +42,7 @@ class OptimizerBuilder:
     Examples:
         >>> builder = OptimizerBuilder("adamw", lr=1e-3, weight_decay=0.01)
         >>> optimizer = builder.build(model)
-        >>> 
+        >>>
         >>> # With custom parameter groups
         >>> builder = OptimizerBuilder("adamw", lr=1e-3)
         >>> builder.add_param_group(model.encoder.parameters(), lr=1e-4)
@@ -72,7 +73,7 @@ class OptimizerBuilder:
         self.weight_decay = weight_decay
         self.exclude_bias_and_norm = exclude_bias_and_norm
         self.optimizer_kwargs = optimizer_kwargs
-        self._param_groups: List[Dict[str, Any]] = []
+        self._param_groups: list[dict[str, Any]] = []
 
     def add_param_group(
         self,
@@ -132,7 +133,7 @@ class OptimizerBuilder:
             **self.optimizer_kwargs
         )
 
-    def _get_param_groups(self, model: nn.Module) -> List[Dict[str, Any]]:
+    def _get_param_groups(self, model: nn.Module) -> list[dict[str, Any]]:
         """
         Create parameter groups with weight decay exclusions.
 
@@ -213,7 +214,7 @@ class OptimizerBuilder:
 # Register built-in PyTorch optimizers
 @register_optimizer("adam")
 def build_adam(
-    params: Union[Iterable[torch.Tensor], Iterable[Dict[str, Any]]],
+    params: Union[Iterable[torch.Tensor], Iterable[dict[str, Any]]],
     lr: float = 1e-3,
     betas: tuple = (0.9, 0.999),
     eps: float = 1e-8,
@@ -246,7 +247,7 @@ def build_adam(
 
 @register_optimizer("adamw")
 def build_adamw(
-    params: Union[Iterable[torch.Tensor], Iterable[Dict[str, Any]]],
+    params: Union[Iterable[torch.Tensor], Iterable[dict[str, Any]]],
     lr: float = 1e-3,
     betas: tuple = (0.9, 0.999),
     eps: float = 1e-8,
@@ -281,7 +282,7 @@ def build_adamw(
 
 @register_optimizer("sgd")
 def build_sgd(
-    params: Union[Iterable[torch.Tensor], Iterable[Dict[str, Any]]],
+    params: Union[Iterable[torch.Tensor], Iterable[dict[str, Any]]],
     lr: float = 1e-2,
     momentum: float = 0.0,
     dampening: float = 0.0,
@@ -317,7 +318,7 @@ def build_sgd(
 
 @register_optimizer("rmsprop")
 def build_rmsprop(
-    params: Union[Iterable[torch.Tensor], Iterable[Dict[str, Any]]],
+    params: Union[Iterable[torch.Tensor], Iterable[dict[str, Any]]],
     lr: float = 1e-2,
     alpha: float = 0.99,
     eps: float = 1e-8,
@@ -386,7 +387,7 @@ def build_optimizer(
     return builder.build(model)
 
 
-def get_optimizer_names() -> List[str]:
+def get_optimizer_names() -> list[str]:
     """
     Get list of registered optimizer names.
 

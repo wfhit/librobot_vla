@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import json
 import pickle
-import yaml
 from pathlib import Path
-from typing import Any, Dict, Union, Optional
+from typing import Any
+
 import torch
+import yaml
 
 
-def save_json(data: Any, path: Union[str, Path], indent: int = 2, **kwargs) -> None:
+def save_json(data: Any, path: str | Path, indent: int = 2, **kwargs) -> None:
     """
     Save data to JSON file.
 
@@ -27,7 +28,7 @@ def save_json(data: Any, path: Union[str, Path], indent: int = 2, **kwargs) -> N
         json.dump(data, f, indent=indent, **kwargs)
 
 
-def load_json(path: Union[str, Path], **kwargs) -> Any:
+def load_json(path: str | Path, **kwargs) -> Any:
     """
     Load data from JSON file.
 
@@ -38,11 +39,11 @@ def load_json(path: Union[str, Path], **kwargs) -> Any:
     Returns:
         Loaded data
     """
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding='utf-8') as f:
         return json.load(f, **kwargs)
 
 
-def save_yaml(data: Any, path: Union[str, Path], **kwargs) -> None:
+def save_yaml(data: Any, path: str | Path, **kwargs) -> None:
     """
     Save data to YAML file.
 
@@ -58,7 +59,7 @@ def save_yaml(data: Any, path: Union[str, Path], **kwargs) -> None:
         yaml.safe_dump(data, f, **kwargs)
 
 
-def load_yaml(path: Union[str, Path], **kwargs) -> Any:
+def load_yaml(path: str | Path, **kwargs) -> Any:
     """
     Load data from YAML file.
 
@@ -69,11 +70,11 @@ def load_yaml(path: Union[str, Path], **kwargs) -> Any:
     Returns:
         Loaded data
     """
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding='utf-8') as f:
         return yaml.safe_load(f, **kwargs)
 
 
-def save_pickle(data: Any, path: Union[str, Path], **kwargs) -> None:
+def save_pickle(data: Any, path: str | Path, **kwargs) -> None:
     """
     Save data to pickle file.
 
@@ -89,7 +90,7 @@ def save_pickle(data: Any, path: Union[str, Path], **kwargs) -> None:
         pickle.dump(data, f, **kwargs)
 
 
-def load_pickle(path: Union[str, Path], **kwargs) -> Any:
+def load_pickle(path: str | Path, **kwargs) -> Any:
     """
     Load data from pickle file.
 
@@ -104,7 +105,7 @@ def load_pickle(path: Union[str, Path], **kwargs) -> Any:
         return pickle.load(f, **kwargs)
 
 
-def save_torch(data: Any, path: Union[str, Path], **kwargs) -> None:
+def save_torch(data: Any, path: str | Path, **kwargs) -> None:
     """
     Save data using torch.save.
 
@@ -118,7 +119,7 @@ def save_torch(data: Any, path: Union[str, Path], **kwargs) -> None:
     torch.save(data, path, **kwargs)
 
 
-def load_torch(path: Union[str, Path], map_location: Optional[str] = None, **kwargs) -> Any:
+def load_torch(path: str | Path, map_location: str | None = None, **kwargs) -> Any:
     """
     Load data using torch.load.
 
@@ -137,7 +138,7 @@ def load_torch(path: Union[str, Path], map_location: Optional[str] = None, **kwa
     return torch.load(path, map_location=map_location, weights_only=False, **kwargs)
 
 
-def ensure_dir(path: Union[str, Path]) -> Path:
+def ensure_dir(path: str | Path) -> Path:
     """
     Ensure directory exists, creating it if necessary.
 
@@ -152,7 +153,7 @@ def ensure_dir(path: Union[str, Path]) -> Path:
     return path
 
 
-def read_text(path: Union[str, Path], encoding: str = 'utf-8') -> str:
+def read_text(path: str | Path, encoding: str = 'utf-8') -> str:
     """
     Read text from file.
 
@@ -163,11 +164,11 @@ def read_text(path: Union[str, Path], encoding: str = 'utf-8') -> str:
     Returns:
         str: File contents
     """
-    with open(path, 'r', encoding=encoding) as f:
+    with open(path, encoding=encoding) as f:
         return f.read()
 
 
-def write_text(text: str, path: Union[str, Path], encoding: str = 'utf-8') -> None:
+def write_text(text: str, path: str | Path, encoding: str = 'utf-8') -> None:
     """
     Write text to file.
 
@@ -183,7 +184,7 @@ def write_text(text: str, path: Union[str, Path], encoding: str = 'utf-8') -> No
         f.write(text)
 
 
-def read_lines(path: Union[str, Path], encoding: str = 'utf-8', strip: bool = True) -> list[str]:
+def read_lines(path: str | Path, encoding: str = 'utf-8', strip: bool = True) -> list[str]:
     """
     Read lines from file.
 
@@ -195,7 +196,7 @@ def read_lines(path: Union[str, Path], encoding: str = 'utf-8', strip: bool = Tr
     Returns:
         List of lines
     """
-    with open(path, 'r', encoding=encoding) as f:
+    with open(path, encoding=encoding) as f:
         lines = f.readlines()
 
     if strip:
@@ -204,7 +205,7 @@ def read_lines(path: Union[str, Path], encoding: str = 'utf-8', strip: bool = Tr
     return lines
 
 
-def write_lines(lines: list[str], path: Union[str, Path], encoding: str = 'utf-8') -> None:
+def write_lines(lines: list[str], path: str | Path, encoding: str = 'utf-8') -> None:
     """
     Write lines to file.
 

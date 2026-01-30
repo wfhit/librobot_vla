@@ -1,9 +1,9 @@
 """Evaluation CLI command."""
 
 import argparse
+import sys
 from pathlib import Path
 from typing import Optional
-import sys
 
 
 def evaluate_cli(args: Optional[list] = None) -> int:
@@ -109,13 +109,12 @@ def evaluate_cli(args: Optional[list] = None) -> int:
 def run_evaluation(args) -> int:
     """Execute evaluation with parsed arguments."""
     try:
-        print(f"Starting evaluation...")
+        print("Starting evaluation...")
         print(f"  Checkpoint: {args.checkpoint}")
         print(f"  Mode: {args.mode}")
         print(f"  Metrics: {args.metrics}")
 
         # Load model
-        from librobot.inference.policy import BasePolicy
 
         # Run evaluation based on mode
         if args.mode == "dataset":

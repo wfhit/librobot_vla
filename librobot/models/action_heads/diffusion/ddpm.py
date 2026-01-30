@@ -1,9 +1,10 @@
 """DDPM (Denoising Diffusion Probabilistic Models) action head."""
 
-from typing import Any, Dict, Optional
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 from ..base import AbstractActionHead
 
 
@@ -58,10 +59,10 @@ class DDPMActionHead(AbstractActionHead):
         betas = 1 - (alphas_cumprod[1:] / alphas_cumprod[:-1])
         return torch.clip(betas, 0.0001, 0.9999)
 
-    def forward(self, embeddings: torch.Tensor, **kwargs) -> Dict[str, torch.Tensor]:
+    def forward(self, embeddings: torch.Tensor, **kwargs) -> dict[str, torch.Tensor]:
         return {'embeddings': embeddings}
 
-    def compute_loss(self, predictions: Dict[str, torch.Tensor], targets: torch.Tensor, **kwargs) -> torch.Tensor:
+    def compute_loss(self, predictions: dict[str, torch.Tensor], targets: torch.Tensor, **kwargs) -> torch.Tensor:
         embeddings = predictions['embeddings']
         batch_size = embeddings.size(0)
 

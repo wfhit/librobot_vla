@@ -1,11 +1,9 @@
 """Standard multi-head attention implementation."""
 
-import math
-from typing import Optional, Tuple
+from typing import Optional
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class StandardAttention(nn.Module):
@@ -52,9 +50,9 @@ class StandardAttention(nn.Module):
         self,
         x: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,
-        key_value: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
+        key_value: Optional[tuple[torch.Tensor, torch.Tensor]] = None,
         return_attention: bool = False,
-    ) -> torch.Tensor | Tuple[torch.Tensor, torch.Tensor]:
+    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         """
         Forward pass.
 
@@ -75,7 +73,7 @@ class StandardAttention(nn.Module):
             q, k, v = qkv[0], qkv[1], qkv[2]
         else:
             # Cross-attention with cached key-value
-            q = nn.functional.linear(x, self.qkv.weight[:self.dim], 
+            q = nn.functional.linear(x, self.qkv.weight[:self.dim],
                                      self.qkv.bias[:self.dim] if self.qkv.bias is not None else None)
             q = q.reshape(B, N, self.num_heads, self.head_dim).permute(0, 2, 1, 3)
             k, v = key_value

@@ -4,11 +4,12 @@ This module provides the interface for controlling articulated dump trucks,
 supporting autonomous operation with multiple camera views, GPS, and IMU sensors.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
+
 import numpy as np
 
-from .articulated_truck import ArticulatedTruck
 from ..registry import register_robot
+from .articulated_truck import ArticulatedTruck
 
 
 @register_robot(name="articulated_truck", aliases=["adt", "dump_truck", "hauler"])
@@ -62,15 +63,15 @@ class ArticulatedTruckRobot(ArticulatedTruck):
         >>> # Basic usage with context manager
         >>> with ArticulatedTruckRobot(robot_id="truck_001") as robot:
         ...     robot.connect(ip="192.168.1.100", port=5000)
-        ...     
+        ...
         ...     # Reset to safe initial state
         ...     robot.reset()
-        ...     
+        ...
         ...     # Get current observation
         ...     obs = robot.get_observation()
         ...     front_cam = obs['images']['front']
         ...     payload = obs['proprioception']['current_payload']
-        ...     
+        ...
         ...     # Execute hauling action: drive forward
         ...     action = np.array([
         ...         0.0,   # steering (straight)
@@ -163,7 +164,7 @@ class ArticulatedTruckRobot(ArticulatedTruck):
         self._bed_angle = 0.0
         print(f"[{self.robot_id}] Reset to safe initial state")
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         """Get current articulated truck state."""
         return {
             'vehicle_state': np.array([
@@ -189,9 +190,9 @@ class ArticulatedTruckRobot(ArticulatedTruck):
         # Parse and clip action
         steering = np.clip(action[0], -1.0, 1.0)
         throttle = np.clip(action[1], 0.0, 1.0)
-        brake = np.clip(action[2], 0.0, 1.0)
+        np.clip(action[2], 0.0, 1.0)
         bed_tilt = np.clip(action[3], -1.0, 1.0)
-        transmission = np.clip(action[4], -1.0, 1.0)
+        np.clip(action[4], -1.0, 1.0)
 
         # Safety: Don't dump while moving fast
         if self._vehicle_speed > 1.0 and bed_tilt > 0.1:
@@ -205,7 +206,7 @@ class ArticulatedTruckRobot(ArticulatedTruck):
 
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         """Get current observation from articulated truck sensors."""
         observation = {
             'proprioception': {
@@ -243,7 +244,7 @@ class ArticulatedTruckRobot(ArticulatedTruck):
 
         return observation
 
-    def get_action_space(self) -> Dict[str, Any]:
+    def get_action_space(self) -> dict[str, Any]:
         """Get action space specification."""
         return {
             'shape': (5,),
@@ -261,7 +262,7 @@ class ArticulatedTruckRobot(ArticulatedTruck):
             ],
         }
 
-    def get_observation_space(self) -> Dict[str, Any]:
+    def get_observation_space(self) -> dict[str, Any]:
         """Get observation space specification."""
         obs_space = {
             'proprioception': {

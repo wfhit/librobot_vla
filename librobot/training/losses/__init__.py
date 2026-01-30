@@ -1,10 +1,10 @@
 """Loss functions for VLA training."""
 
 from .base import AbstractLoss
-from .mse import MSELoss, L1Loss, SmoothL1Loss, ActionLoss
-from .cross_entropy import CrossEntropyLoss, FocalLoss, TokenLoss, BCELoss
-from .diffusion import DiffusionLoss, DDPMLoss, ScoreMatchingLoss
-from .flow_matching import FlowMatchingLoss, RectifiedFlowLoss, OTCFMLoss, ConsistencyLoss
+from .cross_entropy import BCELoss, CrossEntropyLoss, FocalLoss, TokenLoss
+from .diffusion import DDPMLoss, DiffusionLoss, ScoreMatchingLoss
+from .flow_matching import ConsistencyLoss, FlowMatchingLoss, OTCFMLoss, RectifiedFlowLoss
+from .mse import ActionLoss, L1Loss, MSELoss, SmoothL1Loss
 
 __all__ = [
     # Base

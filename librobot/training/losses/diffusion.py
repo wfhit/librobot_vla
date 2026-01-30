@@ -1,10 +1,10 @@
 """Diffusion-specific loss functions."""
 
-from typing import Any, Dict, Optional
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import math
+from typing import Optional
+
+import torch
+import torch.nn.functional as F
 
 from .base import AbstractLoss
 
@@ -33,8 +33,8 @@ class DiffusionLoss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         """Compute diffusion loss."""
@@ -125,8 +125,8 @@ class DDPMLoss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         noise_pred = predictions.get('noise_pred')
@@ -153,8 +153,8 @@ class ScoreMatchingLoss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         score_pred = predictions.get('score')

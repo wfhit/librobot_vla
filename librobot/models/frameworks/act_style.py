@@ -1,6 +1,6 @@
 """ALOHA ACT (Action Chunking Transformer) style VLA framework implementation."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import torch
 import torch.nn as nn
@@ -269,11 +269,11 @@ class ACTVLA(AbstractVLA):
     def forward(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Forward pass of ACT VLA.
 
@@ -347,7 +347,7 @@ class ACTVLA(AbstractVLA):
     def predict_action(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         **kwargs
     ) -> torch.Tensor:
@@ -376,10 +376,10 @@ class ACTVLA(AbstractVLA):
 
     def compute_loss(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
 
@@ -404,7 +404,7 @@ class ACTVLA(AbstractVLA):
 
         return losses
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """
         Get framework configuration.
 

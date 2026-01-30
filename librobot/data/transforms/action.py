@@ -1,13 +1,14 @@
 """Action transforms for data augmentation and normalization."""
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
+
 import numpy as np
 
 
 class ActionTransform:
     """Base class for action transforms."""
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply transform to sample."""
         if 'actions' in sample:
             sample['actions'] = self.transform(sample['actions'])
@@ -153,7 +154,7 @@ class ActionDelta(ActionTransform):
         self.reference_key = reference_key
         self._reference = None
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply delta transform using reference state."""
         if self.reference_key in sample and 'actions' in sample:
             reference = sample[self.reference_key]
@@ -184,7 +185,7 @@ class RelativeAction(ActionTransform):
         self.position_indices = position_indices or [0, 1, 2]
         self.rotation_indices = rotation_indices or [3, 4, 5]
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Convert to relative actions."""
         if 'actions' in sample and 'proprioception' in sample:
             action = sample['actions']

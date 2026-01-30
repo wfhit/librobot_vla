@@ -4,11 +4,12 @@ This module provides the interface for controlling wheel loader heavy equipment,
 supporting autonomous operation with multiple camera views, GPS, and IMU sensors.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
+
 import numpy as np
 
-from .wheel_loader import WheelLoader
 from ..registry import register_robot
+from .wheel_loader import WheelLoader
 
 
 @register_robot(name="wheel_loader", aliases=["wheelloader", "loader"])
@@ -61,15 +62,15 @@ class WheelLoaderRobot(WheelLoader):
         >>> # Basic usage with context manager
         >>> with WheelLoaderRobot(robot_id="loader_001") as robot:
         ...     robot.connect(ip="192.168.1.100", port=5000)
-        ...     
+        ...
         ...     # Reset to safe initial state
         ...     robot.reset()
-        ...     
+        ...
         ...     # Get current observation
         ...     obs = robot.get_observation()
         ...     front_cam = obs['images']['front']
         ...     speed = obs['proprioception']['vehicle_speed']
-        ...     
+        ...
         ...     # Execute movement action: drive forward slowly
         ...     action = np.array([
         ...         0.0,   # steering (straight)
@@ -213,7 +214,7 @@ class WheelLoaderRobot(WheelLoader):
         self._boom_height = 0.0
         print(f"[{self.robot_id}] Reset to safe initial state")
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         """
         Get current wheel loader state.
 
@@ -278,10 +279,10 @@ class WheelLoaderRobot(WheelLoader):
         # Parse action
         steering = np.clip(action[0], -1.0, 1.0)
         throttle = np.clip(action[1], 0.0, 1.0)
-        brake = np.clip(action[2], 0.0, 1.0)
+        np.clip(action[2], 0.0, 1.0)
         bucket_tilt = np.clip(action[3], -1.0, 1.0)
         boom_lift = np.clip(action[4], -1.0, 1.0)
-        transmission = np.clip(action[5], -1.0, 1.0)
+        np.clip(action[5], -1.0, 1.0)
 
         # Safety checks
         if not self._is_connected:
@@ -312,7 +313,7 @@ class WheelLoaderRobot(WheelLoader):
 
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         """
         Get current observation from wheel loader sensors.
 
@@ -364,7 +365,7 @@ class WheelLoaderRobot(WheelLoader):
 
         return observation
 
-    def get_action_space(self) -> Dict[str, Any]:
+    def get_action_space(self) -> dict[str, Any]:
         """
         Get action space specification.
 
@@ -396,7 +397,7 @@ class WheelLoaderRobot(WheelLoader):
             ],
         }
 
-    def get_observation_space(self) -> Dict[str, Any]:
+    def get_observation_space(self) -> dict[str, Any]:
         """
         Get observation space specification.
 
@@ -458,7 +459,7 @@ class WheelLoaderRobot(WheelLoader):
         self._vehicle_speed = 0.0
         print(f"[{self.robot_id}] EMERGENCY STOP activated")
 
-    def set_geofence(self, boundary_points: List[tuple]) -> None:
+    def set_geofence(self, boundary_points: list[tuple]) -> None:
         """
         Set geofence boundary for safe operation zone.
 
@@ -473,7 +474,7 @@ class WheelLoaderRobot(WheelLoader):
 
         print(f"[{self.robot_id}] Geofence set with {len(boundary_points)} points")
 
-    def get_diagnostics(self) -> Dict[str, Any]:
+    def get_diagnostics(self) -> dict[str, Any]:
         """
         Get comprehensive diagnostics information.
 

@@ -1,6 +1,6 @@
 """FiLM (Feature-wise Linear Modulation) fusion."""
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -84,7 +84,7 @@ class FiLMFusion(nn.Module):
 
         return output
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """Get fusion configuration."""
         return {
             'type': 'FiLMFusion',

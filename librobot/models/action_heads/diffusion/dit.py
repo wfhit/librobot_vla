@@ -2,6 +2,7 @@
 import torch
 import torch.nn as nn
 
+
 class DiT(nn.Module):
     """Diffusion Transformer denoiser."""
     def __init__(self, dim: int, num_layers: int = 4, num_heads: int = 8):

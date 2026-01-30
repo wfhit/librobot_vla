@@ -1,6 +1,7 @@
 """MSE and regression loss functions."""
 
-from typing import Any, Dict, Optional
+from typing import Optional
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -30,8 +31,8 @@ class MSELoss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         """Compute MSE loss."""
@@ -67,8 +68,8 @@ class L1Loss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         pred = predictions.get('actions', predictions.get('pred'))
@@ -95,8 +96,8 @@ class SmoothL1Loss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         pred = predictions.get('actions', predictions.get('pred'))
@@ -147,8 +148,8 @@ class ActionLoss(AbstractLoss):
 
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         pred = predictions.get('actions')
@@ -187,7 +188,7 @@ class ActionLoss(AbstractLoss):
 
 __all__ = [
     'MSELoss',
-    'L1Loss', 
+    'L1Loss',
     'SmoothL1Loss',
     'ActionLoss',
 ]

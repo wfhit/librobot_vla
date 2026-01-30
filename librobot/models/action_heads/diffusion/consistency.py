@@ -1,7 +1,9 @@
 """Consistency Models for fast generation."""
 import torch
 import torch.nn as nn
+
 from ..base import AbstractActionHead
+
 
 class ConsistencyActionHead(AbstractActionHead):
     """Consistency model for single-step generation."""

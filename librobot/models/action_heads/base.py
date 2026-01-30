@@ -1,7 +1,8 @@
 """Abstract base class for action prediction heads."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Optional
+
 import torch
 import torch.nn as nn
 
@@ -31,7 +32,7 @@ class AbstractActionHead(ABC, nn.Module):
         embeddings: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Forward pass to predict actions.
 
@@ -50,7 +51,7 @@ class AbstractActionHead(ABC, nn.Module):
     @abstractmethod
     def compute_loss(
         self,
-        predictions: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
         targets: torch.Tensor,
         **kwargs
     ) -> torch.Tensor:
@@ -87,7 +88,7 @@ class AbstractActionHead(ABC, nn.Module):
         """
         pass
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """
         Get head configuration.
 

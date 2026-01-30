@@ -5,8 +5,7 @@ Specific articulated truck platforms should inherit from ArticulatedTruck
 and override methods as needed for their hardware.
 """
 
-from typing import Any, Dict
-import numpy as np
+from typing import Any
 
 from ..base import AbstractRobot
 
@@ -51,7 +50,7 @@ class ArticulatedTruck(AbstractRobot):
         self._engine_rpm = 0.0
         self._fuel_level = 1.0
 
-    def get_action_space(self) -> Dict[str, Any]:
+    def get_action_space(self) -> dict[str, Any]:
         return {
             "type": "continuous",
             "shape": (5,),  # steering, throttle, brake, bed_tilt, gear
@@ -59,7 +58,7 @@ class ArticulatedTruck(AbstractRobot):
             "high": [1.0, 1.0, 1.0, 1.0, 1.0],
         }
 
-    def get_observation_space(self) -> Dict[str, Any]:
+    def get_observation_space(self) -> dict[str, Any]:
         return {
             "steering_angle": {"shape": (), "dtype": "float32"},
             "vehicle_speed": {"shape": (), "dtype": "float32"},

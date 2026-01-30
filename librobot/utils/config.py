@@ -1,9 +1,9 @@
 """Configuration management using OmegaConf and Hydra."""
 
 from pathlib import Path
-from typing import Any, Dict, Optional, Union, List
-from omegaconf import OmegaConf, DictConfig, ListConfig
-import yaml
+from typing import Any, Optional, Union
+
+from omegaconf import DictConfig, OmegaConf
 
 
 class Config:
@@ -13,21 +13,21 @@ class Config:
     Examples:
         >>> # Load from file
         >>> config = Config.from_yaml("config.yaml")
-        >>> 
+        >>>
         >>> # Create from dict
         >>> config = Config({"model": {"hidden_size": 768}})
-        >>> 
+        >>>
         >>> # Access values
         >>> hidden_size = config.model.hidden_size
-        >>> 
+        >>>
         >>> # Update values
         >>> config.model.hidden_size = 1024
-        >>> 
+        >>>
         >>> # Save to file
         >>> config.save("output.yaml")
     """
 
-    def __init__(self, config: Optional[Union[Dict, DictConfig]] = None):
+    def __init__(self, config: Optional[Union[dict, DictConfig]] = None):
         """
         Initialize configuration.
 
@@ -59,7 +59,7 @@ class Config:
         return cls(config)
 
     @classmethod
-    def from_dict(cls, config_dict: Dict) -> "Config":
+    def from_dict(cls, config_dict: dict) -> "Config":
         """
         Create configuration from dictionary.
 
@@ -72,7 +72,7 @@ class Config:
         return cls(config_dict)
 
     @classmethod
-    def from_cli(cls, args: Optional[List[str]] = None) -> "Config":
+    def from_cli(cls, args: Optional[list[str]] = None) -> "Config":
         """
         Create configuration from command line arguments.
 
@@ -85,7 +85,7 @@ class Config:
         config = OmegaConf.from_cli(args)
         return cls(config)
 
-    def merge(self, other: Union["Config", Dict, DictConfig]) -> "Config":
+    def merge(self, other: Union["Config", dict, DictConfig]) -> "Config":
         """
         Merge with another configuration.
 
@@ -107,7 +107,7 @@ class Config:
         merged = OmegaConf.merge(self._config, other_config)
         return Config(merged)
 
-    def update(self, other: Union["Config", Dict, DictConfig]) -> None:
+    def update(self, other: Union["Config", dict, DictConfig]) -> None:
         """
         Update configuration in-place.
 
@@ -151,7 +151,7 @@ class Config:
         """
         OmegaConf.update(self._config, key, value)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Convert configuration to dictionary.
 
@@ -225,7 +225,7 @@ def load_config(path: Union[str, Path]) -> Config:
     return Config.from_yaml(path)
 
 
-def merge_configs(*configs: Union[Config, Dict, DictConfig]) -> Config:
+def merge_configs(*configs: Union[Config, dict, DictConfig]) -> Config:
     """
     Merge multiple configurations.
 

@@ -1,7 +1,8 @@
 """Abstract base class for Vision-Language Models (VLMs)."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
+
 import torch
 import torch.nn as nn
 
@@ -22,10 +23,10 @@ class AbstractVLM(ABC, nn.Module):
     def forward(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         attention_mask: Optional[torch.Tensor] = None,
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Forward pass of the VLM.
 
@@ -59,7 +60,7 @@ class AbstractVLM(ABC, nn.Module):
     @abstractmethod
     def encode_text(
         self,
-        text: Union[str, List[str]],
+        text: Union[str, list[str]],
         **kwargs
     ) -> torch.Tensor:
         """
@@ -86,7 +87,7 @@ class AbstractVLM(ABC, nn.Module):
 
     @property
     @abstractmethod
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """
         Get model configuration.
 

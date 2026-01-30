@@ -2,9 +2,10 @@
 
 import json
 import shutil
-from pathlib import Path
-from typing import Any, Dict, Optional, Union, List
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Optional, Union
+
 import torch
 import torch.nn as nn
 
@@ -46,7 +47,7 @@ class Checkpoint:
         self.mode = mode
 
         self.best_metric = float('inf') if mode == 'min' else float('-inf')
-        self.checkpoints: List[Path] = []
+        self.checkpoints: list[Path] = []
 
         # Load existing checkpoint list
         self._load_checkpoint_list()
@@ -58,8 +59,8 @@ class Checkpoint:
         scheduler: Optional[Any] = None,
         epoch: Optional[int] = None,
         step: Optional[int] = None,
-        metrics: Optional[Dict[str, float]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        metrics: Optional[dict[str, float]] = None,
+        metadata: Optional[dict[str, Any]] = None,
         filename: Optional[str] = None,
     ) -> Path:
         """
@@ -153,7 +154,7 @@ class Checkpoint:
         optimizer: Optional[torch.optim.Optimizer] = None,
         scheduler: Optional[Any] = None,
         map_location: Optional[str] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Load checkpoint from file.
 
@@ -195,7 +196,7 @@ class Checkpoint:
         optimizer: Optional[torch.optim.Optimizer] = None,
         scheduler: Optional[Any] = None,
         map_location: Optional[str] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Load the best checkpoint.
 
@@ -216,7 +217,7 @@ class Checkpoint:
         optimizer: Optional[torch.optim.Optimizer] = None,
         scheduler: Optional[Any] = None,
         map_location: Optional[str] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Load the most recent checkpoint.
 
@@ -235,7 +236,7 @@ class Checkpoint:
         latest = self.checkpoints[-1]
         return self.load(latest, model, optimizer, scheduler, map_location)
 
-    def list_checkpoints(self) -> List[Dict[str, Any]]:
+    def list_checkpoints(self) -> list[dict[str, Any]]:
         """
         List all available checkpoints with metadata.
 
@@ -251,7 +252,7 @@ class Checkpoint:
                 info = {'path': str(checkpoint_path)}
 
                 if metadata_path.exists():
-                    with open(metadata_path, 'r') as f:
+                    with open(metadata_path) as f:
                         info.update(json.load(f))
 
                 checkpoints_info.append(info)
@@ -285,7 +286,7 @@ class Checkpoint:
         """Load list of checkpoints from file."""
         list_path = self.save_dir / ".checkpoint_list.json"
         if list_path.exists():
-            with open(list_path, 'r') as f:
+            with open(list_path) as f:
                 paths = json.load(f)
                 self.checkpoints = [Path(p) for p in paths if Path(p).exists()]
 
@@ -323,7 +324,7 @@ def load_checkpoint(
     model: Optional[nn.Module] = None,
     optimizer: Optional[torch.optim.Optimizer] = None,
     map_location: Optional[str] = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Quick function to load a checkpoint.
 

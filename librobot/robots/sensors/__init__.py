@@ -1,12 +1,12 @@
 """Robot sensors."""
 
 from .sensors import (
+    IMU,
     BaseSensor,
     Camera,
     DepthCamera,
     ForceTorqueSensor,
     JointEncoder,
-    IMU,
     Lidar,
     Tactile,
 )

@@ -1,17 +1,18 @@
 """Temporal transforms for sequence data."""
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional
+
 import numpy as np
 
 
 class TemporalTransform:
     """Base class for temporal transforms."""
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply transform to sample."""
         return self.transform(sample)
 
-    def transform(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def transform(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Transform sample. Override in subclasses."""
         return sample
 
@@ -22,7 +23,7 @@ class TemporalSubsample(TemporalTransform):
     def __init__(
         self,
         subsample_rate: int = 1,
-        keys: Optional[List[str]] = None,
+        keys: Optional[list[str]] = None,
     ):
         """
         Args:
@@ -32,7 +33,7 @@ class TemporalSubsample(TemporalTransform):
         self.subsample_rate = subsample_rate
         self.keys = keys
 
-    def transform(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def transform(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Subsample temporal sequences."""
         keys = self.keys or list(sample.keys())
 
@@ -53,7 +54,7 @@ class TemporalCrop(TemporalTransform):
         length: int,
         start: Optional[int] = None,
         random_start: bool = True,
-        keys: Optional[List[str]] = None,
+        keys: Optional[list[str]] = None,
     ):
         """
         Args:
@@ -67,7 +68,7 @@ class TemporalCrop(TemporalTransform):
         self.random_start = random_start
         self.keys = keys
 
-    def transform(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def transform(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Crop temporal sequences."""
         keys = self.keys or list(sample.keys())
 
@@ -120,7 +121,7 @@ class ActionChunking(TemporalTransform):
         self.action_key = action_key
         self.output_key = output_key
 
-    def transform(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def transform(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Create action chunks."""
         if self.action_key not in sample:
             return sample
@@ -152,7 +153,7 @@ class TemporalStack(TemporalTransform):
     def __init__(
         self,
         stack_size: int = 4,
-        keys: List[str] = ['images'],
+        keys: list[str] = ['images'],
     ):
         """
         Args:
@@ -161,9 +162,9 @@ class TemporalStack(TemporalTransform):
         """
         self.stack_size = stack_size
         self.keys = keys
-        self._buffers: Dict[str, List[np.ndarray]] = {k: [] for k in keys}
+        self._buffers: dict[str, list[np.ndarray]] = {k: [] for k in keys}
 
-    def transform(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def transform(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Stack temporal observations."""
         for key in self.keys:
             if key in sample:
@@ -192,7 +193,7 @@ class FrameSkip(TemporalTransform):
         self,
         skip: int = 1,
         action_repeat: int = 1,
-        keys: Optional[List[str]] = None,
+        keys: Optional[list[str]] = None,
     ):
         """
         Args:
@@ -204,7 +205,7 @@ class FrameSkip(TemporalTransform):
         self.action_repeat = action_repeat
         self.keys = keys
 
-    def transform(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def transform(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply frame skip."""
         keys = self.keys or list(sample.keys())
 
@@ -226,7 +227,7 @@ class DeltaActions(TemporalTransform):
         """
         self.action_key = action_key
 
-    def transform(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def transform(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Compute delta actions."""
         if self.action_key not in sample:
             return sample

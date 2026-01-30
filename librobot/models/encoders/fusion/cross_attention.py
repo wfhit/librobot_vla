@@ -1,6 +1,6 @@
 """Cross-attention fusion between modalities."""
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import torch
 import torch.nn as nn
@@ -91,7 +91,7 @@ class CrossAttentionFusion(nn.Module):
 
         return q
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """Get fusion configuration."""
         return {
             'type': 'CrossAttentionFusion',
@@ -143,7 +143,6 @@ class CrossAttentionLayer(nn.Module):
     ) -> torch.Tensor:
         """Forward pass."""
         # Create combined key-value from context
-        kv = context
 
         # Cross-attention with residual
         q_norm = self.norm1(query)

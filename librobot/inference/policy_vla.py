@@ -2,11 +2,12 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union, Tuple
+from typing import Any, Optional, Union
+
 import torch
 import torch.nn as nn
-from librobot.utils import get_logger, load_checkpoint
 
+from librobot.utils import get_logger, load_checkpoint
 
 logger = get_logger(__name__)
 
@@ -46,9 +47,9 @@ class BasePolicy(ABC):
     @abstractmethod
     def predict(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Run inference on observation.
 
@@ -108,9 +109,9 @@ class BasePolicy(ABC):
     @torch.no_grad()
     def __call__(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Convenient call interface for prediction.
 
@@ -199,10 +200,10 @@ class VLAPolicy(BasePolicy):
     @torch.no_grad()
     def predict(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         return_logits: bool = False,
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Predict actions from observation.
 
@@ -283,7 +284,7 @@ class VLAPolicy(BasePolicy):
 
         logger.debug("Policy state reset")
 
-    def _prepare_inputs(self, observation: Dict[str, Any]) -> Dict[str, torch.Tensor]:
+    def _prepare_inputs(self, observation: dict[str, Any]) -> dict[str, torch.Tensor]:
         """
         Prepare model inputs from observation.
 
@@ -367,7 +368,7 @@ class EnsemblePolicy(BasePolicy):
 
     def __init__(
         self,
-        policies: List[BasePolicy],
+        policies: list[BasePolicy],
         aggregation: str = "mean",
         device: Optional[Union[str, torch.device]] = None,
     ):
@@ -391,9 +392,9 @@ class EnsemblePolicy(BasePolicy):
     @torch.no_grad()
     def predict(
         self,
-        observation: Dict[str, Any],
+        observation: dict[str, Any],
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Run ensemble prediction.
 

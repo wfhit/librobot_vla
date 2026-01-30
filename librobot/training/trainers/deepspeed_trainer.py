@@ -1,8 +1,8 @@
 """DeepSpeed trainer for large-scale distributed training."""
 
-from typing import Any, Callable, Dict, List, Optional, Union
-from pathlib import Path
 import json
+from pathlib import Path
+from typing import Any, Callable, Optional, Union
 
 from .base_trainer import BaseTrainer
 
@@ -27,7 +27,7 @@ class DeepSpeedTrainer(BaseTrainer):
         loss_fn: Optional[Callable] = None,
         train_dataloader: Optional[Any] = None,
         val_dataloader: Optional[Any] = None,
-        callbacks: Optional[List[Any]] = None,
+        callbacks: Optional[list[Any]] = None,
         max_epochs: int = 100,
         max_steps: Optional[int] = None,
         gradient_accumulation_steps: int = 1,
@@ -38,7 +38,7 @@ class DeepSpeedTrainer(BaseTrainer):
         device: str = "cuda",
         seed: int = 42,
         # DeepSpeed-specific
-        deepspeed_config: Optional[Union[str, Dict]] = None,
+        deepspeed_config: Optional[Union[str, dict]] = None,
         zero_stage: int = 2,
         offload_optimizer: bool = False,
         offload_param: bool = False,
@@ -96,8 +96,8 @@ class DeepSpeedTrainer(BaseTrainer):
         self.global_step = 0
         self.best_val_loss = float('inf')
         self._stop_training = False
-        self.train_metrics: Dict[str, List[float]] = {}
-        self.val_metrics: Dict[str, List[float]] = {}
+        self.train_metrics: dict[str, list[float]] = {}
+        self.val_metrics: dict[str, list[float]] = {}
 
         # Initialize callbacks
         for callback in self.callbacks:
@@ -110,10 +110,10 @@ class DeepSpeedTrainer(BaseTrainer):
         self.scheduler = scheduler
         self._setup_deepspeed()
 
-    def _build_config(self, config: Optional[Union[str, Dict]]) -> Dict:
+    def _build_config(self, config: Optional[Union[str, dict]]) -> dict:
         """Build DeepSpeed configuration."""
         if isinstance(config, str):
-            with open(config, 'r') as f:
+            with open(config) as f:
                 return json.load(f)
 
         if config is not None:
@@ -219,14 +219,14 @@ class DeepSpeedTrainer(BaseTrainer):
 
         return total_loss / max(num_batches, 1)
 
-    def _train_step(self, batch: Dict[str, Any]) -> Dict[str, Any]:
+    def _train_step(self, batch: dict[str, Any]) -> dict[str, Any]:
         """Perform training step with DeepSpeed."""
         try:
             import torch
 
             # Move batch to device
             if isinstance(batch, dict):
-                batch = {k: v.to(self.device) if hasattr(v, 'to') else v 
+                batch = {k: v.to(self.device) if hasattr(v, 'to') else v
                         for k, v in batch.items()}
 
             if self.model_engine:
@@ -253,7 +253,7 @@ class DeepSpeedTrainer(BaseTrainer):
         except ImportError:
             return {'loss': 0.0}
 
-    def _train_step_basic(self, batch: Dict[str, Any]) -> Dict[str, Any]:
+    def _train_step_basic(self, batch: dict[str, Any]) -> dict[str, Any]:
         """Basic training step without DeepSpeed."""
         try:
             import torch
@@ -284,7 +284,7 @@ class DeepSpeedTrainer(BaseTrainer):
         except ImportError:
             return {'loss': 0.0}
 
-    def _log_metrics(self, metrics: Dict[str, Any]) -> None:
+    def _log_metrics(self, metrics: dict[str, Any]) -> None:
         """Log training metrics."""
         for key, value in metrics.items():
             if key not in self.train_metrics:

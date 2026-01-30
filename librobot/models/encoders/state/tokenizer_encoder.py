@@ -1,6 +1,6 @@
 """π0-style state tokenizer encoder."""
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -79,7 +79,6 @@ class TokenizerStateEncoder(AbstractEncoder):
             Encoded embeddings [batch_size, output_dim] or [batch_size, seq_len, output_dim]
             If return_indices=True, returns (embeddings, indices, quantization_loss)
         """
-        original_shape = inputs.shape
         flatten = inputs.dim() == 3
 
         if flatten:
@@ -187,7 +186,7 @@ class TokenizerStateEncoder(AbstractEncoder):
             raise ValueError(f"Unsupported input shape: {input_shape}")
 
     @property
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """Get encoder configuration."""
         return {
             'type': 'TokenizerStateEncoder',

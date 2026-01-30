@@ -4,11 +4,12 @@ This module provides the interface for controlling excavator heavy equipment,
 supporting autonomous operation with multiple camera views, GPS, and IMU sensors.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
+
 import numpy as np
 
-from .excavator import Excavator
 from ..registry import register_robot
+from .excavator import Excavator
 
 
 @register_robot(name="excavator", aliases=["digger", "backhoe"])
@@ -67,15 +68,15 @@ class ExcavatorRobot(Excavator):
         >>> # Basic usage with context manager
         >>> with ExcavatorRobot(robot_id="excavator_001") as robot:
         ...     robot.connect(ip="192.168.1.100", port=5000)
-        ...     
+        ...
         ...     # Reset to safe initial state
         ...     robot.reset()
-        ...     
+        ...
         ...     # Get current observation
         ...     obs = robot.get_observation()
         ...     front_cam = obs['images']['front']
         ...     boom_angle = obs['proprioception']['boom_angle']
-        ...     
+        ...
         ...     # Execute digging action
         ...     action = np.array([
         ...         0.0,   # left_track (stationary)
@@ -175,11 +176,11 @@ class ExcavatorRobot(Excavator):
         self._bucket_angle = 0.0
         print(f"[{self.robot_id}] Reset to safe initial state")
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         """Get current excavator state."""
         return {
             'track_state': np.array([self._left_track_speed, self._right_track_speed]),
-            'arm_state': np.array([self._swing_angle, self._boom_angle, 
+            'arm_state': np.array([self._swing_angle, self._boom_angle,
                                    self._arm_angle, self._bucket_angle]),
             'hydraulic_state': np.array([self._hydraulic_pressure]),
             'engine_state': np.array([self._engine_rpm, self._fuel_level]),
@@ -202,7 +203,7 @@ class ExcavatorRobot(Excavator):
         boom = np.clip(action[3], -1.0, 1.0)
         arm = np.clip(action[4], -1.0, 1.0)
         bucket = np.clip(action[5], -1.0, 1.0)
-        throttle = np.clip(action[6], 0.0, 1.0)
+        np.clip(action[6], 0.0, 1.0)
 
         # Update internal state (simulation)
         self._left_track_speed = left_track * self.max_speed
@@ -214,7 +215,7 @@ class ExcavatorRobot(Excavator):
 
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         """Get current observation from excavator sensors."""
         observation = {
             'proprioception': {
@@ -254,7 +255,7 @@ class ExcavatorRobot(Excavator):
 
         return observation
 
-    def get_action_space(self) -> Dict[str, Any]:
+    def get_action_space(self) -> dict[str, Any]:
         """Get action space specification."""
         return {
             'shape': (7,),
@@ -274,7 +275,7 @@ class ExcavatorRobot(Excavator):
             ],
         }
 
-    def get_observation_space(self) -> Dict[str, Any]:
+    def get_observation_space(self) -> dict[str, Any]:
         """Get observation space specification."""
         obs_space = {
             'proprioception': {

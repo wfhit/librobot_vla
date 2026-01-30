@@ -2,11 +2,12 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
+
 import torch
 import torch.nn as nn
-from librobot.utils import get_logger
 
+from librobot.utils import get_logger
 
 logger = get_logger(__name__)
 
@@ -270,7 +271,7 @@ class GPTQQuantizer(BaseQuantizer):
         # - Run calibration with data
         # - Apply optimal quantization
 
-        quantize_config = self.QuantizeConfig(
+        self.QuantizeConfig(
             bits=self.bits,
             group_size=self.group_size,
             damp_percent=self.damp_percent,
@@ -356,9 +357,9 @@ class DynamicQuantizer(BaseQuantizer):
 
         # Set quantization config
         if self.qconfig == "fbgemm":
-            qconfig_spec = torch.quantization.get_default_qconfig("fbgemm")
+            torch.quantization.get_default_qconfig("fbgemm")
         elif self.qconfig == "qnnpack":
-            qconfig_spec = torch.quantization.get_default_qconfig("qnnpack")
+            torch.quantization.get_default_qconfig("qnnpack")
         else:
             raise ValueError(f"Unknown qconfig: {self.qconfig}")
 

@@ -1,15 +1,15 @@
 """Custom VLA framework template for user-defined architectures."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .base import AbstractVLA
-from ..vlm.base import AbstractVLM
 from ..action_heads.base import AbstractActionHead
 from ..encoders.base import AbstractEncoder
+from ..vlm.base import AbstractVLM
+from .base import AbstractVLA
 
 
 class CustomVLA(AbstractVLA):
@@ -81,7 +81,7 @@ class CustomVLA(AbstractVLA):
         hidden_dim: int = 512,
         use_vlm: bool = True,
         freeze_backbone: bool = False,
-        custom_config: Optional[Dict[str, Any]] = None,
+        custom_config: Optional[dict[str, Any]] = None,
     ):
         super().__init__()
 
@@ -209,7 +209,7 @@ class CustomVLA(AbstractVLA):
 
         return features
 
-    def _encode_text(self, text: Union[str, List[str]]) -> torch.Tensor:
+    def _encode_text(self, text: Union[str, list[str]]) -> torch.Tensor:
         """Encode text inputs."""
         if self.use_vlm:
             # VLM handles text
@@ -267,11 +267,11 @@ class CustomVLA(AbstractVLA):
     def forward(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Forward pass of custom VLA.
 
@@ -347,7 +347,7 @@ class CustomVLA(AbstractVLA):
     def predict_action(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         **kwargs
     ) -> torch.Tensor:
@@ -376,10 +376,10 @@ class CustomVLA(AbstractVLA):
 
     def compute_loss(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
 
@@ -399,7 +399,7 @@ class CustomVLA(AbstractVLA):
 
         return losses
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """
         Get framework configuration.
 

@@ -1,7 +1,9 @@
 """ACT (Action Chunking Transformer) decoder."""
 import torch
 import torch.nn as nn
+
 from .base import AbstractActionHead
+
 
 class ACTActionHead(AbstractActionHead):
     """Transformer decoder for action chunking."""

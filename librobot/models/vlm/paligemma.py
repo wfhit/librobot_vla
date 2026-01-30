@@ -1,17 +1,16 @@
 """PaliGemma Vision-Language Model."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from ..components.normalization.rmsnorm import RMSNorm
+from ..components.positional.rotary import RotaryPositionEmbedding
 from .base import AbstractVLM
 from .registry import register_vlm
-from ..components.attention.flash_attention import FlashAttention
-from ..components.positional.rotary import RotaryPositionEmbedding
-from ..components.normalization.rmsnorm import RMSNorm
 
 
 @dataclass
@@ -350,7 +349,7 @@ class PaliGemma(AbstractVLM):
 
     def __init__(
         self,
-        config: Union[PaliGemmaConfig, Dict[str, Any]],
+        config: Union[PaliGemmaConfig, dict[str, Any]],
         pretrained: Optional[str] = None,
         freeze_vision: bool = False,
         freeze_language: bool = False,
@@ -404,7 +403,7 @@ class PaliGemma(AbstractVLM):
 
     def encode_text(
         self,
-        text: Union[str, List[str]],
+        text: Union[str, list[str]],
         tokenizer: Optional[Any] = None,
         **kwargs
     ) -> torch.Tensor:
@@ -441,7 +440,7 @@ class PaliGemma(AbstractVLM):
         labels: Optional[torch.Tensor] = None,
         return_dict: bool = True,
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Forward pass.
 
@@ -597,7 +596,7 @@ class PaliGemma(AbstractVLM):
         return self._config.hidden_size
 
     @property
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """Get model configuration."""
         return {
             "model_type": "paligemma",

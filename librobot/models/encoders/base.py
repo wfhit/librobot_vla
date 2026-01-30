@@ -1,7 +1,8 @@
 """Abstract base class for encoders."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any
+
 import torch
 import torch.nn as nn
 
@@ -53,7 +54,7 @@ class AbstractEncoder(ABC, nn.Module):
 
     @property
     @abstractmethod
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """
         Get encoder configuration.
 

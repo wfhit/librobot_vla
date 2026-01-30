@@ -4,7 +4,7 @@ import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 from librobot.utils.logging import get_logger
 
@@ -26,9 +26,9 @@ class ExperimentConfig:
     """
     project_name: str = "librobot-vla"
     experiment_name: Optional[str] = None
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     notes: Optional[str] = None
-    config: Dict[str, Any] = field(default_factory=dict)
+    config: dict[str, Any] = field(default_factory=dict)
     log_dir: str = "./logs"
     offline: bool = False
 
@@ -48,7 +48,7 @@ class AbstractExperimentTracker(ABC):
     @abstractmethod
     def log_metrics(
         self,
-        metrics: Dict[str, Any],
+        metrics: dict[str, Any],
         step: Optional[int] = None,
         commit: bool = True,
     ) -> None:
@@ -56,7 +56,7 @@ class AbstractExperimentTracker(ABC):
         pass
 
     @abstractmethod
-    def log_params(self, params: Dict[str, Any]) -> None:
+    def log_params(self, params: dict[str, Any]) -> None:
         """Log hyperparameters."""
         pass
 
@@ -86,7 +86,7 @@ class AbstractExperimentTracker(ABC):
         self,
         key: str,
         data: Any,
-        columns: Optional[List[str]] = None,
+        columns: Optional[list[str]] = None,
     ) -> None:
         """Log tabular data."""
         pass
@@ -169,7 +169,7 @@ class WandbTracker(AbstractExperimentTracker):
 
     def log_metrics(
         self,
-        metrics: Dict[str, Any],
+        metrics: dict[str, Any],
         step: Optional[int] = None,
         commit: bool = True,
     ) -> None:
@@ -180,7 +180,7 @@ class WandbTracker(AbstractExperimentTracker):
         import wandb
         wandb.log(metrics, step=step, commit=commit)
 
-    def log_params(self, params: Dict[str, Any]) -> None:
+    def log_params(self, params: dict[str, Any]) -> None:
         """Log hyperparameters to W&B config."""
         if not self._is_initialized:
             return
@@ -238,7 +238,7 @@ class WandbTracker(AbstractExperimentTracker):
         self,
         key: str,
         data: Any,
-        columns: Optional[List[str]] = None,
+        columns: Optional[list[str]] = None,
     ) -> None:
         """Log tabular data to W&B."""
         if not self._is_initialized:
@@ -259,15 +259,16 @@ class WandbTracker(AbstractExperimentTracker):
         self,
         model: Any,
         model_name: str = "model",
-        aliases: Optional[List[str]] = None,
+        aliases: Optional[list[str]] = None,
     ) -> None:
         """Log a model artifact with versioning."""
         if not self._is_initialized:
             return
 
-        import wandb
         import tempfile
+
         import torch
+        import wandb
 
         # Save model to temporary file
         with tempfile.NamedTemporaryFile(suffix=".pt", delete=False) as f:
@@ -371,10 +372,10 @@ class MLflowTracker(AbstractExperimentTracker):
 
     def _flatten_dict(
         self,
-        d: Dict[str, Any],
+        d: dict[str, Any],
         parent_key: str = "",
         sep: str = ".",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Flatten nested dictionary for MLflow params."""
         items = []
         for k, v in d.items():
@@ -387,7 +388,7 @@ class MLflowTracker(AbstractExperimentTracker):
 
     def log_metrics(
         self,
-        metrics: Dict[str, Any],
+        metrics: dict[str, Any],
         step: Optional[int] = None,
         commit: bool = True,
     ) -> None:
@@ -401,7 +402,7 @@ class MLflowTracker(AbstractExperimentTracker):
             if isinstance(value, (int, float)):
                 mlflow.log_metric(key, value, step=step)
 
-    def log_params(self, params: Dict[str, Any]) -> None:
+    def log_params(self, params: dict[str, Any]) -> None:
         """Log hyperparameters to MLflow."""
         if not self._is_initialized:
             return
@@ -441,8 +442,9 @@ class MLflowTracker(AbstractExperimentTracker):
         if not self._is_initialized:
             return
 
-        import mlflow
         import tempfile
+
+        import mlflow
         import numpy as np
 
         # Convert to numpy if needed
@@ -466,14 +468,15 @@ class MLflowTracker(AbstractExperimentTracker):
         self,
         key: str,
         data: Any,
-        columns: Optional[List[str]] = None,
+        columns: Optional[list[str]] = None,
     ) -> None:
         """Log tabular data to MLflow."""
         if not self._is_initialized:
             return
 
-        import mlflow
         import tempfile
+
+        import mlflow
 
         # Convert to DataFrame if needed
         try:
@@ -540,12 +543,12 @@ class MultiTracker(AbstractExperimentTracker):
     def __init__(
         self,
         config: ExperimentConfig,
-        backends: List[str] = None,
+        backends: list[str] = None,
         **backend_kwargs,
     ):
         super().__init__(config)
         self.backends = backends or ["wandb"]
-        self._trackers: List[AbstractExperimentTracker] = []
+        self._trackers: list[AbstractExperimentTracker] = []
         self._backend_kwargs = backend_kwargs
 
     def init(self) -> None:
@@ -576,7 +579,7 @@ class MultiTracker(AbstractExperimentTracker):
 
     def log_metrics(
         self,
-        metrics: Dict[str, Any],
+        metrics: dict[str, Any],
         step: Optional[int] = None,
         commit: bool = True,
     ) -> None:
@@ -584,7 +587,7 @@ class MultiTracker(AbstractExperimentTracker):
         for tracker in self._trackers:
             tracker.log_metrics(metrics, step=step, commit=commit)
 
-    def log_params(self, params: Dict[str, Any]) -> None:
+    def log_params(self, params: dict[str, Any]) -> None:
         """Log params to all trackers."""
         for tracker in self._trackers:
             tracker.log_params(params)
@@ -614,7 +617,7 @@ class MultiTracker(AbstractExperimentTracker):
         self,
         key: str,
         data: Any,
-        columns: Optional[List[str]] = None,
+        columns: Optional[list[str]] = None,
     ) -> None:
         """Log table to all trackers."""
         for tracker in self._trackers:
@@ -632,7 +635,7 @@ def create_tracker(
     backend: str = "wandb",
     project_name: str = "librobot-vla",
     experiment_name: Optional[str] = None,
-    config: Optional[Dict[str, Any]] = None,
+    config: Optional[dict[str, Any]] = None,
     **kwargs,
 ) -> AbstractExperimentTracker:
     """

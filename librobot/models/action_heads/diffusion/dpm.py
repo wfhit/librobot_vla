@@ -1,7 +1,8 @@
 """DPM++ Solver action head."""
 import torch
-import torch.nn as nn
+
 from .ddpm import DDPMActionHead
+
 
 class DPMActionHead(DDPMActionHead):
     """DPM++ Solver for fast sampling."""

@@ -1,7 +1,7 @@
 """ROS2 server for robot integration."""
 
-from typing import Any, Dict, Optional
 import threading
+from typing import Any, Optional
 
 from ..server.base_server import AbstractServer
 
@@ -138,9 +138,9 @@ class ROS2Server(AbstractServer):
 
     async def predict(
         self,
-        request: Dict[str, Any],
+        request: dict[str, Any],
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Handle prediction request."""
         import numpy as np
 
@@ -171,7 +171,7 @@ class ROS2Server(AbstractServer):
         except ImportError:
             pass
 
-    def get_server_info(self) -> Dict[str, Any]:
+    def get_server_info(self) -> dict[str, Any]:
         return {
             "type": "ROS2",
             "node_name": self.node_name,

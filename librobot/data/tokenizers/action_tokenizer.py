@@ -6,7 +6,8 @@ end-effector poses, and gripper commands.
 See docs/design/data_pipeline.md for detailed design documentation.
 """
 
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
+
 import torch
 import torch.nn as nn
 
@@ -53,8 +54,8 @@ class ActionTokenizer(nn.Module):
         quantiles: Optional[torch.Tensor] = None,
         vocab_size: Optional[int] = None,
         share_bins: bool = False,
-        action_components: Optional[Dict[str, List[int]]] = None,
-        component_strategies: Optional[Dict[str, str]] = None,
+        action_components: Optional[dict[str, list[int]]] = None,
+        component_strategies: Optional[dict[str, str]] = None,
         **kwargs
     ):
         super().__init__()
@@ -95,7 +96,7 @@ class ActionTokenizer(nn.Module):
         else:
             raise ValueError(f"Unknown strategy: {strategy}")
 
-    def forward(self, action: torch.Tensor) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
+    def forward(self, action: torch.Tensor) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """
         Tokenize action vector.
 
@@ -112,7 +113,7 @@ class ActionTokenizer(nn.Module):
 
     def decode(
         self,
-        tokens: Union[torch.Tensor, Dict[str, torch.Tensor]]
+        tokens: Union[torch.Tensor, dict[str, torch.Tensor]]
     ) -> torch.Tensor:
         """
         Decode tokens back to continuous action.
@@ -146,7 +147,7 @@ class ActionTokenizer(nn.Module):
         else:
             pass  # No fitting needed for uniform binning
 
-    def get_vocab_size(self) -> Union[int, Dict[str, int]]:
+    def get_vocab_size(self) -> Union[int, dict[str, int]]:
         """
         Get vocabulary size.
 

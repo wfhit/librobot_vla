@@ -7,33 +7,31 @@ Provides reusable building blocks including:
 - Activation functions (GELU, SwiGLU, GeGLU, Mish, QuickGELU)
 """
 
-from . import attention
-from . import positional
-from . import normalization
+from . import attention, normalization, positional
 
 # Activation functions
-from .activations import GELU, SwiGLU, GeGLU, Mish, QuickGELU
+from .activations import GELU, GeGLU, Mish, QuickGELU, SwiGLU
 
 # Attention mechanisms
 from .attention import (
-    StandardAttention,
-    FlashAttention,
     BlockWiseAttention,
+    FlashAttention,
     SlidingWindowAttention,
-)
-
-# Positional encodings
-from .positional import (
-    SinusoidalPositionalEncoding,
-    RotaryPositionEmbedding,
-    ALiBiPositionalBias,
+    StandardAttention,
 )
 
 # Normalization layers
 from .normalization import (
+    GroupNorm,
     LayerNorm,
     RMSNorm,
-    GroupNorm,
+)
+
+# Positional encodings
+from .positional import (
+    ALiBiPositionalBias,
+    RotaryPositionEmbedding,
+    SinusoidalPositionalEncoding,
 )
 
 __all__ = [

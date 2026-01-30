@@ -1,7 +1,7 @@
 """Model optimization utilities (quantization, export)."""
 
-from typing import Any, Dict, Optional, Union, List
 from pathlib import Path
+from typing import Any, Optional, Union
 
 
 class ModelQuantizer:
@@ -63,7 +63,7 @@ class ONNXExporter:
         self,
         model: Any,
         opset_version: int = 14,
-        dynamic_axes: Optional[Dict] = None,
+        dynamic_axes: Optional[dict] = None,
     ):
         """
         Args:
@@ -82,7 +82,7 @@ class ONNXExporter:
     def export(
         self,
         output_path: Union[str, Path],
-        sample_inputs: Dict[str, Any],
+        sample_inputs: dict[str, Any],
     ) -> Path:
         """
         Export model to ONNX.
@@ -249,7 +249,7 @@ class OptimizedModel:
         # TensorRT loading would go here
         pass
 
-    def __call__(self, **inputs) -> Dict[str, Any]:
+    def __call__(self, **inputs) -> dict[str, Any]:
         """Run inference."""
         if self.backend == "onnx" and self._session:
             import numpy as np

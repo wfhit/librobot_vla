@@ -1,6 +1,6 @@
 """Early stopping callback."""
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from .base import AbstractCallback
 
@@ -40,14 +40,14 @@ class EarlyStopping(AbstractCallback):
         self.best_epoch = 0
         self.stopped_epoch = 0
 
-    def on_train_begin(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_train_begin(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Reset state at training start."""
         self.wait = 0
         self.best_value = float('inf') if self.mode == 'min' else float('-inf')
         self.best_weights = None
         self.best_epoch = 0
 
-    def on_epoch_end(self, epoch: int, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_epoch_end(self, epoch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """Check for improvement at epoch end."""
         logs = logs or {}
         current = logs.get(self.monitor)
@@ -77,7 +77,7 @@ class EarlyStopping(AbstractCallback):
                     print(f"\nEarly stopping at epoch {epoch + 1}")
                     print(f"Best {self.monitor}: {self.best_value:.4f} at epoch {self.best_epoch + 1}")
 
-    def on_train_end(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_train_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Restore best weights if needed."""
         if self.restore_best_weights and self.best_weights and self.trainer:
             self.trainer.model.load_state_dict(self.best_weights)
@@ -116,12 +116,12 @@ class LearningRateScheduler(AbstractCallback):
 
         self.initial_lr = None
 
-    def on_train_begin(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_train_begin(self, logs: Optional[dict[str, Any]] = None) -> None:
         """Store initial learning rate."""
         if self.trainer and self.trainer.optimizer:
             self.initial_lr = self.trainer.optimizer.param_groups[0]['lr']
 
-    def on_epoch_begin(self, epoch: int, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_epoch_begin(self, epoch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """Update learning rate at epoch start."""
         if self.trainer is None or self.initial_lr is None:
             return
@@ -174,7 +174,7 @@ class GradientMonitor(AbstractCallback):
         self.verbose = verbose
         self._step = 0
 
-    def on_batch_end(self, batch: int, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_batch_end(self, batch: int, logs: Optional[dict[str, Any]] = None) -> None:
         """Log gradient statistics."""
         self._step += 1
 

@@ -1,7 +1,7 @@
 """Abstract base class for training callbacks."""
 
-from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from abc import ABC
+from typing import Any, Optional
 
 
 class AbstractCallback(ABC):
@@ -24,7 +24,7 @@ class AbstractCallback(ABC):
         """
         self.trainer = trainer
 
-    def on_train_begin(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_train_begin(self, logs: Optional[dict[str, Any]] = None) -> None:
         """
         Called at the beginning of training.
 
@@ -33,7 +33,7 @@ class AbstractCallback(ABC):
         """
         pass
 
-    def on_train_end(self, logs: Optional[Dict[str, Any]] = None) -> None:
+    def on_train_end(self, logs: Optional[dict[str, Any]] = None) -> None:
         """
         Called at the end of training.
 
@@ -45,7 +45,7 @@ class AbstractCallback(ABC):
     def on_epoch_begin(
         self,
         epoch: int,
-        logs: Optional[Dict[str, Any]] = None
+        logs: Optional[dict[str, Any]] = None
     ) -> None:
         """
         Called at the beginning of an epoch.
@@ -59,7 +59,7 @@ class AbstractCallback(ABC):
     def on_epoch_end(
         self,
         epoch: int,
-        logs: Optional[Dict[str, Any]] = None
+        logs: Optional[dict[str, Any]] = None
     ) -> None:
         """
         Called at the end of an epoch.
@@ -73,7 +73,7 @@ class AbstractCallback(ABC):
     def on_batch_begin(
         self,
         batch: int,
-        logs: Optional[Dict[str, Any]] = None
+        logs: Optional[dict[str, Any]] = None
     ) -> None:
         """
         Called at the beginning of a training batch.
@@ -87,7 +87,7 @@ class AbstractCallback(ABC):
     def on_batch_end(
         self,
         batch: int,
-        logs: Optional[Dict[str, Any]] = None
+        logs: Optional[dict[str, Any]] = None
     ) -> None:
         """
         Called at the end of a training batch.
@@ -100,7 +100,7 @@ class AbstractCallback(ABC):
 
     def on_validation_begin(
         self,
-        logs: Optional[Dict[str, Any]] = None
+        logs: Optional[dict[str, Any]] = None
     ) -> None:
         """
         Called at the beginning of validation.
@@ -112,7 +112,7 @@ class AbstractCallback(ABC):
 
     def on_validation_end(
         self,
-        logs: Optional[Dict[str, Any]] = None
+        logs: Optional[dict[str, Any]] = None
     ) -> None:
         """
         Called at the end of validation.
@@ -122,7 +122,7 @@ class AbstractCallback(ABC):
         """
         pass
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """
         Get callback configuration.
 

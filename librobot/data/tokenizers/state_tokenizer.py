@@ -6,7 +6,8 @@ joint positions, velocities, and other continuous sensory data.
 See docs/design/data_pipeline.md for detailed design documentation.
 """
 
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional
+
 import torch
 import torch.nn as nn
 

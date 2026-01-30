@@ -1,6 +1,7 @@
 """State tokenizer for proprioceptive data."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Optional, Union
+
 import numpy as np
 
 
@@ -68,7 +69,7 @@ class StateTokenizer:
 
     def encode(
         self,
-        state: Union[np.ndarray, List[float]],
+        state: Union[np.ndarray, list[float]],
         normalize: bool = True,
     ) -> np.ndarray:
         """
@@ -111,7 +112,7 @@ class StateTokenizer:
 
     def decode(
         self,
-        tokens: Union[np.ndarray, List[int]],
+        tokens: Union[np.ndarray, list[int]],
         denormalize: bool = True,
     ) -> np.ndarray:
         """
@@ -153,7 +154,7 @@ class StateTokenizer:
         self,
         states: np.ndarray,
         add_special_tokens: bool = True,
-    ) -> Dict[str, np.ndarray]:
+    ) -> dict[str, np.ndarray]:
         """
         Batch encode states with attention mask.
 
@@ -182,7 +183,7 @@ class StateTokenizer:
 
     def __call__(
         self,
-        state: Union[np.ndarray, List[float]],
+        state: Union[np.ndarray, list[float]],
         **kwargs
     ) -> np.ndarray:
         """Encode state (alias for encode)."""

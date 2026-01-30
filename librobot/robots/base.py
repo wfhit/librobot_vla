@@ -1,7 +1,8 @@
 """Abstract base class for robot interfaces."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 import numpy as np
 
 
@@ -46,7 +47,7 @@ class AbstractRobot(ABC):
         pass
 
     @abstractmethod
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         """
         Get current robot state.
 
@@ -74,7 +75,7 @@ class AbstractRobot(ABC):
         pass
 
     @abstractmethod
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         """
         Get current observation.
 
@@ -87,7 +88,7 @@ class AbstractRobot(ABC):
         pass
 
     @abstractmethod
-    def get_action_space(self) -> Dict[str, Any]:
+    def get_action_space(self) -> dict[str, Any]:
         """
         Get action space specification.
 
@@ -97,7 +98,7 @@ class AbstractRobot(ABC):
         pass
 
     @abstractmethod
-    def get_observation_space(self) -> Dict[str, Any]:
+    def get_observation_space(self) -> dict[str, Any]:
         """
         Get observation space specification.
 

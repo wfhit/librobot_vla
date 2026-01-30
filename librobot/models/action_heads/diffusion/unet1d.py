@@ -2,6 +2,7 @@
 import torch
 import torch.nn as nn
 
+
 class UNet1D(nn.Module):
     """1D UNet denoiser."""
     def __init__(self, input_dim: int, channels: list = [64, 128, 256]):

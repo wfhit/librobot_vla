@@ -1,7 +1,6 @@
 """gRPC server for VLA inference."""
 
-from typing import Any, Dict, Optional
-import asyncio
+from typing import Any, Optional
 
 from ..server.base_server import AbstractServer
 
@@ -31,8 +30,9 @@ class GRPCServer(AbstractServer):
     async def start(self) -> None:
         """Start gRPC server."""
         try:
-            import grpc
             from concurrent import futures
+
+            import grpc
 
             self._server = grpc.aio.server(
                 futures.ThreadPoolExecutor(max_workers=self.max_workers)
@@ -63,9 +63,9 @@ class GRPCServer(AbstractServer):
 
     async def predict(
         self,
-        request: Dict[str, Any],
+        request: dict[str, Any],
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Handle prediction request."""
         import numpy as np
 
@@ -93,7 +93,7 @@ class GRPCServer(AbstractServer):
         except ImportError:
             pass
 
-    def get_server_info(self) -> Dict[str, Any]:
+    def get_server_info(self) -> dict[str, Any]:
         return {
             "type": "gRPC",
             "host": self.host,

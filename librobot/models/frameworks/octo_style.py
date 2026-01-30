@@ -1,14 +1,14 @@
 """Berkeley Octo-style VLA framework implementation."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .base import AbstractVLA
-from ..encoders.state.transformer_encoder import TransformerStateEncoder
 from ..encoders.history.transformer_encoder import TransformerHistoryEncoder
+from ..encoders.state.transformer_encoder import TransformerStateEncoder
+from .base import AbstractVLA
 
 
 class OctoVLA(AbstractVLA):
@@ -144,14 +144,14 @@ class OctoVLA(AbstractVLA):
     def forward(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         actions: Optional[torch.Tensor] = None,
         task_id: Optional[torch.Tensor] = None,
         history_images: Optional[torch.Tensor] = None,
         history_states: Optional[torch.Tensor] = None,
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Forward pass of Octo VLA.
 
@@ -257,7 +257,7 @@ class OctoVLA(AbstractVLA):
     def predict_action(
         self,
         images: torch.Tensor,
-        text: Optional[Union[str, List[str]]] = None,
+        text: Optional[Union[str, list[str]]] = None,
         proprioception: Optional[torch.Tensor] = None,
         task_id: Optional[torch.Tensor] = None,
         history_images: Optional[torch.Tensor] = None,
@@ -292,10 +292,10 @@ class OctoVLA(AbstractVLA):
 
     def compute_loss(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
-    ) -> Dict[str, torch.Tensor]:
+    ) -> dict[str, torch.Tensor]:
         """
         Compute losses for training.
 
@@ -315,7 +315,7 @@ class OctoVLA(AbstractVLA):
 
         return losses
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """
         Get framework configuration.
 

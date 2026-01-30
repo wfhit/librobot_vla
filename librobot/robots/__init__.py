@@ -34,43 +34,36 @@ Architecture:
         articulated_truck_robot.py -> ArticulatedTruckRobot (comprehensive)
 """
 
-from .base import AbstractRobot
-from .registry import (
-    ROBOT_REGISTRY,
-    register_robot,
-    get_robot,
-    create_robot,
-    list_robots,
+# Import submodules
+from . import (
+    arms,
+    articulated_trucks,
+    excavators,
+    humanoids,
+    mobile,
+    mobile_manipulators,
+    sensors,
+    wheel_loaders,
 )
 
-# Import submodules
-from . import arms
-from . import mobile
-from . import mobile_manipulators
-from . import humanoids
-from . import wheel_loaders
-from . import excavators
-from . import articulated_trucks
-from . import sensors
-
 # Base classes
-from .arms import Arm
-from .mobile import MobileRobot
-from .mobile_manipulators import MobileManipulator
-from .humanoids import Humanoid
-from .wheel_loaders import WheelLoader
-from .excavators import Excavator
-from .articulated_trucks import ArticulatedTruck
-
 # Robot implementations
-from .arms import SO100Arm, FrankaArm, UR5Arm, xArmRobot, WidowXArm
-from .mobile import LeKiwiRobot, DifferentialDriveRobot
-from .mobile_manipulators import FetchRobot, TIAGoRobot
-from .humanoids import Figure01Robot, GR1Robot, UnitreeH1Robot
-from .wheel_loaders import WheelLoaderRobot
-from .excavators import ExcavatorRobot
-from .articulated_trucks import ArticulatedTruckRobot
-from .sensors import Camera, DepthCamera, ForceTorqueSensor, IMU, Lidar
+from .arms import Arm, FrankaArm, SO100Arm, UR5Arm, WidowXArm, xArmRobot
+from .articulated_trucks import ArticulatedTruck, ArticulatedTruckRobot
+from .base import AbstractRobot
+from .excavators import Excavator, ExcavatorRobot
+from .humanoids import Figure01Robot, GR1Robot, Humanoid, UnitreeH1Robot
+from .mobile import DifferentialDriveRobot, LeKiwiRobot, MobileRobot
+from .mobile_manipulators import FetchRobot, MobileManipulator, TIAGoRobot
+from .registry import (
+    ROBOT_REGISTRY,
+    create_robot,
+    get_robot,
+    list_robots,
+    register_robot,
+)
+from .sensors import IMU, Camera, DepthCamera, ForceTorqueSensor, Lidar
+from .wheel_loaders import WheelLoader, WheelLoaderRobot
 
 __all__ = [
     # Abstract base

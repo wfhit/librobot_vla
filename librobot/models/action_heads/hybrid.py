@@ -1,7 +1,9 @@
 """Hybrid action head combining multiple approaches."""
 import torch
 import torch.nn as nn
+
 from .base import AbstractActionHead
+
 
 class HybridActionHead(AbstractActionHead):
     """Hybrid head with multiple prediction modes."""

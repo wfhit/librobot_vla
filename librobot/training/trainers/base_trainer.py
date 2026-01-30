@@ -1,10 +1,8 @@
 """Base trainer class for VLA models."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Optional, Union
 from pathlib import Path
-import time
-import numpy as np
+from typing import Any, Callable, Optional
 
 
 class BaseTrainer(ABC):
@@ -22,7 +20,7 @@ class BaseTrainer(ABC):
         loss_fn: Optional[Callable] = None,
         train_dataloader: Optional[Any] = None,
         val_dataloader: Optional[Any] = None,
-        callbacks: Optional[List[Any]] = None,
+        callbacks: Optional[list[Any]] = None,
         max_epochs: int = 100,
         max_steps: Optional[int] = None,
         gradient_accumulation_steps: int = 1,
@@ -81,14 +79,14 @@ class BaseTrainer(ABC):
         self._stop_training = False
 
         # Metrics tracking
-        self.train_metrics: Dict[str, List[float]] = {}
-        self.val_metrics: Dict[str, List[float]] = {}
+        self.train_metrics: dict[str, list[float]] = {}
+        self.val_metrics: dict[str, list[float]] = {}
 
         # Initialize callbacks
         for callback in self.callbacks:
             callback.set_trainer(self)
 
-    def train(self) -> Dict[str, Any]:
+    def train(self) -> dict[str, Any]:
         """
         Run full training loop.
 
@@ -106,7 +104,7 @@ class BaseTrainer(ABC):
                 self._call_callbacks('on_epoch_begin', epoch=epoch)
 
                 # Training epoch
-                train_loss = self._train_epoch()
+                self._train_epoch()
 
                 # Validation
                 if self.val_dataloader and epoch % self.val_interval == 0:
@@ -140,7 +138,7 @@ class BaseTrainer(ABC):
         pass
 
     @abstractmethod
-    def _train_step(self, batch: Dict[str, Any]) -> Dict[str, Any]:
+    def _train_step(self, batch: dict[str, Any]) -> dict[str, Any]:
         """
         Perform single training step.
 
@@ -181,7 +179,7 @@ class BaseTrainer(ABC):
         self.model.train()
         return avg_loss
 
-    def _validate_step(self, batch: Dict[str, Any]) -> float:
+    def _validate_step(self, batch: dict[str, Any]) -> float:
         """
         Perform single validation step.
 
@@ -250,7 +248,7 @@ class BaseTrainer(ABC):
         except (ImportError, FileNotFoundError):
             pass
 
-    def get_training_history(self) -> Dict[str, Any]:
+    def get_training_history(self) -> dict[str, Any]:
         """
         Get training history.
 

@@ -1,6 +1,6 @@
 """Model optimization utilities."""
 
-from .export import ModelQuantizer, ONNXExporter, TensorRTExporter, OptimizedModel
+from .export import ModelQuantizer, ONNXExporter, OptimizedModel, TensorRTExporter
 
 __all__ = [
     'ModelQuantizer',

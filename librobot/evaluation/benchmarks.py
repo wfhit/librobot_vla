@@ -1,16 +1,15 @@
 """Standard evaluation benchmarks for VLA models."""
 
-import os
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Optional
 
 import numpy as np
 
+from librobot.evaluation.metrics import create_metrics
 from librobot.utils.logging import get_logger
-from librobot.evaluation.metrics import MetricCollection, create_metrics
 
 logger = get_logger(__name__)
 
@@ -32,7 +31,7 @@ class BenchmarkConfig:
     name: str = "default"
     num_episodes: int = 50
     max_episode_steps: int = 500
-    metrics: List[str] = field(default_factory=lambda: ["success_rate", "mse", "smoothness"])
+    metrics: list[str] = field(default_factory=lambda: ["success_rate", "mse", "smoothness"])
     save_videos: bool = False
     save_trajectories: bool = False
     output_dir: str = "./benchmark_results"
@@ -47,11 +46,11 @@ class EpisodeResult:
     total_reward: float
     episode_length: int
     actions: np.ndarray
-    observations: List[Dict[str, Any]]
-    info: Dict[str, Any] = field(default_factory=dict)
+    observations: list[dict[str, Any]]
+    info: dict[str, Any] = field(default_factory=dict)
 
     @property
-    def metrics(self) -> Dict[str, float]:
+    def metrics(self) -> dict[str, float]:
         """Compute episode metrics."""
         return {
             "success": float(self.success),
@@ -65,7 +64,7 @@ class AbstractBenchmark(ABC):
 
     def __init__(self, config: BenchmarkConfig):
         self.config = config
-        self._results: List[EpisodeResult] = []
+        self._results: list[EpisodeResult] = []
         self._metrics = create_metrics(config.metrics)
 
     @abstractmethod
@@ -83,16 +82,16 @@ class AbstractBenchmark(ABC):
         pass
 
     @abstractmethod
-    def get_tasks(self) -> List[str]:
+    def get_tasks(self) -> list[str]:
         """Get list of evaluation tasks."""
         pass
 
     def evaluate(
         self,
         policy: Callable,
-        tasks: Optional[List[str]] = None,
+        tasks: Optional[list[str]] = None,
         verbose: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Run full benchmark evaluation.
 
@@ -146,7 +145,7 @@ class AbstractBenchmark(ABC):
 
         return all_results
 
-    def save_results(self, results: Dict[str, Any], filename: Optional[str] = None) -> str:
+    def save_results(self, results: dict[str, Any], filename: Optional[str] = None) -> str:
         """Save benchmark results to file."""
         import json
 
@@ -192,7 +191,7 @@ class SimulationBenchmark(AbstractBenchmark):
         self,
         config: BenchmarkConfig,
         env_name: str = "reach",
-        env_kwargs: Optional[Dict[str, Any]] = None,
+        env_kwargs: Optional[dict[str, Any]] = None,
         render: bool = False,
     ):
         super().__init__(config)
@@ -282,7 +281,7 @@ class SimulationBenchmark(AbstractBenchmark):
             info=info,
         )
 
-    def get_tasks(self) -> List[str]:
+    def get_tasks(self) -> list[str]:
         """Get list of evaluation tasks."""
         return [self.env_name]
 
@@ -334,7 +333,7 @@ class BridgeBenchmark(AbstractBenchmark):
             info={"task": task},
         )
 
-    def get_tasks(self) -> List[str]:
+    def get_tasks(self) -> list[str]:
         return self.TASKS
 
 
@@ -386,7 +385,7 @@ class LIBEROBenchmark(AbstractBenchmark):
             info={"task": task, "suite": self.suite},
         )
 
-    def get_tasks(self) -> List[str]:
+    def get_tasks(self) -> list[str]:
         # Return task names based on suite
         if self.suite == "libero_90":
             return [f"task_{i}" for i in range(90)]
@@ -408,7 +407,7 @@ class SimplerBenchmark(AbstractBenchmark):
     def __init__(
         self,
         config: BenchmarkConfig,
-        env_kwargs: Optional[Dict[str, Any]] = None,
+        env_kwargs: Optional[dict[str, Any]] = None,
     ):
         config.name = "simpler"
         super().__init__(config)
@@ -441,7 +440,7 @@ class SimplerBenchmark(AbstractBenchmark):
             info={"task": task},
         )
 
-    def get_tasks(self) -> List[str]:
+    def get_tasks(self) -> list[str]:
         return self.TASKS
 
 
@@ -458,8 +457,8 @@ class RealWorldBenchmark(AbstractBenchmark):
     def __init__(
         self,
         config: BenchmarkConfig,
-        tasks: List[str],
-        success_criteria: Optional[Dict[str, Callable]] = None,
+        tasks: list[str],
+        success_criteria: Optional[dict[str, Callable]] = None,
         success_callback: Optional[Callable[[str], bool]] = None,
         auto_mode: bool = False,
     ):
@@ -532,7 +531,7 @@ class RealWorldBenchmark(AbstractBenchmark):
             info={"task": task, "human_evaluated": not self.auto_mode},
         )
 
-    def get_tasks(self) -> List[str]:
+    def get_tasks(self) -> list[str]:
         return self._tasks
 
 
@@ -547,7 +546,7 @@ class BenchmarkSuite:
     """
 
     def __init__(self):
-        self.benchmarks: Dict[str, AbstractBenchmark] = {}
+        self.benchmarks: dict[str, AbstractBenchmark] = {}
 
     def add_benchmark(self, benchmark: AbstractBenchmark) -> None:
         """Add a benchmark to the suite."""
@@ -556,9 +555,9 @@ class BenchmarkSuite:
     def evaluate_all(
         self,
         policy: Callable,
-        benchmark_names: Optional[List[str]] = None,
+        benchmark_names: Optional[list[str]] = None,
         verbose: bool = True,
-    ) -> Dict[str, Dict[str, Any]]:
+    ) -> dict[str, dict[str, Any]]:
         """
         Evaluate policy on all benchmarks.
 
@@ -593,7 +592,7 @@ class BenchmarkSuite:
 
     def save_all_results(
         self,
-        results: Dict[str, Dict[str, Any]],
+        results: dict[str, dict[str, Any]],
         output_dir: str = "./benchmark_results",
     ) -> str:
         """Save all benchmark results."""

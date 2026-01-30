@@ -1,8 +1,6 @@
 """REST API server for VLA inference."""
 
-from typing import Any, Dict, Optional
-import asyncio
-import json
+from typing import Any, Optional
 
 from ..server.base_server import AbstractServer
 
@@ -33,10 +31,10 @@ class RESTServer(AbstractServer):
     def _setup_app(self):
         """Setup FastAPI application."""
         try:
+            import numpy as np
             from fastapi import FastAPI, HTTPException
             from fastapi.middleware.cors import CORSMiddleware
             from pydantic import BaseModel
-            import numpy as np
 
             app = FastAPI(
                 title="VLA Inference Server",
@@ -127,9 +125,9 @@ class RESTServer(AbstractServer):
 
     async def predict(
         self,
-        request: Dict[str, Any],
+        request: dict[str, Any],
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Handle prediction request."""
         import numpy as np
 
@@ -169,7 +167,7 @@ class RESTServer(AbstractServer):
         except ImportError:
             pass
 
-    def get_server_info(self) -> Dict[str, Any]:
+    def get_server_info(self) -> dict[str, Any]:
         """Get server information."""
         return {
             "type": "REST",

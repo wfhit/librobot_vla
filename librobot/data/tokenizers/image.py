@@ -1,6 +1,7 @@
 """Image tokenizer for visual observations."""
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
+
 import numpy as np
 
 
@@ -14,12 +15,12 @@ class ImageTokenizer:
 
     def __init__(
         self,
-        image_size: Union[int, Tuple[int, int]] = 224,
+        image_size: Union[int, tuple[int, int]] = 224,
         patch_size: int = 14,
         num_channels: int = 3,
         normalize: bool = True,
-        mean: Optional[List[float]] = None,
-        std: Optional[List[float]] = None,
+        mean: Optional[list[float]] = None,
+        std: Optional[list[float]] = None,
         tokenize_method: str = "patch",
         num_visual_tokens: int = 8192,
     ):
@@ -75,7 +76,7 @@ class ImageTokenizer:
         self,
         image: np.ndarray,
         return_tensors: Optional[str] = None,
-    ) -> Union[np.ndarray, Dict[str, Any]]:
+    ) -> Union[np.ndarray, dict[str, Any]]:
         """
         Preprocess image for model input.
 
@@ -340,7 +341,7 @@ class ImageTokenizer:
         image: np.ndarray,
         return_tensors: Optional[str] = None,
         **kwargs
-    ) -> Union[np.ndarray, Dict[str, Any]]:
+    ) -> Union[np.ndarray, dict[str, Any]]:
         """Preprocess image (alias for preprocess)."""
         return self.preprocess(image, return_tensors=return_tensors)
 

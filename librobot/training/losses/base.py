@@ -1,7 +1,8 @@
 """Abstract base class for loss functions."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any
+
 import torch
 import torch.nn as nn
 
@@ -27,8 +28,8 @@ class AbstractLoss(ABC, nn.Module):
     @abstractmethod
     def forward(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         """
@@ -46,8 +47,8 @@ class AbstractLoss(ABC, nn.Module):
 
     def __call__(
         self,
-        predictions: Dict[str, torch.Tensor],
-        targets: Dict[str, torch.Tensor],
+        predictions: dict[str, torch.Tensor],
+        targets: dict[str, torch.Tensor],
         **kwargs
     ) -> torch.Tensor:
         """
@@ -64,7 +65,7 @@ class AbstractLoss(ABC, nn.Module):
         loss = self.forward(predictions, targets, **kwargs)
         return self.weight * loss
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """
         Get loss configuration.
 

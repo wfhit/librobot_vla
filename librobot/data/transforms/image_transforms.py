@@ -6,11 +6,10 @@ specifically designed for robotics applications.
 See docs/design/data_pipeline.md for detailed design documentation.
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
+
 import torch
 import torch.nn as nn
-import torchvision.transforms as T
-import torchvision.transforms.functional as TF
 
 
 class ImageTransform(nn.Module):
@@ -23,8 +22,8 @@ class ImageTransform(nn.Module):
 
     def forward(
         self,
-        image: Union[torch.Tensor, Dict[str, torch.Tensor]]
-    ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
+        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+    ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """
         Apply transform to image(s).
 
@@ -49,7 +48,7 @@ class RandomCrop(ImageTransform):
 
     def __init__(
         self,
-        size: Union[int, Tuple[int, int]],
+        size: Union[int, tuple[int, int]],
         padding: Optional[int] = None,
         pad_if_needed: bool = False,
     ):
@@ -61,8 +60,8 @@ class RandomCrop(ImageTransform):
 
     def forward(
         self,
-        image: Union[torch.Tensor, Dict[str, torch.Tensor]]
-    ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
+        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+    ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """Apply random crop."""
         # TODO: Implement
         # TODO: Handle both single images and dict of images
@@ -78,15 +77,15 @@ class CenterCrop(ImageTransform):
         size: Output size (height, width)
     """
 
-    def __init__(self, size: Union[int, Tuple[int, int]]):
+    def __init__(self, size: Union[int, tuple[int, int]]):
         super().__init__()
         self.size = size if isinstance(size, tuple) else (size, size)
         # TODO: Initialize torchvision CenterCrop
 
     def forward(
         self,
-        image: Union[torch.Tensor, Dict[str, torch.Tensor]]
-    ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
+        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+    ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """Apply center crop."""
         # TODO: Implement
         raise NotImplementedError("CenterCrop.forward not yet implemented")
@@ -104,7 +103,7 @@ class Resize(ImageTransform):
 
     def __init__(
         self,
-        size: Union[int, Tuple[int, int]],
+        size: Union[int, tuple[int, int]],
         interpolation: str = "bilinear",
         antialias: bool = True,
     ):
@@ -116,8 +115,8 @@ class Resize(ImageTransform):
 
     def forward(
         self,
-        image: Union[torch.Tensor, Dict[str, torch.Tensor]]
-    ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
+        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+    ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """Apply resize."""
         # TODO: Implement
         raise NotImplementedError("Resize.forward not yet implemented")
@@ -135,8 +134,8 @@ class Normalize(ImageTransform):
 
     def __init__(
         self,
-        mean: Union[float, List[float]],
-        std: Union[float, List[float]],
+        mean: Union[float, list[float]],
+        std: Union[float, list[float]],
         inplace: bool = False,
     ):
         super().__init__()
@@ -147,8 +146,8 @@ class Normalize(ImageTransform):
 
     def forward(
         self,
-        image: Union[torch.Tensor, Dict[str, torch.Tensor]]
-    ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
+        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+    ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """Apply normalization."""
         # TODO: Implement
         raise NotImplementedError("Normalize.forward not yet implemented")
@@ -184,8 +183,8 @@ class RandomColorJitter(ImageTransform):
 
     def forward(
         self,
-        image: Union[torch.Tensor, Dict[str, torch.Tensor]]
-    ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
+        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+    ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """Apply color jitter."""
         # TODO: Implement
         # TODO: Apply with probability p
@@ -205,8 +204,8 @@ class RandomGaussianBlur(ImageTransform):
 
     def __init__(
         self,
-        kernel_size: Union[int, Tuple[int, int]] = 5,
-        sigma: Tuple[float, float] = (0.1, 2.0),
+        kernel_size: Union[int, tuple[int, int]] = 5,
+        sigma: tuple[float, float] = (0.1, 2.0),
         p: float = 0.5,
     ):
         super().__init__()
@@ -217,8 +216,8 @@ class RandomGaussianBlur(ImageTransform):
 
     def forward(
         self,
-        image: Union[torch.Tensor, Dict[str, torch.Tensor]]
-    ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
+        image: Union[torch.Tensor, dict[str, torch.Tensor]]
+    ) -> Union[torch.Tensor, dict[str, torch.Tensor]]:
         """Apply Gaussian blur."""
         # TODO: Implement
         # TODO: Apply with probability p
@@ -233,7 +232,7 @@ class Compose(nn.Module):
         transforms: List of transforms to compose
     """
 
-    def __init__(self, transforms: List[nn.Module]):
+    def __init__(self, transforms: list[nn.Module]):
         super().__init__()
         self.transforms = nn.ModuleList(transforms)
 
@@ -258,14 +257,14 @@ class MultiViewTransform(nn.Module):
 
     def __init__(
         self,
-        transforms: Dict[str, nn.Module],
+        transforms: dict[str, nn.Module],
         shared_transform: Optional[nn.Module] = None,
     ):
         super().__init__()
         self.transforms = nn.ModuleDict(transforms)
         self.shared_transform = shared_transform
 
-    def forward(self, images: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    def forward(self, images: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
         """Apply view-specific transforms."""
         # TODO: Implement
         # TODO: Apply shared transform if specified

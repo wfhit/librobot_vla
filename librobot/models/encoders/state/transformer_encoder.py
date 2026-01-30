@@ -1,14 +1,14 @@
 """Transformer encoder for robot state."""
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import torch
 import torch.nn as nn
 
-from ..base import AbstractEncoder
 from ...components.attention import StandardAttention
-from ...components.positional import SinusoidalPositionalEncoding
 from ...components.normalization import LayerNorm
+from ...components.positional import SinusoidalPositionalEncoding
+from ..base import AbstractEncoder
 
 
 class TransformerStateEncoder(AbstractEncoder):
@@ -120,7 +120,7 @@ class TransformerStateEncoder(AbstractEncoder):
             raise ValueError(f"Expected 3D input, got shape: {input_shape}")
 
     @property
-    def config(self) -> Dict[str, Any]:
+    def config(self) -> dict[str, Any]:
         """Get encoder configuration."""
         return {
             'type': 'TransformerStateEncoder',

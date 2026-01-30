@@ -1,15 +1,15 @@
 """Distributed training utilities for DDP, DeepSpeed, and FSDP."""
 
 import os
-from typing import Any, Dict, Optional, Tuple, Union
 from datetime import timedelta
+from typing import Any, Optional, Union
+
 import torch
-import torch.nn as nn
 import torch.distributed as dist
+import torch.nn as nn
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 from librobot.utils.logging import get_logger
-
 
 logger = get_logger(__name__)
 
@@ -354,7 +354,7 @@ class DeepSpeedWrapper:
     def __init__(
         self,
         model: nn.Module,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         model_parameters: Optional[Any] = None,
         training_data: Optional[Any] = None,
         optimizer: Optional[Any] = None,
@@ -440,7 +440,7 @@ class DeepSpeedWrapper:
         self,
         save_dir: str,
         tag: Optional[str] = None,
-        client_state: Optional[Dict[str, Any]] = None,
+        client_state: Optional[dict[str, Any]] = None,
     ) -> None:
         """
         Save DeepSpeed checkpoint.
@@ -464,7 +464,7 @@ class DeepSpeedWrapper:
         tag: Optional[str] = None,
         load_optimizer_states: bool = True,
         load_lr_scheduler_states: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Load DeepSpeed checkpoint.
 
@@ -498,7 +498,7 @@ class DeepSpeedWrapper:
         train_micro_batch_size_per_gpu: int = 4,
         offload_optimizer: bool = False,
         offload_params: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get default DeepSpeed configuration.
 
@@ -623,18 +623,21 @@ class FSDPWrapper:
             return
 
         try:
+            from functools import partial
+
+            from torch.distributed.fsdp import (
+                BackwardPrefetch,
+                CPUOffload,
+                MixedPrecision,
+                ShardingStrategy,
+            )
             from torch.distributed.fsdp import (
                 FullyShardedDataParallel as FSDP,
-                ShardingStrategy,
-                MixedPrecision,
-                CPUOffload,
-                BackwardPrefetch,
             )
             from torch.distributed.fsdp.wrap import (
-                transformer_auto_wrap_policy,
                 size_based_auto_wrap_policy,
+                transformer_auto_wrap_policy,
             )
-            from functools import partial
 
             # Configure sharding strategy
             sharding_map = {
@@ -740,9 +743,9 @@ class FSDPWrapper:
         """Apply activation checkpointing to transformer layers."""
         try:
             from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import (
-                checkpoint_wrapper,
                 CheckpointImpl,
                 apply_activation_checkpointing,
+                checkpoint_wrapper,
             )
 
             def check_fn(submodule) -> bool:
@@ -790,7 +793,7 @@ class FSDPWrapper:
             pass
         return self._original_model
 
-    def get_state_dict(self) -> Dict[str, Any]:
+    def get_state_dict(self) -> dict[str, Any]:
         """
         Get model state dict with FSDP-specific handling.
 
@@ -799,9 +802,11 @@ class FSDPWrapper:
         """
         try:
             from torch.distributed.fsdp import (
-                FullyShardedDataParallel as FSDP,
-                StateDictType,
                 FullStateDictConfig,
+                StateDictType,
+            )
+            from torch.distributed.fsdp import (
+                FullyShardedDataParallel as FSDP,
             )
 
             # Use full state dict for saving
@@ -813,7 +818,7 @@ class FSDPWrapper:
         except ImportError:
             return self.model.state_dict()
 
-    def load_state_dict(self, state_dict: Dict[str, Any]) -> None:
+    def load_state_dict(self, state_dict: dict[str, Any]) -> None:
         """
         Load state dict with FSDP-specific handling.
 
@@ -822,9 +827,11 @@ class FSDPWrapper:
         """
         try:
             from torch.distributed.fsdp import (
-                FullyShardedDataParallel as FSDP,
-                StateDictType,
                 FullStateDictConfig,
+                StateDictType,
+            )
+            from torch.distributed.fsdp import (
+                FullyShardedDataParallel as FSDP,
             )
 
             load_policy = FullStateDictConfig(offload_to_cpu=True, rank0_only=True)
@@ -878,7 +885,7 @@ def wrap_model_distributed(
 
 
 def save_checkpoint_distributed(
-    state_dict: Dict[str, Any],
+    state_dict: dict[str, Any],
     filepath: str,
     config: Optional[DistributedConfig] = None,
 ) -> None:
@@ -908,7 +915,7 @@ def save_checkpoint_distributed(
 def load_checkpoint_distributed(
     filepath: str,
     map_location: Optional[Union[str, torch.device]] = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Load checkpoint in distributed training.
 

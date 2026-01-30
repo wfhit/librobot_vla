@@ -1,8 +1,8 @@
 """WebSocket server for real-time VLA inference."""
 
-from typing import Any, Dict, Optional, Set
 import asyncio
 import json
+from typing import Any, Optional
 
 from ..server.base_server import AbstractServer
 
@@ -24,7 +24,7 @@ class WebSocketServer(AbstractServer):
         """
         super().__init__(host=host, port=port)
         self.model = model
-        self._clients: Set = set()
+        self._clients: set = set()
         self._server = None
 
     async def start(self) -> None:
@@ -66,9 +66,9 @@ class WebSocketServer(AbstractServer):
 
     async def predict(
         self,
-        request: Dict[str, Any],
+        request: dict[str, Any],
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Handle prediction request."""
         import numpy as np
 
@@ -88,7 +88,7 @@ class WebSocketServer(AbstractServer):
 
         return {"actions": action.tolist(), "timestamp": request.get("timestamp")}
 
-    async def broadcast(self, message: Dict[str, Any]) -> None:
+    async def broadcast(self, message: dict[str, Any]) -> None:
         """Broadcast message to all connected clients."""
         if self._clients:
             await asyncio.gather(
@@ -103,7 +103,7 @@ class WebSocketServer(AbstractServer):
         except ImportError:
             pass
 
-    def get_server_info(self) -> Dict[str, Any]:
+    def get_server_info(self) -> dict[str, Any]:
         return {
             "type": "WebSocket",
             "host": self.host,

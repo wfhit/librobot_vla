@@ -1,11 +1,9 @@
 """Block-wise attention as used in π0 (pi-zero) model."""
 
-import math
-from typing import Optional, Tuple
+from typing import Optional
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class BlockWiseAttention(nn.Module):
@@ -60,7 +58,7 @@ class BlockWiseAttention(nn.Module):
         x: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,
         return_attention: bool = False,
-    ) -> torch.Tensor | Tuple[torch.Tensor, torch.Tensor]:
+    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         """
         Forward pass with block-wise attention.
 

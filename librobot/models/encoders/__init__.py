@@ -7,28 +7,6 @@ Provides various encoder implementations including:
 """
 
 from .base import AbstractEncoder
-from .registry import (
-    ENCODER_REGISTRY,
-    register_encoder,
-    get_encoder,
-    create_encoder,
-    list_encoders,
-)
-
-# State encoders
-from .state import (
-    MLPStateEncoder,
-    TransformerStateEncoder,
-    TokenizerStateEncoder,
-)
-
-# History encoders
-from .history import (
-    MLPHistoryEncoder,
-    LSTMHistoryEncoder,
-    TransformerHistoryEncoder,
-    TemporalConvEncoder,
-)
 
 # Fusion modules
 from .fusion import (
@@ -36,6 +14,28 @@ from .fusion import (
     CrossAttentionFusion,
     FiLMFusion,
     GatedFusion,
+)
+
+# History encoders
+from .history import (
+    LSTMHistoryEncoder,
+    MLPHistoryEncoder,
+    TemporalConvEncoder,
+    TransformerHistoryEncoder,
+)
+from .registry import (
+    ENCODER_REGISTRY,
+    create_encoder,
+    get_encoder,
+    list_encoders,
+    register_encoder,
+)
+
+# State encoders
+from .state import (
+    MLPStateEncoder,
+    TokenizerStateEncoder,
+    TransformerStateEncoder,
 )
 
 __all__ = [

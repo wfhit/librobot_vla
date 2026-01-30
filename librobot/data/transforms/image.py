@@ -1,13 +1,14 @@
 """Image transforms for data augmentation."""
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Union
+
 import numpy as np
 
 
 class ImageTransform:
     """Base class for image transforms."""
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: dict[str, Any]) -> dict[str, Any]:
         """Apply transform to sample."""
         if 'images' in sample:
             sample['images'] = self.transform(sample['images'])
@@ -21,7 +22,7 @@ class ImageTransform:
 class Resize(ImageTransform):
     """Resize image to target size."""
 
-    def __init__(self, size: Union[int, Tuple[int, int]]):
+    def __init__(self, size: Union[int, tuple[int, int]]):
         """
         Args:
             size: Target size (H, W) or single int for square
@@ -64,7 +65,7 @@ class RandomCrop(ImageTransform):
 
     def __init__(
         self,
-        size: Union[int, Tuple[int, int]],
+        size: Union[int, tuple[int, int]],
         padding: int = 0,
     ):
         """
@@ -121,7 +122,7 @@ class RandomCrop(ImageTransform):
 class CenterCrop(ImageTransform):
     """Center crop of image."""
 
-    def __init__(self, size: Union[int, Tuple[int, int]]):
+    def __init__(self, size: Union[int, tuple[int, int]]):
         if isinstance(size, int):
             self.size = (size, size)
         else:
@@ -212,8 +213,8 @@ class Normalize(ImageTransform):
 
     def __init__(
         self,
-        mean: List[float] = [0.485, 0.456, 0.406],
-        std: List[float] = [0.229, 0.224, 0.225],
+        mean: list[float] = [0.485, 0.456, 0.406],
+        std: list[float] = [0.229, 0.224, 0.225],
     ):
         """
         Args:

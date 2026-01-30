@@ -1,7 +1,8 @@
 """QLoRA with quantization."""
-import torch
 import torch.nn as nn
+
 from .lora import LoRAAdapter
+
 
 class QLoRAAdapter(LoRAAdapter):
     """QLoRA with 4-bit quantization."""

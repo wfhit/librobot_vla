@@ -1,8 +1,7 @@
 """Abstract base class for inference servers."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
-import asyncio
+from typing import Any
 
 
 class AbstractServer(ABC):
@@ -37,9 +36,9 @@ class AbstractServer(ABC):
     @abstractmethod
     async def predict(
         self,
-        request: Dict[str, Any],
+        request: dict[str, Any],
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Handle prediction request.
 
@@ -64,7 +63,7 @@ class AbstractServer(ABC):
         pass
 
     @abstractmethod
-    def get_server_info(self) -> Dict[str, Any]:
+    def get_server_info(self) -> dict[str, Any]:
         """
         Get server information.
 

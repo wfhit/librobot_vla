@@ -4,11 +4,12 @@ Specific humanoid platform implementations that extend the base Humanoid templat
 Each implementation customizes joint counts, limits, and hardware interfaces.
 """
 
-from typing import Any, Dict
+from typing import Any
+
 import numpy as np
 
-from .humanoid import Humanoid
 from ..registry import register_robot
+from .humanoid import Humanoid
 
 
 @register_robot(name="figure_01", aliases=["figure", "figure01"])
@@ -36,7 +37,7 @@ class Figure01Robot(Humanoid):
     def reset(self) -> None:
         self._joint_positions = np.zeros(self.num_joints)
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         return {
             "joint_positions": self._joint_positions.copy(),
             "torso_pose": self._torso_pose.copy(),
@@ -49,7 +50,7 @@ class Figure01Robot(Humanoid):
             self._hand_positions = action[self.num_joints:]
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         return {
             "proprioception": np.concatenate([
                 self._joint_positions,
@@ -84,7 +85,7 @@ class GR1Robot(Humanoid):
     def reset(self) -> None:
         self._joint_positions = np.zeros(self.num_joints)
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         return {
             "joint_positions": self._joint_positions.copy(),
             "torso_pose": self._torso_pose.copy(),
@@ -94,7 +95,7 @@ class GR1Robot(Humanoid):
         self._joint_positions = action[:self.num_joints]
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         return {"proprioception": self._joint_positions.copy()}
 
 
@@ -123,7 +124,7 @@ class UnitreeH1Robot(Humanoid):
     def reset(self) -> None:
         self._joint_positions = np.zeros(self.num_joints)
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         return {
             "joint_positions": self._joint_positions.copy(),
             "torso_pose": self._torso_pose.copy(),
@@ -133,7 +134,7 @@ class UnitreeH1Robot(Humanoid):
         self._joint_positions = action[:self.num_joints]
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         return {"proprioception": self._joint_positions.copy()}
 
 

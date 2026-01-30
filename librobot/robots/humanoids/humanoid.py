@@ -4,7 +4,8 @@ This module provides the base class for controlling humanoid robots,
 serving as a foundation for specific humanoid platform implementations.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
+
 import numpy as np
 
 from ..base import AbstractRobot
@@ -87,22 +88,22 @@ class Humanoid(AbstractRobot):
         >>> # Basic usage
         >>> with Humanoid(robot_id="humanoid_001") as robot:
         ...     robot.connect(ip="192.168.1.100")
-        ...     
+        ...
         ...     # Reset to standing pose
         ...     robot.reset()
-        ...     
+        ...
         ...     # Get observation
         ...     obs = robot.get_observation()
         ...     head_cam = obs['images']['head_camera']
         ...     joint_pos = obs['proprioception']['joint_positions']
-        ...     
+        ...
         ...     # Walk forward
         ...     robot.walk(direction=[1.0, 0.0, 0.0], speed=0.5)
 
         >>> # Advanced control with balance monitoring
         >>> robot = Humanoid(robot_id="humanoid_002")
         >>> robot.connect(ip="192.168.1.101")
-        >>> 
+        >>>
         >>> # Check balance
         >>> state = robot.get_state()
         >>> zmp = state['zmp']
@@ -110,7 +111,7 @@ class Humanoid(AbstractRobot):
         ...     # Execute action
         ...     action = robot.get_standing_action()
         ...     robot.execute_action(action)
-        >>> 
+        >>>
         >>> robot.disconnect()
     """
 
@@ -320,7 +321,7 @@ class Humanoid(AbstractRobot):
 
         print(f"[{self.robot_id}] Reset to standing pose")
 
-    def get_state(self) -> Dict[str, np.ndarray]:
+    def get_state(self) -> dict[str, np.ndarray]:
         """
         Get current robot state.
 
@@ -423,7 +424,7 @@ class Humanoid(AbstractRobot):
 
         return True
 
-    def get_observation(self) -> Dict[str, Any]:
+    def get_observation(self) -> dict[str, Any]:
         """
         Get current observation from robot sensors.
 
@@ -468,7 +469,7 @@ class Humanoid(AbstractRobot):
 
         return observation
 
-    def get_action_space(self) -> Dict[str, Any]:
+    def get_action_space(self) -> dict[str, Any]:
         """
         Get action space specification.
 
@@ -486,7 +487,7 @@ class Humanoid(AbstractRobot):
             'groups': self.JOINT_GROUPS,
         }
 
-    def get_observation_space(self) -> Dict[str, Any]:
+    def get_observation_space(self) -> dict[str, Any]:
         """
         Get observation space specification.
 
@@ -528,7 +529,7 @@ class Humanoid(AbstractRobot):
 
         return obs_space
 
-    def _get_joint_names(self) -> List[str]:
+    def _get_joint_names(self) -> list[str]:
         """Get descriptive names for all joints."""
         return [
             # Left leg
@@ -636,7 +637,7 @@ class Humanoid(AbstractRobot):
         self._fall_detected = False
         return self._fall_detected
 
-    def get_diagnostics(self) -> Dict[str, Any]:
+    def get_diagnostics(self) -> dict[str, Any]:
         """
         Get comprehensive diagnostics information.
 

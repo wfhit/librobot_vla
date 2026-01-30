@@ -1,7 +1,8 @@
 """Sensor implementations for robots."""
 
-from typing import Any, Dict, List, Optional, Tuple
 from abc import ABC, abstractmethod
+from typing import Any
+
 import numpy as np
 
 
@@ -23,7 +24,7 @@ class BaseSensor(ABC):
         self._is_active = False
 
     @abstractmethod
-    def read(self) -> Dict[str, Any]:
+    def read(self) -> dict[str, Any]:
         """Read sensor data."""
         pass
 
@@ -47,7 +48,7 @@ class Camera(BaseSensor):
     def __init__(
         self,
         sensor_id: str = "camera",
-        resolution: Tuple[int, int] = (640, 480),
+        resolution: tuple[int, int] = (640, 480),
         fov: float = 60.0,
         rate: float = 30.0,
     ):
@@ -55,7 +56,7 @@ class Camera(BaseSensor):
         self.resolution = resolution
         self.fov = fov
 
-    def read(self) -> Dict[str, Any]:
+    def read(self) -> dict[str, Any]:
         """Read camera image."""
         # Return dummy data
         return {
@@ -82,7 +83,7 @@ class DepthCamera(Camera):
     def __init__(
         self,
         sensor_id: str = "depth_camera",
-        resolution: Tuple[int, int] = (640, 480),
+        resolution: tuple[int, int] = (640, 480),
         fov: float = 60.0,
         rate: float = 30.0,
         min_depth: float = 0.1,
@@ -92,7 +93,7 @@ class DepthCamera(Camera):
         self.min_depth = min_depth
         self.max_depth = max_depth
 
-    def read(self) -> Dict[str, Any]:
+    def read(self) -> dict[str, Any]:
         """Read RGB and depth images."""
         base_data = super().read()
         base_data["depth"] = np.random.uniform(
@@ -114,7 +115,7 @@ class ForceTorqueSensor(BaseSensor):
         self.force_range = 100.0  # N
         self.torque_range = 10.0  # Nm
 
-    def read(self) -> Dict[str, Any]:
+    def read(self) -> dict[str, Any]:
         """Read force-torque data."""
         return {
             "force": np.random.randn(3) * 0.1,  # fx, fy, fz
@@ -137,7 +138,7 @@ class JointEncoder(BaseSensor):
         self.num_joints = num_joints
         self.resolution = resolution
 
-    def read(self) -> Dict[str, Any]:
+    def read(self) -> dict[str, Any]:
         """Read joint encoder data."""
         return {
             "positions": np.zeros(self.num_joints),
@@ -156,7 +157,7 @@ class IMU(BaseSensor):
     ):
         super().__init__(sensor_id, rate)
 
-    def read(self) -> Dict[str, Any]:
+    def read(self) -> dict[str, Any]:
         """Read IMU data."""
         return {
             "acceleration": np.array([0, 0, 9.81]),  # m/s^2
@@ -180,7 +181,7 @@ class Lidar(BaseSensor):
         self.num_beams = num_beams
         self.max_range = max_range
 
-    def read(self) -> Dict[str, Any]:
+    def read(self) -> dict[str, Any]:
         """Read LiDAR scan."""
         return {
             "ranges": np.random.uniform(0.1, self.max_range, self.num_beams),
@@ -195,13 +196,13 @@ class Tactile(BaseSensor):
     def __init__(
         self,
         sensor_id: str = "tactile",
-        resolution: Tuple[int, int] = (64, 64),
+        resolution: tuple[int, int] = (64, 64),
         rate: float = 30.0,
     ):
         super().__init__(sensor_id, rate)
         self.resolution = resolution
 
-    def read(self) -> Dict[str, Any]:
+    def read(self) -> dict[str, Any]:
         """Read tactile data."""
         return {
             "image": np.random.randint(0, 255, (*self.resolution, 3), dtype=np.uint8),
