@@ -3,7 +3,7 @@
 Specific robot arm implementations that extend the base arm pattern.
 Each implementation customizes joint counts, limits, and hardware interfaces.
 
-For the comprehensive reference implementation, see SO100Arm in so100_arm.py.
+For the comprehensive reference implementation, see SO100Arm in so100_arm_robot.py.
 """
 
 from typing import Any, Dict

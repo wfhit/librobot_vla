@@ -4,12 +4,11 @@ Architecture:
     Each robot type subfolder follows a consistent structure:
     - <type>.py: Base class for that robot type (e.g., arm.py, humanoid.py)
     - <type>_robot.py: Specific robot implementations
-    - Optional: Comprehensive implementations in separate files (e.g., so100_arm.py)
 
     arms/
-        arm.py          -> Arm (base class)
-        arm_robot.py    -> FrankaArm, UR5Arm, xArmRobot, WidowXArm
-        so100_arm.py    -> SO100Arm (comprehensive)
+        arm.py              -> Arm (base class)
+        arm_robot.py        -> FrankaArm, UR5Arm, xArmRobot, WidowXArm
+        so100_arm_robot.py  -> SO100Arm (comprehensive)
 
     mobile/
         mobile.py       -> MobileRobot (base class)
