@@ -238,6 +238,7 @@ def setup_teleoperation(args):
             def get_action(self):
                 return np.zeros(7)
 
+            @property
             def is_connected(self):
                 return True
 

@@ -111,12 +111,16 @@ class KeyboardTeleop(AbstractTeleop):
 
         action_idx = self._key_bindings[key]
 
-        # Determine direction based on key
-        direction = 1.0 if pressed else 0.0
-        if key in ["s", "a", "k", "l", "o", "x"]:
-            direction = -direction if pressed else 0.0
-
-        self._current_action[action_idx] = direction * self.speed_scale
+        if pressed:
+            # Determine direction based on key
+            if key in ["s", "a", "k", "l", "o", "x"]:
+                direction = -1.0
+            else:
+                direction = 1.0
+            self._current_action[action_idx] = direction * self.speed_scale
+        else:
+            # Key released, set to zero
+            self._current_action[action_idx] = 0.0
 
     def get_status(self) -> dict:
         """
