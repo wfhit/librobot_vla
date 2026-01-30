@@ -126,6 +126,8 @@ def collect_cli(args: Optional[list] = None) -> int:
 def run_collection(args) -> int:
     """Run data collection."""
     try:
+        from librobot.collection import DataCollector
+
         print("Starting data collection...")
         print(f"  Robot: {args.robot}")
         print(f"  Teleoperation: {args.teleoperation}")
@@ -143,34 +145,32 @@ def run_collection(args) -> int:
         # Setup recorder
         recorder = setup_recorder(args)
 
-        # Collection loop
-        print("\nReady to collect data!")
-        print("Press 's' to start/stop recording")
-        print("Press 'q' to quit")
+        # Load instructions if provided
+        instructions = None
+        if args.instructions:
+            instructions_path = Path(args.instructions)
+            if instructions_path.exists():
+                with open(instructions_path, "r") as f:
+                    instructions = [line.strip() for line in f if line.strip()]
 
-        episode_count = 0
+        # Create DataCollector
+        collector = DataCollector(
+            robot=robot,
+            teleop=teleop,
+            recorder=recorder,
+            cameras=args.cameras,
+            fps=args.fps,
+            output_dir=args.output,
+        )
 
-        while episode_count < args.max_episodes:
-            # Simplified collection loop
-            print(f"\nEpisode {episode_count + 1}/{args.max_episodes}")
-            print("Recording... (simulated)")
+        # Collect episodes
+        episodes_collected = collector.collect(
+            num_episodes=args.max_episodes,
+            task_name=args.task,
+            instructions=instructions,
+        )
 
-            # Record episode
-            episode_data = record_episode(robot, teleop, args)
-
-            if episode_data:
-                recorder.save_episode(episode_data)
-                episode_count += 1
-                print(f"Episode saved! Total: {episode_count}")
-
-            # Check for user input
-            user_input = input("Continue? (y/n/q): ").lower()
-            if user_input == "q":
-                break
-            elif user_input == "n":
-                continue
-
-        print(f"\nCollection complete! {episode_count} episodes saved to {args.output}")
+        print(f"\nCollection complete! {episodes_collected} episodes saved to {args.output}")
         return 0
 
     except KeyboardInterrupt:
@@ -178,6 +178,9 @@ def run_collection(args) -> int:
         return 0
     except Exception as e:
         print(f"Collection failed: {e}")
+        import traceback
+
+        traceback.print_exc()
         return 1
 
 
@@ -205,43 +208,63 @@ def setup_robot(args):
 
 def setup_teleoperation(args):
     """Setup teleoperation device."""
+    from librobot.collection import create_teleop
+
     print(f"Setting up {args.teleoperation} teleoperation...")
 
-    # Return dummy teleop
-    class DummyTeleop:
-        def get_action(self):
-            import numpy as np
+    try:
+        # Create teleoperation interface using the collection module
+        teleop = create_teleop(args.teleoperation)
 
-            return np.zeros(7)
+        # For leader-follower, pass the leader robot
+        if args.teleoperation == "leader_follower" and args.leader_robot:
+            from librobot.robots import create_robot
 
-    return DummyTeleop()
+            leader = create_robot(args.leader_robot)
+            teleop.connect(leader_robot=leader)
+        else:
+            teleop.connect()
+
+        return teleop
+
+    except Exception as e:
+        print(f"Could not setup teleoperation: {e}")
+        print("Using simulated teleoperation")
+
+        # Return dummy teleop as fallback
+        import numpy as np
+
+        class DummyTeleop:
+            def get_action(self):
+                return np.zeros(7)
+
+            def is_connected(self):
+                return True
+
+            def disconnect(self):
+                pass
+
+        return DummyTeleop()
 
 
 def setup_recorder(args):
     """Setup data recorder."""
+    from librobot.collection import EpisodeRecorder
+
     Path(args.output).mkdir(parents=True, exist_ok=True)
 
-    class SimpleRecorder:
-        def __init__(self, output_dir):
-            self.output_dir = Path(output_dir)
-            self.episode_count = 0
+    # Create episode recorder using the collection module
+    recorder = EpisodeRecorder(output_dir=args.output, format=args.format)
 
-        def save_episode(self, data):
-            import json
-
-            episode_path = self.output_dir / f"episode_{self.episode_count:06d}.json"
-            with open(episode_path, "w") as f:
-                json.dump({"episode": self.episode_count, "length": len(data)}, f)
-            self.episode_count += 1
-
-    return SimpleRecorder(args.output)
+    return recorder
 
 
 def record_episode(robot, teleop, args):
-    """Record a single episode."""
+    """Record a single episode - placeholder for backward compatibility."""
     import numpy as np
 
-    # Simulated episode data
+    # This function is now mostly handled by DataCollector
+    # Keep a simple version for backward compatibility
     episode_length = np.random.randint(50, 200)
 
     return {
