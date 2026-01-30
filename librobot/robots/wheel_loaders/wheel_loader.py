@@ -16,7 +16,7 @@ class WheelLoaderRobot(AbstractRobot):
     
     Provides common functionality for wheel loader implementations.
     For a comprehensive reference implementation with full features,
-    see WheelLoader in wheel_loader.py.
+    see WheelLoader in wheel_loader_robot.py.
     """
     
     # Common wheel loader specifications
