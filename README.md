@@ -373,18 +373,25 @@ vlm = create_vlm("my-vlm", hidden_dim=1024)
 - **Comprehensive documentation**
 - **200+ test cases**
 
-### 🔄 In Progress
-- Distributed training (DDP, FSDP)
-- Inference server (FastAPI, gRPC)
-- Additional robot interfaces
-- Model optimization (ONNX, TensorRT)
+### ✅ Completed (v0.2.0)
+- **Distributed training (DDP, FSDP)** - Full implementation with mixed precision, CPU offloading
+- **FastAPI inference server** - REST API for model serving
+- **Model optimization (ONNX, TensorRT)** - Export and optimization tools
+- **Experiment tracking (W&B, MLflow)** - Full integration with logging and artifacts
+- **Hyperparameter tuning** - Ray Tune and Optuna support
+- **Data augmentation strategies** - Comprehensive augmentation pipeline
+- **Standard evaluation benchmarks** - Bridge, LIBERO, SIMPLER benchmarks
+- **Advanced RL integration** - PPO, SAC, TD3 policy wrappers
+- **Multi-robot coordination** - Centralized and decentralized control
+- **Sim-to-real transfer** - Domain randomization and adaptation
+- **Online learning** - Experience replay and continuous learning
+- **Zero-shot/few-shot capabilities** - Task decomposition and in-context learning
+- **Edge deployment** - Quantization, pruning, and distillation
 
-### 📋 Planned (v0.2.0+)
-- Advanced evaluation benchmarks
-- Sim-to-real transfer tools
-- Multi-robot coordination
-- Online learning and adaptation
-- Zero-shot generalization
+### 📋 Planned (v0.3.0+)
+- Additional robot interfaces (Franka, UR5)
+- Simulation integration (Isaac Sim, MuJoCo)
+- Additional dataset formats
 
 See [ROADMAP.md](docs/design/ROADMAP.md) for detailed development plans.
 

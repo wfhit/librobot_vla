@@ -15,7 +15,22 @@ from .metrics import (
     BENCHMARK_CONFIGS,
 )
 
+from .benchmarks import (
+    BenchmarkConfig,
+    EpisodeResult,
+    AbstractBenchmark,
+    SimulationBenchmark,
+    BridgeBenchmark,
+    LIBEROBenchmark,
+    SimplerBenchmark,
+    RealWorldBenchmark,
+    BenchmarkSuite,
+    create_benchmark,
+    create_standard_suite,
+)
+
 __all__ = [
+    # Metrics
     'MetricBase',
     'MSE',
     'MAE',
@@ -28,4 +43,16 @@ __all__ = [
     'MetricCollection',
     'create_metrics',
     'BENCHMARK_CONFIGS',
+    # Benchmarks
+    'BenchmarkConfig',
+    'EpisodeResult',
+    'AbstractBenchmark',
+    'SimulationBenchmark',
+    'BridgeBenchmark',
+    'LIBEROBenchmark',
+    'SimplerBenchmark',
+    'RealWorldBenchmark',
+    'BenchmarkSuite',
+    'create_benchmark',
+    'create_standard_suite',
 ]

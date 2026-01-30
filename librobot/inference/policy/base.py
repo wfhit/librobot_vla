@@ -116,6 +116,32 @@ class BasePolicy:
     def reset(self) -> None:
         """Reset policy state (for recurrent policies)."""
         pass
+    
+    def predict(
+        self,
+        observation: Dict[str, Any],
+        return_logits: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Predict actions from observation.
+        
+        Args:
+            observation: Observation dict with images, state, text
+            return_logits: Whether to return logits
+            
+        Returns:
+            Dict with 'actions' and optional 'metadata'
+        """
+        instruction = observation.get("text", "")
+        action = self.get_action(observation, instruction)
+        
+        return {
+            "actions": action,
+            "metadata": {
+                "action_dim": self.action_dim,
+                "action_horizon": self.action_horizon,
+            }
+        }
 
 
 class DiffusionPolicy(BasePolicy):
