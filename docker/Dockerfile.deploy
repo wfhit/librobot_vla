@@ -4,8 +4,11 @@
 
 FROM nvidia/cuda:13.0.0-cudnn-runtime-ubuntu24.04
 
+# OCI labels for GitHub Container Registry
+LABEL org.opencontainers.image.source="https://github.com/wfhit/librobot_vla"
+LABEL org.opencontainers.image.description="Lightweight deployment image for LibroBot VLA inference"
+LABEL org.opencontainers.image.licenses="MIT"
 LABEL maintainer="LibroBot Team"
-LABEL description="Lightweight deployment image for LibroBot VLA inference"
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
