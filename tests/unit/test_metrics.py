@@ -4,24 +4,23 @@ Unit tests for evaluation metrics.
 Tests all metric classes in librobot/evaluation/metrics.py.
 """
 
-import pytest
 import numpy as np
+import pytest
 
 from librobot.evaluation.metrics import (
-    MetricBase,
-    MSE,
+    BENCHMARK_CONFIGS,
     MAE,
-    SuccessRate,
+    MSE,
+    EpisodeReturn,
+    MetricBase,
+    MetricCollection,
     PositionError,
     RotationError,
-    TrajectoryLength,
     Smoothness,
-    EpisodeReturn,
-    MetricCollection,
+    SuccessRate,
+    TrajectoryLength,
     create_metrics,
-    BENCHMARK_CONFIGS,
 )
-
 
 # ============================================================================
 # Fixtures
@@ -73,25 +72,31 @@ def sample_quaternion_rotated():
 def sample_trajectory():
     """Create sample trajectory."""
     # Simple linear trajectory in 3D
-    return np.array([
-        [0.0, 0.0, 0.0],
-        [1.0, 0.0, 0.0],
-        [2.0, 0.0, 0.0],
-        [3.0, 0.0, 0.0],
-        [4.0, 0.0, 0.0],
-    ], dtype=np.float32)
+    return np.array(
+        [
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [2.0, 0.0, 0.0],
+            [3.0, 0.0, 0.0],
+            [4.0, 0.0, 0.0],
+        ],
+        dtype=np.float32,
+    )
 
 
 @pytest.fixture
 def sample_actions():
     """Create sample action sequence."""
-    return np.array([
-        [0.0, 0.0],
-        [0.1, 0.1],
-        [0.2, 0.2],
-        [0.3, 0.3],
-        [0.4, 0.4],
-    ], dtype=np.float32)
+    return np.array(
+        [
+            [0.0, 0.0],
+            [0.1, 0.1],
+            [0.2, 0.2],
+            [0.3, 0.3],
+            [0.4, 0.4],
+        ],
+        dtype=np.float32,
+    )
 
 
 @pytest.fixture
@@ -585,12 +590,14 @@ class TestTrajectoryLength:
         """Test zigzag trajectory length."""
         metric = TrajectoryLength()
         # Zigzag in 2D
-        trajectory = np.array([
-            [0.0, 0.0],
-            [1.0, 1.0],
-            [2.0, 0.0],
-            [3.0, 1.0],
-        ])
+        trajectory = np.array(
+            [
+                [0.0, 0.0],
+                [1.0, 1.0],
+                [2.0, 0.0],
+                [3.0, 1.0],
+            ]
+        )
 
         metric.update(trajectory)
 

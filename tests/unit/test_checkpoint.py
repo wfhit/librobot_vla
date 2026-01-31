@@ -5,17 +5,12 @@ Tests checkpoint saving, loading, and management functionality.
 """
 
 import json
-from pathlib import Path
 
 import pytest
 import torch
 import torch.nn as nn
 
-from librobot.utils.checkpoint import (
-    Checkpoint,
-    save_checkpoint,
-    load_checkpoint,
-)
+from librobot.utils.checkpoint import Checkpoint, load_checkpoint, save_checkpoint
 
 
 @pytest.fixture

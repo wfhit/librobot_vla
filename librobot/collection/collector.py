@@ -58,9 +58,7 @@ class DataCollector:
         self.cameras = cameras or []
         self.camera_recorder = None
         if self.cameras:
-            self.camera_recorder = CameraRecorder(
-                camera_names=self.cameras, fps=fps
-            )
+            self.camera_recorder = CameraRecorder(camera_names=self.cameras, fps=fps)
 
         self._is_collecting = False
 
@@ -121,9 +119,7 @@ class DataCollector:
                     break
 
                 # Collect episode
-                success = self._collect_episode(
-                    task_name=task_name, instruction=instruction
-                )
+                success = self._collect_episode(task_name=task_name, instruction=instruction)
 
                 if success:
                     episodes_collected += 1

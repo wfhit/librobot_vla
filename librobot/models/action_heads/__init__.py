@@ -23,11 +23,7 @@ from .diffusion import (
 )
 
 # Flow matching action heads
-from .flow_matching import (
-    FlowMatchingHead,
-    OTCFMHead,
-    RectifiedFlowHead,
-)
+from .flow_matching import FlowMatchingHead, OTCFMHead, RectifiedFlowHead
 from .hybrid import HybridActionHead
 
 # Core action heads

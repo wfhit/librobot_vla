@@ -5,11 +5,11 @@ Tests end-to-end inference workflow including model loading,
 preprocessing, prediction, and post-processing.
 """
 
+from unittest.mock import Mock
+
+import numpy as np
 import pytest
 import torch
-import numpy as np
-from pathlib import Path
-from unittest.mock import Mock, patch
 
 # TODO: Import actual inference classes
 # from librobot.inference import InferencePipeline, InferenceEngine

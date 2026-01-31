@@ -4,13 +4,14 @@ Benchmark tests for inference performance.
 Measures latency, throughput, and resource usage during inference.
 """
 
+import os
+import time
+from unittest.mock import Mock
+
+import numpy as np
+import psutil
 import pytest
 import torch
-import time
-import numpy as np
-from unittest.mock import Mock
-import psutil
-import os
 
 # TODO: Import actual inference classes
 # from librobot.inference import InferenceEngine
@@ -74,7 +75,7 @@ class BenchmarkInferenceLatency:
         p95_latency = np.percentile(latencies, 95) * 1000
         p99_latency = np.percentile(latencies, 99) * 1000
 
-        print(f"\n=== Single Inference Latency ===")
+        print("\n=== Single Inference Latency ===")
         print(f"Mean: {mean_latency:.2f} ms")
         print(f"Std: {std_latency:.2f} ms")
         print(f"P50: {p50_latency:.2f} ms")
@@ -147,7 +148,7 @@ class BenchmarkInferenceThroughput:
         elapsed = time.perf_counter() - start
         throughput = num_iterations / elapsed
 
-        print(f"\n=== Inference Throughput ===")
+        print("\n=== Inference Throughput ===")
         print(f"Throughput: {throughput:.2f} samples/sec")
         print(f"Total time: {elapsed:.2f} sec")
         print(f"Iterations: {num_iterations}")
@@ -215,7 +216,7 @@ class BenchmarkMemoryUsage:
         peak_memory = process.memory_info().rss / 1024 / 1024  # MB
         memory_used = peak_memory - baseline_memory
 
-        print(f"\n=== Memory Usage ===")
+        print("\n=== Memory Usage ===")
         print(f"Baseline CPU memory: {baseline_memory:.2f} MB")
         print(f"Peak CPU memory: {peak_memory:.2f} MB")
         print(f"CPU memory used: {memory_used:.2f} MB")
@@ -352,7 +353,7 @@ class BenchmarkEndToEndLatency:
         mean_latency = np.mean(latencies) * 1000
         p95_latency = np.percentile(latencies, 95) * 1000
 
-        print(f"\n=== Full Pipeline Latency ===")
+        print("\n=== Full Pipeline Latency ===")
         print(f"Mean: {mean_latency:.2f} ms")
         print(f"P95: {p95_latency:.2f} ms")
 

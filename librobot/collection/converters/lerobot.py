@@ -43,7 +43,7 @@ class LeRobotConverter(AbstractConverter):
 
         # Read metadata
         metadata_path = episode_dir / "metadata.json"
-        with open(metadata_path, "r") as f:
+        with open(metadata_path) as f:
             metadata = json.load(f)
 
         # Read data streams
@@ -136,7 +136,7 @@ class LeRobotConverter(AbstractConverter):
         dataset_metadata_path = dataset_path / "dataset_metadata.json"
 
         if dataset_metadata_path.exists():
-            with open(dataset_metadata_path, "r") as f:
+            with open(dataset_metadata_path) as f:
                 return json.load(f)
 
         # If no dataset metadata, aggregate from episodes

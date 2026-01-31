@@ -31,10 +31,8 @@ Example usage:
 """
 
 import argparse
-import os
 import sys
 from pathlib import Path
-from typing import Optional
 
 import torch
 import torch.distributed as dist
@@ -42,14 +40,13 @@ import torch.distributed as dist
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from librobot.utils.config import Config
-from librobot.utils.logging import setup_logging, get_logger
-from librobot.utils.seed import set_seed
-from librobot.utils.checkpoint import Checkpoint
-from librobot.training.trainer import Trainer, TrainerConfig
-from librobot.training.distributed import setup_distributed, cleanup_distributed, is_distributed
 from librobot.data.datasets import create_dataset as build_dataset
 from librobot.models import create_vla as build_model
+from librobot.training.distributed import cleanup_distributed, is_distributed, setup_distributed
+from librobot.training.trainer import Trainer, TrainerConfig
+from librobot.utils.config import Config
+from librobot.utils.logging import get_logger, setup_logging
+from librobot.utils.seed import set_seed
 
 
 def parse_args():

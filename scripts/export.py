@@ -46,21 +46,20 @@ Example usage:
 import argparse
 import json
 import sys
-from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime
-import warnings
+from pathlib import Path
+from typing import Any, Optional
 
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from librobot.utils.config import Config
-from librobot.utils.logging import setup_logging, get_logger
 from librobot.models import create_vla as build_model
+from librobot.utils.config import Config
+from librobot.utils.logging import get_logger, setup_logging
 
 
 def parse_args():
@@ -176,7 +175,7 @@ def parse_args():
 
 def load_model_for_export(
     checkpoint_path: str, config: Optional[Config], device: str
-) -> Tuple[nn.Module, Dict[str, Any]]:
+) -> tuple[nn.Module, dict[str, Any]]:
     """
     Load model from checkpoint for export.
 
@@ -234,7 +233,7 @@ def load_model_for_export(
 
 def get_dummy_input(
     model: nn.Module, batch_size: int, input_shape: Optional[str], device: str
-) -> Dict[str, torch.Tensor]:
+) -> dict[str, torch.Tensor]:
     """
     Generate dummy input for model export.
 
@@ -271,12 +270,12 @@ def get_dummy_input(
 
 def export_to_onnx(
     model: nn.Module,
-    dummy_input: Dict[str, torch.Tensor],
+    dummy_input: dict[str, torch.Tensor],
     output_path: Path,
     opset_version: int,
-    dynamic_axes: Optional[List[str]],
+    dynamic_axes: Optional[list[str]],
     optimize: bool,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Export model to ONNX format.
 
@@ -361,11 +360,11 @@ def export_to_onnx(
 
 def export_to_torchscript(
     model: nn.Module,
-    dummy_input: Dict[str, torch.Tensor],
+    dummy_input: dict[str, torch.Tensor],
     output_path: Path,
     method: str,
     optimize: bool,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Export model to TorchScript format.
 
@@ -424,8 +423,8 @@ def export_to_torchscript(
 
 
 def export_to_tensorrt(
-    model: nn.Module, dummy_input: Dict[str, torch.Tensor], output_path: Path
-) -> Dict[str, Any]:
+    model: nn.Module, dummy_input: dict[str, torch.Tensor], output_path: Path
+) -> dict[str, Any]:
     """
     Export model to TensorRT format.
 
@@ -476,10 +475,10 @@ def validate_export(
     original_model: nn.Module,
     exported_path: Path,
     export_format: str,
-    dummy_input: Dict[str, torch.Tensor],
+    dummy_input: dict[str, torch.Tensor],
     num_samples: int,
     device: str,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Validate exported model against original.
 
@@ -540,7 +539,7 @@ def validate_export(
         "validation_samples": num_samples,
     }
 
-    logger.info(f"Validation results:")
+    logger.info("Validation results:")
     logger.info(f"  Mean absolute error: {metrics['mean_absolute_error']:.6f}")
     logger.info(f"  Max absolute error: {metrics['max_absolute_error']:.6f}")
 
@@ -549,8 +548,8 @@ def validate_export(
 
 def save_export_metadata(
     output_dir: Path,
-    model_metadata: Dict[str, Any],
-    export_metadata: List[Dict[str, Any]],
+    model_metadata: dict[str, Any],
+    export_metadata: list[dict[str, Any]],
     config: Optional[Config],
 ):
     """

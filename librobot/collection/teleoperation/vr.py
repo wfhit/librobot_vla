@@ -63,10 +63,7 @@ class VRTeleop(AbstractTeleop):
             bool: True if connection successful
         """
         if not self._vr_available:
-            print(
-                "Warning: VR library not installed. "
-                "Install with: pip install openvr"
-            )
+            print("Warning: VR library not installed. " "Install with: pip install openvr")
             return False
 
         try:

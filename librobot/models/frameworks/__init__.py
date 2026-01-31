@@ -10,13 +10,7 @@ from .helix_style import HelixVLA
 from .octo_style import OctoVLA
 from .openvla_style import OpenVLA
 from .pi0_style import Pi0VLA
-from .registry import (
-    VLA_REGISTRY,
-    create_vla,
-    get_vla,
-    list_vlas,
-    register_vla,
-)
+from .registry import VLA_REGISTRY, create_vla, get_vla, list_vlas, register_vla
 from .rt2_style import RT2VLA
 
 __all__ = [

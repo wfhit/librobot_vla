@@ -150,7 +150,7 @@ def run_collection(args) -> int:
         if args.instructions:
             instructions_path = Path(args.instructions)
             if instructions_path.exists():
-                with open(instructions_path, "r") as f:
+                with open(instructions_path) as f:
                     instructions = [line.strip() for line in f if line.strip()]
 
         # Create DataCollector

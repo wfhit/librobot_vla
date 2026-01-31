@@ -10,12 +10,7 @@ import numpy as np
 import pytest
 import torch
 
-from librobot.utils.seed import (
-    set_seed,
-    get_random_state,
-    set_random_state,
-    make_deterministic,
-)
+from librobot.utils.seed import get_random_state, make_deterministic, set_random_state, set_seed
 
 
 class TestSetSeed:

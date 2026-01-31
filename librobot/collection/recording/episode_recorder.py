@@ -94,9 +94,7 @@ class EpisodeRecorder:
         # Finalize metadata
         self._episode_metadata["end_time"] = time.time()
         self._episode_metadata["duration"] = (
-            time.time() - self._episode_start_time
-            if self._episode_start_time
-            else 0.0
+            time.time() - self._episode_start_time if self._episode_start_time else 0.0
         )
 
         # Get all buffered data
@@ -155,9 +153,7 @@ class EpisodeRecorder:
         for key, value in kwargs.items():
             self._buffer.append(key, value)
 
-    def save_episode(
-        self, episode_data: Optional[dict[str, Any]] = None
-    ) -> Optional[Path]:
+    def save_episode(self, episode_data: Optional[dict[str, Any]] = None) -> Optional[Path]:
         """
         Save episode to disk.
 
@@ -176,9 +172,7 @@ class EpisodeRecorder:
                 return None
 
         # Get episode index
-        episode_idx = episode_data.get("metadata", {}).get(
-            "episode_idx", self._episode_count - 1
-        )
+        episode_idx = episode_data.get("metadata", {}).get("episode_idx", self._episode_count - 1)
 
         # Create episode directory
         episode_dir = self.output_dir / f"episode_{episode_idx:06d}"
@@ -200,9 +194,7 @@ class EpisodeRecorder:
             print(f"Failed to save episode: {e}")
             return None
 
-    def _save_lerobot_format(
-        self, episode_data: dict[str, Any], episode_dir: Path
-    ) -> Path:
+    def _save_lerobot_format(self, episode_data: dict[str, Any], episode_dir: Path) -> Path:
         """Save episode in LeRobot format."""
         # Simplified LeRobot format (JSON + numpy files)
         metadata_path = episode_dir / "metadata.json"
@@ -230,23 +222,17 @@ class EpisodeRecorder:
 
         return metadata_path
 
-    def _save_hdf5_format(
-        self, episode_data: dict[str, Any], episode_dir: Path
-    ) -> Path:
+    def _save_hdf5_format(self, episode_data: dict[str, Any], episode_dir: Path) -> Path:
         """Save episode in HDF5 format."""
         # Placeholder - would use h5py
         return episode_dir / "episode.h5"
 
-    def _save_zarr_format(
-        self, episode_data: dict[str, Any], episode_dir: Path
-    ) -> Path:
+    def _save_zarr_format(self, episode_data: dict[str, Any], episode_dir: Path) -> Path:
         """Save episode in Zarr format."""
         # Placeholder - would use zarr
         return episode_dir / "episode.zarr"
 
-    def _save_json_format(
-        self, episode_data: dict[str, Any], episode_dir: Path
-    ) -> Path:
+    def _save_json_format(self, episode_data: dict[str, Any], episode_dir: Path) -> Path:
         """Save episode in simple JSON format."""
         data_path = episode_dir / "episode.json"
         # Simplify data for JSON serialization

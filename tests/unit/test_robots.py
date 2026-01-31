@@ -4,9 +4,10 @@ Unit tests for robot interfaces and controllers.
 Tests robot communication, control, and state management.
 """
 
-import pytest
+from unittest.mock import Mock
+
 import numpy as np
-from unittest.mock import Mock, patch, MagicMock
+import pytest
 
 # TODO: Import actual robot classes
 # from librobot.robots import Robot, RobotController, RobotState

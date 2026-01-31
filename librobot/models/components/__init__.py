@@ -13,26 +13,13 @@ from . import attention, normalization, positional
 from .activations import GELU, GeGLU, Mish, QuickGELU, SwiGLU
 
 # Attention mechanisms
-from .attention import (
-    BlockWiseAttention,
-    FlashAttention,
-    SlidingWindowAttention,
-    StandardAttention,
-)
+from .attention import BlockWiseAttention, FlashAttention, SlidingWindowAttention, StandardAttention
 
 # Normalization layers
-from .normalization import (
-    GroupNorm,
-    LayerNorm,
-    RMSNorm,
-)
+from .normalization import GroupNorm, LayerNorm, RMSNorm
 
 # Positional encodings
-from .positional import (
-    ALiBiPositionalBias,
-    RotaryPositionEmbedding,
-    SinusoidalPositionalEncoding,
-)
+from .positional import ALiBiPositionalBias, RotaryPositionEmbedding, SinusoidalPositionalEncoding
 
 __all__ = [
     # Submodules

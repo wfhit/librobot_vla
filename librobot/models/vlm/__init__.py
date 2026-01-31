@@ -3,13 +3,7 @@
 # Import VLM implementations to register them
 from . import florence, internvl, llava, paligemma, qwen_vl
 from .base import AbstractVLM
-from .registry import (
-    VLM_REGISTRY,
-    create_vlm,
-    get_vlm,
-    list_vlms,
-    register_vlm,
-)
+from .registry import VLM_REGISTRY, create_vlm, get_vlm, list_vlms, register_vlm
 
 __all__ = [
     "AbstractVLM",

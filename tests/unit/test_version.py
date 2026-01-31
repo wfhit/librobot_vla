@@ -7,10 +7,10 @@ Tests version information retrieval and consistency.
 import pytest
 
 from librobot.version import (
-    __version__,
+    VERSION_INFO,
     __author__,
     __license__,
-    VERSION_INFO,
+    __version__,
     get_version,
     get_version_info,
 )
@@ -61,9 +61,7 @@ class TestVersionConstants:
         """Test optional keys in VERSION_INFO."""
         # These can be None or string
         if "prerelease" in VERSION_INFO:
-            assert VERSION_INFO["prerelease"] is None or isinstance(
-                VERSION_INFO["prerelease"], str
-            )
+            assert VERSION_INFO["prerelease"] is None or isinstance(VERSION_INFO["prerelease"], str)
 
         if "build" in VERSION_INFO:
             assert VERSION_INFO["build"] is None or isinstance(VERSION_INFO["build"], str)

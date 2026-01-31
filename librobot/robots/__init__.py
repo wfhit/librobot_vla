@@ -55,13 +55,7 @@ from .excavators import Excavator, ExcavatorRobot
 from .humanoids import Figure01Robot, GR1Robot, Humanoid, UnitreeH1Robot
 from .mobile import DifferentialDriveRobot, LeKiwiRobot, MobileRobot
 from .mobile_manipulators import FetchRobot, MobileManipulator, TIAGoRobot
-from .registry import (
-    ROBOT_REGISTRY,
-    create_robot,
-    get_robot,
-    list_robots,
-    register_robot,
-)
+from .registry import ROBOT_REGISTRY, create_robot, get_robot, list_robots, register_robot
 from .sensors import IMU, Camera, DepthCamera, ForceTorqueSensor, Lidar
 from .wheel_loaders import WheelLoader, WheelLoaderRobot
 

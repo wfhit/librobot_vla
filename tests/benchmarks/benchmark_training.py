@@ -4,13 +4,13 @@ Benchmark tests for training performance.
 Measures training speed, GPU utilization, and scaling characteristics.
 """
 
+import os
+import time
+
+import numpy as np
+import psutil
 import pytest
 import torch
-import time
-import numpy as np
-from unittest.mock import Mock
-import psutil
-import os
 
 # TODO: Import actual training classes
 # from librobot.training import Trainer
@@ -90,7 +90,7 @@ class BenchmarkTrainingSpeed:
         mean_time = np.mean(step_times) * 1000
         std_time = np.std(step_times) * 1000
 
-        print(f"\n=== Training Step Time ===")
+        print("\n=== Training Step Time ===")
         print(f"Mean: {mean_time:.2f} ms")
         print(f"Std: {std_time:.2f} ms")
         print(f"Steps/sec: {1000/mean_time:.2f}")
@@ -175,7 +175,7 @@ class BenchmarkTrainingThroughput:
         total_samples = num_steps * batch_size
         throughput = total_samples / elapsed
 
-        print(f"\n=== Training Throughput ===")
+        print("\n=== Training Throughput ===")
         print(f"Throughput: {throughput:.2f} samples/sec")
         print(f"Steps/sec: {num_steps/elapsed:.2f}")
         print(f"Total time: {elapsed:.2f} sec")
@@ -205,7 +205,7 @@ class BenchmarkGradientComputation:
             times.append(time.perf_counter() - start)
 
         mean_time = np.mean(times) * 1000
-        print(f"\n=== Forward Pass Time ===")
+        print("\n=== Forward Pass Time ===")
         print(f"Mean: {mean_time:.2f} ms")
 
     def test_backward_pass_time(self, benchmark_model, training_batch, device):
@@ -236,7 +236,7 @@ class BenchmarkGradientComputation:
             benchmark_model.zero_grad()
 
         mean_time = np.mean(times) * 1000
-        print(f"\n=== Backward Pass Time ===")
+        print("\n=== Backward Pass Time ===")
         print(f"Mean: {mean_time:.2f} ms")
 
 
@@ -268,14 +268,14 @@ class BenchmarkMemoryUsage:
         if device.type == "cuda":
             peak = torch.cuda.max_memory_allocated() / 1024 / 1024
             memory_used = peak - baseline
-            print(f"\n=== Training Memory Usage ===")
+            print("\n=== Training Memory Usage ===")
             print(f"Baseline GPU memory: {baseline:.2f} MB")
             print(f"Peak GPU memory: {peak:.2f} MB")
             print(f"Memory used: {memory_used:.2f} MB")
         else:
             peak = process.memory_info().rss / 1024 / 1024
             memory_used = peak - baseline
-            print(f"\n=== Training Memory Usage ===")
+            print("\n=== Training Memory Usage ===")
             print(f"Baseline CPU memory: {baseline:.2f} MB")
             print(f"Peak CPU memory: {peak:.2f} MB")
             print(f"Memory used: {memory_used:.2f} MB")
@@ -349,7 +349,7 @@ class BenchmarkMixedPrecision:
             times.append(time.perf_counter() - start)
 
         mean_time = np.mean(times) * 1000
-        print(f"\n=== AMP Training Time ===")
+        print("\n=== AMP Training Time ===")
         print(f"Mean: {mean_time:.2f} ms")
 
 

@@ -91,9 +91,7 @@ class CameraRecorder:
             return {}
 
         frames = {}
-        cameras_to_capture = (
-            [camera_name] if camera_name else list(self._cameras.keys())
-        )
+        cameras_to_capture = [camera_name] if camera_name else list(self._cameras.keys())
 
         for cam_name in cameras_to_capture:
             if cam_name in self._cameras:

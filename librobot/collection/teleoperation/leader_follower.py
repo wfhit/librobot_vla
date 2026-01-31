@@ -99,9 +99,7 @@ class LeaderFollowerTeleop(AbstractTeleop):
                     if len(action) > self.action_dim:
                         action = action[: self.action_dim]
                     elif len(action) < self.action_dim:
-                        action = np.pad(
-                            action, (0, self.action_dim - len(action)), mode="constant"
-                        )
+                        action = np.pad(action, (0, self.action_dim - len(action)), mode="constant")
                     return action
                 else:
                     return np.zeros(self.action_dim)
@@ -143,9 +141,7 @@ class LeaderFollowerTeleop(AbstractTeleop):
             {
                 "action_dim": self.action_dim,
                 "leader_robot": (
-                    str(type(self.leader_robot).__name__)
-                    if self.leader_robot is not None
-                    else None
+                    str(type(self.leader_robot).__name__) if self.leader_robot is not None else None
                 ),
             }
         )
