@@ -1,31 +1,96 @@
+# Pre-commit hooks for LibroBot VLA
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+# To install the git hook scripts:
+#   pip install pre-commit
+#   pre-commit install
+#
+# To run manually on all files:
+#   pre-commit run --all-files
+#
+# To update hooks to latest versions:
+#   pre-commit autoupdate
+
 repos:
+  # General file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
+      # Remove trailing whitespace
       - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      # Ensure files end with newline
       - id: end-of-file-fixer
+      # Check YAML syntax
       - id: check-yaml
+      # Prevent large files from being committed
       - id: check-added-large-files
         args: ['--maxkb=10000']
+      # Check for merge conflict markers
       - id: check-merge-conflict
+      # Check TOML syntax
       - id: check-toml
+      # Check for Python debug statements (pdb, ipdb, etc.)
       - id: debug-statements
+      # Check JSON syntax
+      - id: check-json
+      # Check for case conflicts in filenames
+      - id: check-case-conflict
+      # Check for symlinks that don't point to anything
+      - id: check-symlinks
+      # Check for mixed line endings
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      # Prevent committing to main branch
+      - id: no-commit-to-branch
+        args: [--branch, main, --branch, master]
 
+  # Python code formatting with Black
   - repo: https://github.com/psf/black
     rev: 24.1.1
     hooks:
       - id: black
-        language_version: python3.9
+        args: [--line-length=100]
 
+  # Python linting and auto-fixing with Ruff
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.15
     hooks:
       - id: ruff
-        args: [--fix]
+        args: [--fix, --exit-non-zero-on-fix]
 
+  # Python type checking with mypy
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
     hooks:
       - id: mypy
         additional_dependencies: [types-PyYAML, types-setuptools]
         args: [--ignore-missing-imports]
+        # Only run on Python files in librobot/ and tests/
+        files: ^(librobot|tests)/.*\.py$
+
+  # Check for common security issues
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [-c, pyproject.toml, -r, librobot/]
+        additional_dependencies: ["bandit[toml]"]
+
+  # Sort Python imports
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--profile, black, --line-length, "100"]
+
+  # Check docstring formatting
+  - repo: https://github.com/PyCQA/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        args: [--convention=google, --add-ignore=D100,D101,D102,D103,D104,D105,D107]
+        files: ^librobot/.*\.py$
+
+# Configuration for specific hooks can be set in pyproject.toml

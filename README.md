@@ -275,7 +275,7 @@ for epoch in range(100):
             batch["proprioception"],
             batch["actions"]
         )
-        
+
         loss = outputs["loss"]
         loss.backward()
         optimizer.step()
@@ -297,7 +297,7 @@ results = {}
 
 for framework_name in frameworks:
     vla = create_vla(framework_name, vlm=vlm, action_dim=7)
-    
+
     # Evaluate
     outputs = vla(test_images, test_text, test_proprio, test_actions)
     results[framework_name] = {
@@ -319,22 +319,22 @@ class MyVLM(AbstractVLM):
         super().__init__()
         self.hidden_dim = hidden_dim
         # Initialize your architecture
-    
+
     def forward(self, images, text, **kwargs):
         # Your implementation
         pass
-    
+
     def encode_image(self, images):
         # Your implementation
         pass
-    
+
     def encode_text(self, text):
         # Your implementation
         pass
-    
+
     def get_embedding_dim(self):
         return self.hidden_dim
-    
+
     @property
     def config(self):
         return {"hidden_dim": self.hidden_dim}
@@ -418,6 +418,68 @@ We welcome contributions! Areas of interest:
    - Third-party plugins
 
 See [COMPONENT_GUIDE.md](docs/design/COMPONENT_GUIDE.md) for detailed instructions on contributing new components.
+
+## Development Setup
+
+### Installing Development Dependencies
+
+```bash
+# Install all development tools
+pip install -e ".[dev]"
+```
+
+### Pre-commit Hooks
+
+We use pre-commit hooks to maintain code quality. Install them once:
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install git hooks
+pre-commit install
+```
+
+Now, hooks will run automatically on every commit to:
+- Format code with Black and isort
+- Lint with Ruff
+- Type check with mypy
+- Check for security issues with Bandit
+- Validate docstrings
+- Check for common issues
+
+Run manually on all files:
+```bash
+pre-commit run --all-files
+```
+
+For detailed instructions, see [docs/PRE_COMMIT_GUIDE.md](docs/PRE_COMMIT_GUIDE.md).
+
+### Running Tests
+
+```bash
+# Run all tests
+make test
+
+# Run specific test file
+pytest tests/unit/test_collection.py -v
+
+# Run with coverage
+pytest --cov=librobot --cov-report=html
+```
+
+### Code Quality
+
+```bash
+# Format code
+make format
+
+# Run linter
+make lint
+
+# Type checking
+mypy librobot/
+```
 
 ## Citation
 
