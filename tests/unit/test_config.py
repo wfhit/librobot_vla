@@ -248,13 +248,16 @@ class TestConfigGetSet:
         assert value == 768
 
     def test_get_nonexistent_returns_default(self, sample_config_dict):
-        """Test getting nonexistent key returns None (OmegaConf behavior)."""
+        """Test getting nonexistent key returns None.
+
+        Note: OmegaConf.select returns None for missing keys rather than raising
+        an exception, so the default parameter is not used in this case.
+        """
         config = Config(sample_config_dict)
 
-        # OmegaConf.select returns None for nonexistent keys
         value = config.get("nonexistent", default="default_value")
 
-        # Note: OmegaConf.select returns None for missing keys, doesn't raise
+        # OmegaConf.select returns None for missing keys, doesn't use default
         assert value is None
 
     def test_get_nonexistent_nested_returns_default(self, sample_config_dict):

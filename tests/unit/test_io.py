@@ -460,8 +460,8 @@ class TestLinesIO:
         write_lines(lines, filepath)
 
         content = filepath.read_text()
-        # Should not double newlines
-        assert "Line 1\n\n" not in content
+        # Should not double newlines - verify exact expected content
+        assert content == "Line 1\nLine 2\n"
 
     def test_write_lines_creates_dirs(self, tmp_path):
         """Test that write_lines creates parent directories."""
