@@ -40,11 +40,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install ruff black
 
-      - name: Run Black
-        run: black --check librobot/
+      - name: Auto-format with Black
+        run: black librobot/
 
-      - name: Run Ruff
-        run: ruff check librobot/
+      - name: Auto-fix with Ruff
+        run: ruff check --fix librobot/
+
+      - name: Check for formatting changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::Code formatting issues found. Please run 'black librobot/' and 'ruff check --fix librobot/' locally."
+            git diff
+            exit 1
+          fi
 
   test:
     name: Run Tests

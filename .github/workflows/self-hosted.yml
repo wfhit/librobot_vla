@@ -9,6 +9,10 @@ name: Self-Hosted CI
 #   3. Docker configured with nvidia runtime
 
 on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_run:
     workflows: ["Docker Build"]
     types: [completed]
