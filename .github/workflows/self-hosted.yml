@@ -51,7 +51,9 @@ jobs:
         run: pip3 install --break-system-packages -e ".[dev]"
 
       - name: Run GPU tests
-        run: pytest tests/ -v --tb=short -m "gpu" --timeout=600
+        run: |
+          # Exit code 5 means no tests collected - OK if no GPU tests exist yet
+          pytest tests/ -v --tb=short -m "gpu" --timeout=600 || [ $? -eq 5 ]
 
       - name: Run full test suite
         run: pytest tests/ -v --tb=short -m "not slow" --timeout=300
