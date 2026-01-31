@@ -26,7 +26,10 @@ on:
 env:
   PYTHON_VERSION: "3.10"
   # Docker image for self-hosted runner jobs
-  DOCKER_IMAGE: "python:3.10-slim"
+  # Uses project's own image from GitHub Container Registry (ghcr.io)
+  # This image includes CUDA 13.0, PyTorch 2.9, and all training dependencies
+  REGISTRY: ghcr.io
+  DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/librobot-train:latest
 
 jobs:
   # Check if self-hosted runner is available and if user is authorized
@@ -96,26 +99,22 @@ jobs:
     if: needs.check-runner.outputs.use_self_hosted == 'true' && needs.check-runner.outputs.is_owner == 'true'
     runs-on: [self-hosted, linux, x64]
     container:
-      image: python:3.10-slim
-      # Root user required for apt-get package installation
-      options: --user root
+      image: ${{ env.DOCKER_IMAGE }}
+      # Credentials for pulling from GitHub Container Registry
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      # Root user for system access; GPU passthrough via NVIDIA runtime
+      options: --user root --gpus all
     timeout-minutes: 10
     continue-on-error: true
     permissions:
       contents: read
+      packages: read
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Install diagnostic tools
-        run: |
-          apt-get update && apt-get install -y --no-install-recommends \
-            procps \
-            lsb-release \
-            pciutils \
-            iproute2 \
-            && rm -rf /var/lib/apt/lists/*
 
       - name: System Information
         run: |
@@ -327,44 +326,45 @@ jobs:
     if: needs.check-runner.outputs.use_self_hosted == 'true' && needs.check-runner.outputs.is_owner == 'true' && !failure() && !cancelled()
     runs-on: [self-hosted, linux, x64]
     container:
-      image: python:3.10-slim
-      # Root user required for apt-get package installation
-      options: --user root
+      image: ${{ env.DOCKER_IMAGE }}
+      # Credentials for pulling from GitHub Container Registry
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      # Root user for pip install; GPU passthrough via NVIDIA runtime
+      options: --user root --gpus all
     timeout-minutes: 30
     permissions:
       contents: read
+      packages: read
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install system dependencies
+      - name: Verify environment
         run: |
-          apt-get update && apt-get install -y --no-install-recommends \
-            git \
-            build-essential \
-            libgl1-mesa-glx \
-            libglib2.0-0 \
-            && rm -rf /var/lib/apt/lists/*
-
-      - name: Set up Python
-        run: |
+          echo "Using Docker image: ${{ env.DOCKER_IMAGE }}"
           python3 --version
+          pip3 --version
+          echo "PyTorch version:"
+          python3 -c "import torch; print(f'PyTorch {torch.__version__}')" || echo "PyTorch not available"
+          echo "CUDA available:"
+          python3 -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')" || echo "CUDA check failed"
 
-      - name: Install dependencies
+      - name: Install project in editable mode
         run: |
-          python3 -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          pip3 install --break-system-packages -e ".[dev]"
 
       - name: Run linting
         run: |
-          pip install ruff black
+          pip3 install --break-system-packages ruff black
           black --check librobot/
           ruff check librobot/
 
       - name: Run tests
         run: |
-          pip install pytest pytest-cov
+          pip3 install --break-system-packages pytest pytest-cov
           pytest tests/ -v --tb=short
 
   # Fallback build and test job on GitHub-hosted runner
