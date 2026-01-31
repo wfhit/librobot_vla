@@ -56,8 +56,8 @@ RUN pip3 install --break-system-packages \
 # Set working directory
 WORKDIR /workspace
 
-# Create a non-root user
-RUN useradd -m -u 1000 -s /bin/bash librobot
+# Create a non-root user (use UID 1001 since 1000 is taken in NVIDIA base image)
+RUN useradd -m -u 1001 -s /bin/bash librobot
 USER librobot
 
 CMD ["/bin/bash"]
