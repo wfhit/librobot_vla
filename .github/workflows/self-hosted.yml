@@ -21,16 +21,13 @@ on:
         default: 'latest'
         type: string
 
-env:
-  IMAGE_TRAIN: ghcr.io/${{ github.repository_owner }}/librobot-train
-
 jobs:
   gpu-tests:
     name: GPU Tests
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: [self-hosted, linux, x64]
     container:
-      image: ${{ env.IMAGE_TRAIN }}:${{ inputs.image_tag || 'latest' }}
+      image: ghcr.io/${{ github.repository_owner }}/librobot-train:${{ inputs.image_tag || 'latest' }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -45,7 +42,7 @@ jobs:
 
       - name: Verify GPU environment
         run: |
-          echo "Image: ${{ env.IMAGE_TRAIN }}:${{ inputs.image_tag || 'latest' }}"
+          echo "Image: ghcr.io/${{ github.repository_owner }}/librobot-train:${{ inputs.image_tag || 'latest' }}"
           python3 --version
           python3 -c "import torch; print(f'PyTorch {torch.__version__}, CUDA: {torch.cuda.is_available()}, Devices: {torch.cuda.device_count()}')"
           nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
