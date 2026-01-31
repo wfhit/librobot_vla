@@ -1,0 +1,415 @@
+name: Self-Hosted Runner
+
+# Workflow for running jobs on self-hosted runners with environment diagnostics
+# Includes fallback to GitHub-hosted runners when self-hosted is unavailable
+# SECURITY: Self-hosted runner jobs are restricted to repository owner only
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      runner_type:
+        description: 'Runner type to use'
+        required: true
+        default: 'self-hosted'
+        type: choice
+        options:
+          - self-hosted
+          - github-hosted
+
+env:
+  PYTHON_VERSION: "3.10"
+  # Docker image for self-hosted runner jobs
+  # Uses project's own image from GitHub Container Registry (ghcr.io)
+  # This image includes CUDA 13.0, PyTorch 2.9, and all training dependencies
+  REGISTRY: ghcr.io
+  DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/librobot-train:latest
+
+jobs:
+  # Check if self-hosted runner is available and if user is authorized
+  check-runner:
+    name: Check Runner Availability
+    runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      use_self_hosted: ${{ steps.check.outputs.use_self_hosted }}
+      is_owner: ${{ steps.check.outputs.is_owner }}
+    steps:
+      - name: Check runner type and authorization
+        id: check
+        run: |
+          # Check if the actor is the repository owner
+          if [ "${{ github.actor }}" = "${{ github.repository_owner }}" ]; then
+            echo "is_owner=true" >> $GITHUB_OUTPUT
+            echo "✅ User ${{ github.actor }} is authorized (repository owner)"
+          else
+            echo "is_owner=false" >> $GITHUB_OUTPUT
+            echo "⚠️ User ${{ github.actor }} is NOT the repository owner (${{ github.repository_owner }})"
+            echo "Self-hosted runner access is restricted to repository owner only"
+          fi
+          
+          # Determine runner type
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.runner_type }}" = "self-hosted" ]; then
+              echo "use_self_hosted=true" >> $GITHUB_OUTPUT
+            else
+              echo "use_self_hosted=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            # Default to self-hosted for automated runs (if owner)
+            echo "use_self_hosted=true" >> $GITHUB_OUTPUT
+          fi
+
+  # Notify unauthorized users that they cannot use the self-hosted runner
+  unauthorized-notice:
+    name: Unauthorized Access Notice
+    needs: check-runner
+    if: needs.check-runner.outputs.use_self_hosted == 'true' && needs.check-runner.outputs.is_owner == 'false'
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Access Denied
+        run: |
+          echo "=============================================="
+          echo "⛔ ACCESS DENIED: Self-Hosted Runner"
+          echo "=============================================="
+          echo ""
+          echo "User: ${{ github.actor }}"
+          echo "Repository Owner: ${{ github.repository_owner }}"
+          echo ""
+          echo "Self-hosted runner access is restricted to the"
+          echo "repository owner only for security reasons."
+          echo ""
+          echo "If you need to run CI/CD jobs, the workflow will"
+          echo "automatically fall back to GitHub-hosted runners."
+          echo "=============================================="
+          exit 1
+
+  # Environment diagnostics on self-hosted runner (in Docker container)
+  environment-info-self-hosted:
+    name: Environment Info (Self-Hosted)
+    needs: check-runner
+    # Only run if: using self-hosted AND user is repository owner
+    if: needs.check-runner.outputs.use_self_hosted == 'true' && needs.check-runner.outputs.is_owner == 'true'
+    runs-on: [self-hosted, linux, x64]
+    container:
+      image: ${{ env.DOCKER_IMAGE }}
+      # Credentials for pulling from GitHub Container Registry
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      # Root user for system access; GPU passthrough via NVIDIA runtime
+      options: --user root --gpus all
+    timeout-minutes: 10
+    continue-on-error: true
+    permissions:
+      contents: read
+      packages: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: System Information
+        run: |
+          echo "=========================================="
+          echo "       SYSTEM INFORMATION (Docker Container)"
+          echo "=========================================="
+          echo ""
+          echo "--- Container Image ---"
+          echo "${{ env.DOCKER_IMAGE }}"
+          echo ""
+          echo "--- Hostname ---"
+          hostname
+          echo ""
+          echo "--- OS Version ---"
+          cat /etc/os-release 2>/dev/null || echo "OS release info not available"
+          echo ""
+          echo "--- Kernel Version ---"
+          uname -a
+          echo ""
+          echo "--- Architecture ---"
+          uname -m
+          echo ""
+
+      - name: CPU Information
+        run: |
+          echo "=========================================="
+          echo "       CPU INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- CPU Cores ---"
+          nproc
+          echo ""
+          echo "--- CPU Details ---"
+          cat /proc/cpuinfo | grep "model name" | head -1 || echo "CPU info not available"
+          echo ""
+
+      - name: Memory Information
+        run: |
+          echo "=========================================="
+          echo "       MEMORY INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- Memory Usage ---"
+          free -h 2>/dev/null || cat /proc/meminfo | head -5
+          echo ""
+
+      - name: GPU Information
+        run: |
+          echo "=========================================="
+          echo "       GPU INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- NVIDIA GPU (nvidia-smi) ---"
+          if command -v nvidia-smi &> /dev/null; then
+            nvidia-smi
+          else
+            echo "nvidia-smi not available in container"
+            echo "(GPU passthrough requires nvidia-docker runtime)"
+          fi
+          echo ""
+          echo "--- All GPUs (lspci) ---"
+          lspci 2>/dev/null | grep -i vga || echo "lspci not available or no VGA devices"
+          lspci 2>/dev/null | grep -i nvidia || echo "No NVIDIA devices found"
+          echo ""
+
+      - name: Disk Information
+        run: |
+          echo "=========================================="
+          echo "       DISK INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- Disk Usage ---"
+          df -h
+          echo ""
+
+      - name: Software Environment
+        run: |
+          echo "=========================================="
+          echo "       SOFTWARE ENVIRONMENT"
+          echo "=========================================="
+          echo ""
+          echo "--- Python Version ---"
+          python3 --version 2>/dev/null || python --version 2>/dev/null || echo "Python not found"
+          echo ""
+          echo "--- Pip Version ---"
+          pip3 --version 2>/dev/null || pip --version 2>/dev/null || echo "Pip not found"
+          echo ""
+          echo "--- Git Version ---"
+          git --version
+          echo ""
+
+      - name: Runner Information
+        run: |
+          echo "=========================================="
+          echo "       GITHUB RUNNER INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- Runner OS ---"
+          echo "${{ runner.os }}"
+          echo ""
+          echo "--- Runner Arch ---"
+          echo "${{ runner.arch }}"
+          echo ""
+          echo "--- Runner Name ---"
+          echo "${{ runner.name }}"
+          echo ""
+          echo "--- Workspace ---"
+          echo "${{ github.workspace }}"
+          echo ""
+          echo "--- Actor ---"
+          echo "${{ github.actor }}"
+          echo ""
+          echo "--- Repository Owner ---"
+          echo "${{ github.repository_owner }}"
+          echo ""
+
+  # Fallback environment diagnostics on GitHub-hosted runner
+  environment-info-github-hosted:
+    name: Environment Info (GitHub-Hosted Fallback)
+    needs: check-runner
+    if: needs.check-runner.outputs.use_self_hosted == 'false'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: System Information
+        run: |
+          echo "=========================================="
+          echo "       SYSTEM INFORMATION (GitHub-Hosted)"
+          echo "=========================================="
+          echo ""
+          echo "--- Hostname ---"
+          hostname
+          echo ""
+          echo "--- OS Version ---"
+          cat /etc/os-release
+          echo ""
+          echo "--- Kernel Version ---"
+          uname -a
+          echo ""
+
+      - name: CPU Information
+        run: |
+          echo "=========================================="
+          echo "       CPU INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- CPU Model ---"
+          lscpu | grep "Model name"
+          echo ""
+          echo "--- CPU Cores ---"
+          nproc
+          echo ""
+
+      - name: Memory Information
+        run: |
+          echo "=========================================="
+          echo "       MEMORY INFORMATION"
+          echo "=========================================="
+          echo ""
+          free -h
+          echo ""
+
+      - name: Disk Information
+        run: |
+          echo "=========================================="
+          echo "       DISK INFORMATION"
+          echo "=========================================="
+          echo ""
+          df -h
+          echo ""
+
+      - name: Software Environment
+        run: |
+          echo "=========================================="
+          echo "       SOFTWARE ENVIRONMENT"
+          echo "=========================================="
+          echo ""
+          echo "--- Python Version ---"
+          python3 --version
+          echo ""
+          echo "--- Docker Version ---"
+          docker --version
+          echo ""
+          echo "--- Git Version ---"
+          git --version
+          echo ""
+
+      - name: Runner Information
+        run: |
+          echo "=========================================="
+          echo "       GITHUB RUNNER INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "Runner OS: ${{ runner.os }}"
+          echo "Runner Arch: ${{ runner.arch }}"
+          echo "Runner Name: ${{ runner.name }}"
+          echo ""
+
+  # Build and test job on self-hosted runner (in Docker container)
+  build-self-hosted:
+    name: Build and Test (Self-Hosted)
+    needs: [check-runner, environment-info-self-hosted]
+    # Only run if: using self-hosted AND user is repository owner
+    if: needs.check-runner.outputs.use_self_hosted == 'true' && needs.check-runner.outputs.is_owner == 'true' && !failure() && !cancelled()
+    runs-on: [self-hosted, linux, x64]
+    container:
+      image: ${{ env.DOCKER_IMAGE }}
+      # Credentials for pulling from GitHub Container Registry
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      # Root user for pip install; GPU passthrough via NVIDIA runtime
+      options: --user root --gpus all
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify environment
+        run: |
+          echo "Using Docker image: ${{ env.DOCKER_IMAGE }}"
+          python3 --version
+          pip3 --version
+          echo "PyTorch version:"
+          python3 -c "import torch; print(f'PyTorch {torch.__version__}')" || echo "PyTorch not available"
+          echo "CUDA available:"
+          python3 -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')" || echo "CUDA check failed"
+
+      - name: Install project in editable mode
+        run: |
+          pip3 install --break-system-packages -e ".[dev]"
+
+      - name: Run linting
+        run: |
+          pip3 install --break-system-packages ruff black
+          black --check librobot/
+          ruff check librobot/
+
+      - name: Run tests
+        run: |
+          pip3 install --break-system-packages pytest pytest-cov
+          pytest tests/ -v --tb=short
+
+  # Fallback build and test job on GitHub-hosted runner
+  build-github-hosted:
+    name: Build and Test (GitHub-Hosted Fallback)
+    needs: [check-runner, environment-info-github-hosted]
+    if: needs.check-runner.outputs.use_self_hosted == 'false' && !failure() && !cancelled()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-glx libglib2.0-0
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run linting
+        run: |
+          pip install ruff black
+          black --check librobot/
+          ruff check librobot/
+
+      - name: Run tests
+        run: |
+          pip install pytest pytest-cov
+          pytest tests/ -v --tb=short
