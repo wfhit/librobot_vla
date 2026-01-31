@@ -166,7 +166,7 @@ class AccelerateTrainer(BaseTrainer):
     def _train_step(self, batch: dict[str, Any]) -> dict[str, Any]:
         """Perform single training step with Accelerate."""
         try:
-            import torch
+            import torch  # noqa: F401
 
             if self.accelerator:
                 with self.accelerator.accumulate(self.model):

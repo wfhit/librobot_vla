@@ -741,7 +741,6 @@ class FSDPWrapper:
         """Apply activation checkpointing to transformer layers."""
         try:
             from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import (
-                CheckpointImpl,
                 apply_activation_checkpointing,
                 checkpoint_wrapper,
             )

@@ -223,7 +223,7 @@ class DeepSpeedTrainer(BaseTrainer):
     def _train_step(self, batch: dict[str, Any]) -> dict[str, Any]:
         """Perform training step with DeepSpeed."""
         try:
-            import torch
+            import torch  # noqa: F401
 
             # Move batch to device
             if isinstance(batch, dict):

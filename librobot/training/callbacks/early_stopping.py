@@ -189,7 +189,7 @@ class GradientMonitor(AbstractCallback):
             return
 
         try:
-            import torch
+            import torch  # noqa: F401
 
             total_norm = 0.0
             max_grad = 0.0

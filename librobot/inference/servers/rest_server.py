@@ -31,7 +31,6 @@ class RESTServer(AbstractServer):
     def _setup_app(self):
         """Setup FastAPI application."""
         try:
-            import numpy as np
             from fastapi import FastAPI, HTTPException
             from fastapi.middleware.cors import CORSMiddleware
             from pydantic import BaseModel
