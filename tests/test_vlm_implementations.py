@@ -141,13 +141,19 @@ class TestVLMInterface:
 class TestVLMForward:
     """Test VLM forward pass."""
 
+    # Model-specific image sizes that are compatible with each architecture
+    # - qwen2-vl: needs H,W >= 28 (patch_size=14, temporal_patch_size=2 handled by adding temporal dim)
+    # - florence: needs image divisible by patch_size=4 and window_size=7 (use 224)
+    # - paligemma: default 224
+    # - internvl: default 448, but 224 works with patch_size=14
+    # - llava: default 336
     @pytest.mark.parametrize(
         "model_name,img_size",
         [
-            ("qwen2-vl-2b", 224),
-            ("florence-2-base", 224),
+            ("qwen2-vl-2b", 392),  # 392 = 14 * 28, divisible by patch_size
+            ("florence-2-base", 224),  # Divisible by 4 and 7
             ("paligemma-3b", 224),
-            ("internvl2-2b", 224),
+            ("internvl2-2b", 448),  # Use default size
             ("llava-v1.5-7b", 336),
         ],
     )
@@ -169,6 +175,15 @@ class TestVLMForward:
         assert features.shape[0] == batch_size
         assert features.shape[2] == vlm.get_embedding_dim()
 
+    # Model-specific image sizes
+    MODEL_IMAGE_SIZES = {
+        "qwen2-vl-2b": 392,
+        "florence-2-base": 224,
+        "paligemma-3b": 224,
+        "internvl2-2b": 448,
+        "llava-v1.5-7b": 336,
+    }
+
     @pytest.mark.parametrize(
         "model_name",
         [
@@ -188,7 +203,7 @@ class TestVLMForward:
         # Create dummy inputs
         batch_size = 2
         seq_len = 10
-        img_size = 224 if model_name != "llava-v1.5-7b" else 336
+        img_size = self.MODEL_IMAGE_SIZES.get(model_name, 224)
 
         images = torch.randn(batch_size, 3, img_size, img_size)
         input_ids = torch.randint(0, 1000, (batch_size, seq_len))
@@ -229,7 +244,7 @@ class TestVLMForward:
         # Create dummy inputs
         batch_size = 2
         seq_len = 10
-        img_size = 224 if model_name != "llava-v1.5-7b" else 336
+        img_size = self.MODEL_IMAGE_SIZES.get(model_name, 224)
 
         images = torch.randn(batch_size, 3, img_size, img_size)
         input_ids = torch.randint(0, 1000, (batch_size, seq_len))
@@ -246,6 +261,15 @@ class TestVLMForward:
 
 class TestVLMGeneration:
     """Test VLM generation capabilities."""
+
+    # Model-specific image sizes
+    MODEL_IMAGE_SIZES = {
+        "qwen2-vl-2b": 392,
+        "florence-2-base": 224,
+        "paligemma-3b": 224,
+        "internvl2-2b": 448,
+        "llava-v1.5-7b": 336,
+    }
 
     @pytest.mark.parametrize(
         "model_name",
@@ -265,7 +289,7 @@ class TestVLMGeneration:
 
         # Create dummy inputs
         batch_size = 1
-        img_size = 224 if model_name != "llava-v1.5-7b" else 336
+        img_size = self.MODEL_IMAGE_SIZES.get(model_name, 224)
 
         images = torch.randn(batch_size, 3, img_size, img_size)
         input_ids = torch.randint(0, 1000, (batch_size, 5))
@@ -370,9 +394,11 @@ class TestQwenVLSpecific:
         vlm.eval()
 
         # Create 5D input [B, T, C, H, W]
+        # Note: H,W must be >= 28 (2*patch_size) and T >= 2 (temporal_patch_size)
         batch_size = 1
         temporal = 4
-        images = torch.randn(batch_size, temporal, 3, 224, 224)
+        img_size = 392  # 14 * 28, divisible by patch_size
+        images = torch.randn(batch_size, temporal, 3, img_size, img_size)
 
         with torch.no_grad():
             features = vlm.encode_image(images)
@@ -391,6 +417,7 @@ class TestFlorenceSpecific:
         vlm.eval()
 
         batch_size = 1
+        # Florence uses patch_size=4 and window_size=7, 224 is compatible
         images = torch.randn(batch_size, 3, 224, 224)
         input_ids = torch.randint(0, 1000, (batch_size, 10))
 
