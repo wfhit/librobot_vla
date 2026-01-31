@@ -1,0 +1,376 @@
+name: Self-Hosted Runner
+
+# Workflow for running jobs on self-hosted runners with environment diagnostics
+# Includes fallback to GitHub-hosted runners when self-hosted is unavailable
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      runner_type:
+        description: 'Runner type to use'
+        required: true
+        default: 'self-hosted'
+        type: choice
+        options:
+          - self-hosted
+          - github-hosted
+
+env:
+  PYTHON_VERSION: "3.10"
+
+jobs:
+  # Check if self-hosted runner is available
+  check-runner:
+    name: Check Runner Availability
+    runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      use_self_hosted: ${{ steps.check.outputs.use_self_hosted }}
+    steps:
+      - name: Check runner type
+        id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.runner_type }}" = "self-hosted" ]; then
+              echo "use_self_hosted=true" >> $GITHUB_OUTPUT
+            else
+              echo "use_self_hosted=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            # Default to self-hosted for automated runs
+            echo "use_self_hosted=true" >> $GITHUB_OUTPUT
+          fi
+
+  # Environment diagnostics on self-hosted runner
+  environment-info-self-hosted:
+    name: Environment Info (Self-Hosted)
+    needs: check-runner
+    if: needs.check-runner.outputs.use_self_hosted == 'true'
+    runs-on: [self-hosted, linux, x64]
+    timeout-minutes: 10
+    continue-on-error: true
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: System Information
+        run: |
+          echo "=========================================="
+          echo "       SYSTEM INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- Hostname ---"
+          hostname
+          echo ""
+          echo "--- OS Version ---"
+          cat /etc/os-release 2>/dev/null || echo "OS release info not available"
+          echo ""
+          echo "--- Kernel Version ---"
+          uname -a
+          echo ""
+          echo "--- Architecture ---"
+          uname -m
+          echo ""
+
+      - name: CPU Information
+        run: |
+          echo "=========================================="
+          echo "       CPU INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- CPU Model ---"
+          lscpu | grep "Model name" || cat /proc/cpuinfo | grep "model name" | head -1
+          echo ""
+          echo "--- CPU Cores ---"
+          nproc
+          echo ""
+          echo "--- CPU Details ---"
+          lscpu 2>/dev/null || cat /proc/cpuinfo
+          echo ""
+
+      - name: Memory Information
+        run: |
+          echo "=========================================="
+          echo "       MEMORY INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- Memory Usage ---"
+          free -h
+          echo ""
+          echo "--- Memory Details ---"
+          cat /proc/meminfo | head -20
+          echo ""
+
+      - name: GPU Information
+        run: |
+          echo "=========================================="
+          echo "       GPU INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- NVIDIA GPU (nvidia-smi) ---"
+          if command -v nvidia-smi &> /dev/null; then
+            nvidia-smi
+            echo ""
+            echo "--- CUDA Version ---"
+            nvidia-smi | grep "CUDA Version" || echo "CUDA version not found in nvidia-smi output"
+            echo ""
+            echo "--- GPU Memory ---"
+            nvidia-smi --query-gpu=memory.total,memory.used,memory.free --format=csv
+          else
+            echo "nvidia-smi not available (no NVIDIA GPU or drivers not installed)"
+          fi
+          echo ""
+          echo "--- All GPUs (lspci) ---"
+          lspci 2>/dev/null | grep -i vga || echo "lspci not available"
+          lspci 2>/dev/null | grep -i nvidia || echo "No NVIDIA devices found in lspci"
+          echo ""
+
+      - name: Disk Information
+        run: |
+          echo "=========================================="
+          echo "       DISK INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- Disk Usage ---"
+          df -h
+          echo ""
+          echo "--- Block Devices ---"
+          lsblk 2>/dev/null || echo "lsblk not available"
+          echo ""
+
+      - name: Network Information
+        run: |
+          echo "=========================================="
+          echo "       NETWORK INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- Network Interfaces ---"
+          ip addr 2>/dev/null || ifconfig 2>/dev/null || echo "Network info not available"
+          echo ""
+
+      - name: Software Environment
+        run: |
+          echo "=========================================="
+          echo "       SOFTWARE ENVIRONMENT"
+          echo "=========================================="
+          echo ""
+          echo "--- Python Version ---"
+          python3 --version 2>/dev/null || python --version 2>/dev/null || echo "Python not found"
+          echo ""
+          echo "--- Pip Version ---"
+          pip3 --version 2>/dev/null || pip --version 2>/dev/null || echo "Pip not found"
+          echo ""
+          echo "--- Docker Version ---"
+          docker --version 2>/dev/null || echo "Docker not installed"
+          echo ""
+          echo "--- Git Version ---"
+          git --version
+          echo ""
+          echo "--- CUDA Toolkit ---"
+          nvcc --version 2>/dev/null || echo "CUDA toolkit not installed"
+          echo ""
+
+      - name: Runner Information
+        run: |
+          echo "=========================================="
+          echo "       GITHUB RUNNER INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- Runner OS ---"
+          echo "${{ runner.os }}"
+          echo ""
+          echo "--- Runner Arch ---"
+          echo "${{ runner.arch }}"
+          echo ""
+          echo "--- Runner Name ---"
+          echo "${{ runner.name }}"
+          echo ""
+          echo "--- Workspace ---"
+          echo "${{ github.workspace }}"
+          echo ""
+          echo "--- Environment Variables ---"
+          env | grep -E "^(RUNNER_|GITHUB_)" | sort
+          echo ""
+
+  # Fallback environment diagnostics on GitHub-hosted runner
+  environment-info-github-hosted:
+    name: Environment Info (GitHub-Hosted Fallback)
+    needs: check-runner
+    if: needs.check-runner.outputs.use_self_hosted == 'false'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: System Information
+        run: |
+          echo "=========================================="
+          echo "       SYSTEM INFORMATION (GitHub-Hosted)"
+          echo "=========================================="
+          echo ""
+          echo "--- Hostname ---"
+          hostname
+          echo ""
+          echo "--- OS Version ---"
+          cat /etc/os-release
+          echo ""
+          echo "--- Kernel Version ---"
+          uname -a
+          echo ""
+
+      - name: CPU Information
+        run: |
+          echo "=========================================="
+          echo "       CPU INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "--- CPU Model ---"
+          lscpu | grep "Model name"
+          echo ""
+          echo "--- CPU Cores ---"
+          nproc
+          echo ""
+
+      - name: Memory Information
+        run: |
+          echo "=========================================="
+          echo "       MEMORY INFORMATION"
+          echo "=========================================="
+          echo ""
+          free -h
+          echo ""
+
+      - name: Disk Information
+        run: |
+          echo "=========================================="
+          echo "       DISK INFORMATION"
+          echo "=========================================="
+          echo ""
+          df -h
+          echo ""
+
+      - name: Software Environment
+        run: |
+          echo "=========================================="
+          echo "       SOFTWARE ENVIRONMENT"
+          echo "=========================================="
+          echo ""
+          echo "--- Python Version ---"
+          python3 --version
+          echo ""
+          echo "--- Docker Version ---"
+          docker --version
+          echo ""
+          echo "--- Git Version ---"
+          git --version
+          echo ""
+
+      - name: Runner Information
+        run: |
+          echo "=========================================="
+          echo "       GITHUB RUNNER INFORMATION"
+          echo "=========================================="
+          echo ""
+          echo "Runner OS: ${{ runner.os }}"
+          echo "Runner Arch: ${{ runner.arch }}"
+          echo "Runner Name: ${{ runner.name }}"
+          echo ""
+
+  # Build and test job on self-hosted runner
+  build-self-hosted:
+    name: Build and Test (Self-Hosted)
+    needs: [check-runner, environment-info-self-hosted]
+    if: needs.check-runner.outputs.use_self_hosted == 'true' && !failure() && !cancelled()
+    runs-on: [self-hosted, linux, x64]
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        run: |
+          # Use system Python or pyenv if available
+          if command -v pyenv &> /dev/null; then
+            pyenv install -s ${{ env.PYTHON_VERSION }}
+            pyenv local ${{ env.PYTHON_VERSION }}
+          fi
+          python3 --version
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run linting
+        run: |
+          pip install ruff black
+          black --check librobot/
+          ruff check librobot/
+
+      - name: Run tests
+        run: |
+          pip install pytest pytest-cov
+          pytest tests/ -v --tb=short
+
+  # Fallback build and test job on GitHub-hosted runner
+  build-github-hosted:
+    name: Build and Test (GitHub-Hosted Fallback)
+    needs: [check-runner, environment-info-github-hosted]
+    if: needs.check-runner.outputs.use_self_hosted == 'false' && !failure() && !cancelled()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-glx libglib2.0-0
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run linting
+        run: |
+          pip install ruff black
+          black --check librobot/
+          ruff check librobot/
+
+      - name: Run tests
+        run: |
+          pip install pytest pytest-cov
+          pytest tests/ -v --tb=short
