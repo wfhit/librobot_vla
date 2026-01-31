@@ -4,10 +4,10 @@ Unit tests for model architectures.
 Tests VLA models, transformers, and other neural network architectures.
 """
 
+
 import pytest
 import torch
 import torch.nn as nn
-from unittest.mock import Mock, patch, MagicMock
 
 # TODO: Import actual model classes
 # from librobot.models import VLAModel, TransformerPolicy, DiffusionPolicy

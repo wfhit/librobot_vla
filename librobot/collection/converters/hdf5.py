@@ -90,9 +90,7 @@ class HDF5Converter(AbstractConverter):
                     continue
 
                 if isinstance(value, (list, np.ndarray)):
-                    episode_group.create_dataset(
-                        key, data=np.array(value), compression="gzip"
-                    )
+                    episode_group.create_dataset(key, data=np.array(value), compression="gzip")
 
             # Write metadata as attributes
             for key, value in metadata.items():

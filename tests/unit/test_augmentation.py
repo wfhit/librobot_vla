@@ -5,34 +5,34 @@ Tests all augmentation classes in librobot/data/augmentation.py.
 """
 
 import random
-import pytest
+
 import numpy as np
+import pytest
 
 from librobot.data.augmentation import (
-    AugmentationConfig,
     AbstractAugmentation,
+    ActionMixup,
+    ActionNoise,
+    ActionScaling,
+    AugmentationConfig,
     ColorJitter,
+    Compose,
+    CutOut,
+    GaussianBlur,
+    GaussianNoise,
+    Normalize,
+    OneOf,
+    RandomChoice,
     RandomCrop,
     RandomFlip,
     RandomRotation,
-    GaussianNoise,
-    GaussianBlur,
-    Normalize,
-    CutOut,
-    ActionNoise,
-    ActionScaling,
-    ActionMixup,
-    StateNoise,
     StateDropout,
-    Compose,
-    RandomChoice,
-    OneOf,
+    StateNoise,
     VLADataAugmentation,
     create_augmentation_pipeline,
     get_default_train_augmentations,
     get_strong_augmentations,
 )
-
 
 # ============================================================================
 # Fixtures
@@ -713,10 +713,12 @@ class TestCompose:
 
     def test_multiple_augmentations(self, sample_image):
         """Test compose with multiple augmentations."""
-        compose = Compose([
-            GaussianNoise(p=1.0, std=0.05),
-            RandomFlip(p=1.0),
-        ])
+        compose = Compose(
+            [
+                GaussianNoise(p=1.0, std=0.05),
+                RandomFlip(p=1.0),
+            ]
+        )
         result = compose(sample_image)
 
         assert result.shape == sample_image.shape

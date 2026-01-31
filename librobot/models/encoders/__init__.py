@@ -9,12 +9,7 @@ Provides various encoder implementations including:
 from .base import AbstractEncoder
 
 # Fusion modules
-from .fusion import (
-    ConcatFusion,
-    CrossAttentionFusion,
-    FiLMFusion,
-    GatedFusion,
-)
+from .fusion import ConcatFusion, CrossAttentionFusion, FiLMFusion, GatedFusion
 
 # History encoders
 from .history import (
@@ -23,20 +18,10 @@ from .history import (
     TemporalConvEncoder,
     TransformerHistoryEncoder,
 )
-from .registry import (
-    ENCODER_REGISTRY,
-    create_encoder,
-    get_encoder,
-    list_encoders,
-    register_encoder,
-)
+from .registry import ENCODER_REGISTRY, create_encoder, get_encoder, list_encoders, register_encoder
 
 # State encoders
-from .state import (
-    MLPStateEncoder,
-    TokenizerStateEncoder,
-    TransformerStateEncoder,
-)
+from .state import MLPStateEncoder, TokenizerStateEncoder, TransformerStateEncoder
 
 __all__ = [
     # Base and registry

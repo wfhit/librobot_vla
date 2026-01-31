@@ -4,10 +4,10 @@ Unit tests for training and inference frameworks.
 Tests trainers, evaluators, and inference engines.
 """
 
+from unittest.mock import Mock
+
 import pytest
 import torch
-from unittest.mock import Mock, patch, MagicMock
-from pathlib import Path
 
 # TODO: Import actual framework classes
 # from librobot.training import Trainer, TrainingConfig

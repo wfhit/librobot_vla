@@ -4,16 +4,12 @@ Unit tests for the timer utilities module.
 Tests Timer class, TimerRegistry, and timing utilities.
 """
 
-import time
 import threading
+import time
 
 import pytest
 
-from librobot.utils.timer import (
-    Timer,
-    TimerRegistry,
-    get_global_timer_registry,
-)
+from librobot.utils.timer import Timer, TimerRegistry, get_global_timer_registry
 
 
 class TestTimer:
@@ -306,10 +302,7 @@ class TestTimerRegistryThreadSafety:
             for i in range(num_records):
                 registry.record(f"thread_{thread_id}", float(i))
 
-        threads = [
-            threading.Thread(target=record_timings, args=(i,))
-            for i in range(num_threads)
-        ]
+        threads = [threading.Thread(target=record_timings, args=(i,)) for i in range(num_threads)]
 
         for t in threads:
             t.start()
@@ -331,9 +324,7 @@ class TestTimerRegistryThreadSafety:
                 time.sleep(0.01)
             results.append(True)
 
-        threads = [
-            threading.Thread(target=use_timer) for _ in range(num_threads)
-        ]
+        threads = [threading.Thread(target=use_timer) for _ in range(num_threads)]
 
         for t in threads:
             t.start()

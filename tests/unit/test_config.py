@@ -4,12 +4,12 @@ Unit tests for configuration management.
 Tests configuration loading, validation, merging, and serialization.
 """
 
+from pathlib import Path
+
 import pytest
 import yaml
-from pathlib import Path
-from omegaconf import DictConfig
 
-from librobot.utils.config import Config, load_config, merge_configs, create_config
+from librobot.utils.config import Config, create_config, load_config, merge_configs
 
 
 @pytest.fixture

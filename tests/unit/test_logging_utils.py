@@ -5,28 +5,27 @@ Tests Logger class, logging setup, and convenience functions.
 """
 
 import logging
-from pathlib import Path
 
 import pytest
 
 from librobot.utils.logging import (
+    CRITICAL,
     DEBUG,
+    ERROR,
     INFO,
     WARNING,
-    ERROR,
-    CRITICAL,
     ColoredFormatter,
     Logger,
-    get_logger,
+    critical,
+    debug,
+    error,
+    exception,
     get_default_logger,
+    get_logger,
+    info,
     set_default_logger,
     setup_logging,
-    debug,
-    info,
     warning,
-    error,
-    critical,
-    exception,
 )
 
 

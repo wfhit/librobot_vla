@@ -4,10 +4,9 @@ Unit tests for the data collection module.
 Tests teleoperation interfaces, recording utilities, converters, and DataCollector.
 """
 
-import json
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock
 
 import numpy as np
 import pytest

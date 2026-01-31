@@ -5,10 +5,10 @@ Tests various action head architectures including discrete, continuous,
 and multi-modal action heads.
 """
 
+
 import pytest
 import torch
 import torch.nn as nn
-from unittest.mock import Mock, patch
 
 # TODO: Import actual action head classes
 # from librobot.models.action_heads import (

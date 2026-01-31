@@ -1,8 +1,9 @@
 """Base dataset loader class."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 from pathlib import Path
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
+
 import numpy as np
 
 

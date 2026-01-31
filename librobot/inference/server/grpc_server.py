@@ -78,7 +78,6 @@ class GRPCServer(AbstractServer):
             # TODO: Import generated protobuf code
             # from . import vla_inference_pb2
             # from . import vla_inference_pb2_grpc
-
             # Create server
             self.server = aio.server(futures.ThreadPoolExecutor(max_workers=self.max_workers))
 

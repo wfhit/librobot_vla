@@ -4,10 +4,10 @@ Unit tests for encoder modules.
 Tests vision encoders, language encoders, and multi-modal encoders.
 """
 
+
 import pytest
 import torch
 import torch.nn as nn
-from unittest.mock import Mock, patch, MagicMock
 
 # TODO: Import actual encoder classes
 # from librobot.models.encoders import (

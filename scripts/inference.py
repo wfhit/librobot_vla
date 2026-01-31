@@ -43,24 +43,23 @@ Example usage:
 
 import argparse
 import json
+import signal
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Union
-import signal
+from typing import Any, Optional, Union
 
-import torch
 import numpy as np
+import torch
 from PIL import Image
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from librobot.utils.config import Config
-from librobot.utils.logging import setup_logging, get_logger
-from librobot.utils.checkpoint import Checkpoint
+from librobot.inference import VLAPolicy
+from librobot.inference.server import GRPCServer, RESTServer
 from librobot.models import create_vla as build_model
-from librobot.inference import VLAPolicy, BasePolicy
-from librobot.inference.server import RESTServer, GRPCServer
+from librobot.utils.config import Config
+from librobot.utils.logging import get_logger, setup_logging
 
 
 def parse_args():
@@ -235,7 +234,7 @@ def run_single_inference(
     text: Optional[str],
     state: Optional[np.ndarray],
     device: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Run single inference.
 
@@ -296,7 +295,7 @@ def run_single_inference(
 
 def run_batch_inference(
     model: nn.Module, batch_dir: Path, batch_size: int, device: str, output_file: Optional[str]
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Run batch inference on directory of images.
 

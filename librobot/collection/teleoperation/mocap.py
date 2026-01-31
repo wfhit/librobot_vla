@@ -57,8 +57,7 @@ class MocapTeleop(AbstractTeleop):
             # Placeholder for mocap connection
             # Real implementation would use NatNet SDK or similar
             print(
-                f"Connecting to {self.mocap_type} server at "
-                f"{self.server_ip}:{self.server_port}"
+                f"Connecting to {self.mocap_type} server at " f"{self.server_ip}:{self.server_port}"
             )
             self._is_connected = True
             return True

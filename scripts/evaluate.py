@@ -32,29 +32,27 @@ Example usage:
 """
 
 import argparse
+import glob
 import json
 import sys
-from pathlib import Path
-from typing import Dict, List, Optional, Any
 from datetime import datetime
-import glob
+from pathlib import Path
+from typing import Any, Optional
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-import numpy as np
 from tqdm import tqdm
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from librobot.utils.config import Config
-from librobot.utils.logging import setup_logging, get_logger
-from librobot.utils.checkpoint import Checkpoint
-from librobot.utils.seed import set_seed
-from librobot.models import create_vla as build_model
 from librobot.data.datasets import create_dataset as build_dataset
-from librobot.training.losses.base import AbstractLoss
+from librobot.models import create_vla as build_model
+from librobot.utils.config import Config
+from librobot.utils.logging import get_logger, setup_logging
+from librobot.utils.seed import set_seed
 
 
 def parse_args():
@@ -136,7 +134,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def load_checkpoint_for_eval(checkpoint_path: str, model: nn.Module, device: str) -> Dict[str, Any]:
+def load_checkpoint_for_eval(checkpoint_path: str, model: nn.Module, device: str) -> dict[str, Any]:
     """
     Load checkpoint and prepare model for evaluation.
 
@@ -183,10 +181,10 @@ def load_checkpoint_for_eval(checkpoint_path: str, model: nn.Module, device: str
 
 
 def compute_metrics(
-    predictions: List[Dict[str, Any]],
-    targets: List[Dict[str, Any]],
-    metric_names: Optional[List[str]] = None,
-) -> Dict[str, float]:
+    predictions: list[dict[str, Any]],
+    targets: list[dict[str, Any]],
+    metric_names: Optional[list[str]] = None,
+) -> dict[str, float]:
     """
     Compute evaluation metrics.
 
@@ -247,7 +245,7 @@ def evaluate_model(
     loss_fn: Optional[nn.Module],
     device: str,
     save_predictions: bool = False,
-) -> tuple[Dict[str, float], List[Dict[str, Any]], List[Dict[str, Any]]]:
+) -> tuple[dict[str, float], list[dict[str, Any]], list[dict[str, Any]]]:
     """
     Run evaluation on dataset.
 
@@ -334,9 +332,9 @@ def evaluate_model(
 
 def save_evaluation_results(
     output_dir: Path,
-    metrics: Dict[str, float],
-    predictions: Optional[List[Dict[str, Any]]],
-    checkpoint_metadata: Dict[str, Any],
+    metrics: dict[str, float],
+    predictions: Optional[list[dict[str, Any]]],
+    checkpoint_metadata: dict[str, Any],
     config: Config,
 ):
     """

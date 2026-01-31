@@ -629,9 +629,7 @@ class FSDPWrapper:
                 MixedPrecision,
                 ShardingStrategy,
             )
-            from torch.distributed.fsdp import (
-                FullyShardedDataParallel as FSDP,
-            )
+            from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
             from torch.distributed.fsdp.wrap import (
                 size_based_auto_wrap_policy,
                 transformer_auto_wrap_policy,
@@ -802,13 +800,8 @@ class FSDPWrapper:
             State dictionary
         """
         try:
-            from torch.distributed.fsdp import (
-                FullStateDictConfig,
-                StateDictType,
-            )
-            from torch.distributed.fsdp import (
-                FullyShardedDataParallel as FSDP,
-            )
+            from torch.distributed.fsdp import FullStateDictConfig, StateDictType
+            from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
 
             # Use full state dict for saving
             save_policy = FullStateDictConfig(offload_to_cpu=True, rank0_only=True)
@@ -827,13 +820,8 @@ class FSDPWrapper:
             state_dict: State dictionary to load
         """
         try:
-            from torch.distributed.fsdp import (
-                FullStateDictConfig,
-                StateDictType,
-            )
-            from torch.distributed.fsdp import (
-                FullyShardedDataParallel as FSDP,
-            )
+            from torch.distributed.fsdp import FullStateDictConfig, StateDictType
+            from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
 
             load_policy = FullStateDictConfig(offload_to_cpu=True, rank0_only=True)
             with FSDP.state_dict_type(self.model, StateDictType.FULL_STATE_DICT, load_policy):

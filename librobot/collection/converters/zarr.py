@@ -92,9 +92,7 @@ class ZarrConverter(AbstractConverter):
 
             if isinstance(value, (list, np.ndarray)):
                 data_array = np.array(value)
-                episode_group.create_dataset(
-                    key, data=data_array, chunks=True, compression="gzip"
-                )
+                episode_group.create_dataset(key, data=data_array, chunks=True, compression="gzip")
 
         # Write metadata as attributes
         for key, value in metadata.items():

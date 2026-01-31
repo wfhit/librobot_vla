@@ -1,9 +1,10 @@
 """WebDataset loader for streaming large-scale datasets."""
 
-from typing import Any, Dict, Iterator, List, Optional, Union, Callable
-from pathlib import Path
-import numpy as np
 import io
+from pathlib import Path
+from typing import Any, Callable, Dict, Iterator, List, Optional, Union
+
+import numpy as np
 
 from .base import BaseDatasetLoader
 

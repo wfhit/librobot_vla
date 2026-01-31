@@ -6,14 +6,10 @@ and other components through the registry system.
 """
 
 import threading
+
 import pytest
 
-from librobot.utils.registry import (
-    Registry,
-    GlobalRegistry,
-    RegistryError,
-    build_from_config,
-)
+from librobot.utils.registry import GlobalRegistry, Registry, RegistryError, build_from_config
 
 
 @pytest.fixture
@@ -260,9 +256,7 @@ class TestRegistryThreadSafety:
                 except RegistryError:
                     results.append((thread_id, i, False))
 
-        threads = [
-            threading.Thread(target=register_items, args=(i,)) for i in range(num_threads)
-        ]
+        threads = [threading.Thread(target=register_items, args=(i,)) for i in range(num_threads)]
 
         for t in threads:
             t.start()
@@ -313,9 +307,7 @@ class TestDecoratorRegistration:
         """Test decorator with all registration options."""
         registry = Registry("full_decorator")
 
-        @registry.register(
-            "full_class", aliases=["fc", "full"], force=False, version="2.0"
-        )
+        @registry.register("full_class", aliases=["fc", "full"], force=False, version="2.0")
         class FullClass:
             pass
 
