@@ -64,8 +64,21 @@ python scripts/train.py --config configs/experiment/my_exp.yaml \
 ```bash
 git checkout -b feature/my-feature-name   # Create and switch to new branch
 # ... make changes ...
+./scripts/format.sh                        # Format code before committing
 git push -u origin feature/my-feature-name  # Push and open PR
 ```
+
+### Code Formatting (Required Before Commit)
+
+**Always run the Docker formatter before committing** to avoid CI failures:
+
+```bash
+./scripts/format.sh           # Auto-format all code (isort, black, ruff)
+./scripts/format.sh --check   # Check only, don't modify files
+./scripts/format.sh librobot/ # Format specific directory
+```
+
+This uses Docker to ensure consistent formatting regardless of local tool versions.
 
 ## Developer Commands
 
