@@ -6,11 +6,13 @@ from .grpc_server import GRPCServer, create_grpc_server
 
 def __getattr__(name: str):
     """Lazy import for optional dependencies."""
-    if name in ("RESTServer", "create_server"):
-        from .rest_server import RESTServer, create_server
+    if name == "RESTServer":
+        from .rest_server import RESTServer
 
-        if name == "RESTServer":
-            return RESTServer
+        return RESTServer
+    if name == "create_server":
+        from .rest_server import create_server
+
         return create_server
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
