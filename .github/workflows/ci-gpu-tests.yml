@@ -28,7 +28,12 @@ on:
 jobs:
   gpu-tests:
     name: GPU Tests
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    # Run on push/PR, manual trigger, or after successful Docker build
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: [self-hosted, linux, x64]
     container:
       image: ghcr.io/${{ github.repository_owner }}/librobot-train:${{ inputs.image_tag || 'latest' }}
