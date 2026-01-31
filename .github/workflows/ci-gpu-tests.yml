@@ -1,4 +1,4 @@
-name: Self-Hosted CI
+name: GPU Tests (Self-Hosted)
 
 # GPU tests on self-hosted runner using project's Docker image from ghcr.io
 # The train image is pulled automatically with GITHUB_TOKEN authentication
@@ -14,7 +14,7 @@ on:
   pull_request:
     branches: [main]
   workflow_run:
-    workflows: ["Docker Build"]
+    workflows: ["Docker Build and Push"]
     types: [completed]
     branches: [main]
   workflow_dispatch:

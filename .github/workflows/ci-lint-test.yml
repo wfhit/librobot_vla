@@ -1,4 +1,4 @@
-name: Tests
+name: Lint and Test
 
 # Run tests on push to main/develop and on pull requests
 on:
