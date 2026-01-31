@@ -154,12 +154,14 @@ class WindowAttention(nn.Module):
         q = q * self.scale
         attn = q @ k.transpose(-2, -1)
 
-        # Add relative position bias
-        relative_position_bias = self.relative_position_bias_table[
-            self.relative_position_index.view(-1)
-        ].view(self.window_size**2, self.window_size**2, -1)
-        relative_position_bias = relative_position_bias.permute(2, 0, 1).contiguous()
-        attn = attn + relative_position_bias.unsqueeze(0)
+        # Add relative position bias only when sequence length matches window size
+        # Otherwise, use global attention without positional bias
+        if N == self.window_size**2:
+            relative_position_bias = self.relative_position_bias_table[
+                self.relative_position_index.view(-1)
+            ].view(self.window_size**2, self.window_size**2, -1)
+            relative_position_bias = relative_position_bias.permute(2, 0, 1).contiguous()
+            attn = attn + relative_position_bias.unsqueeze(0)
 
         if mask is not None:
             attn = attn.masked_fill(mask == 0, float("-inf"))
@@ -230,9 +232,11 @@ class DaViTStage(nn.Module):
         )
 
         if downsample:
+            # After 2x2 spatial pooling, channels are multiplied by 4
+            # Then we project to 2x the original dim for the next stage
             self.downsample = nn.Sequential(
-                nn.LayerNorm(dim),
-                nn.Linear(dim, dim * 2, bias=False),
+                nn.LayerNorm(dim * 4),  # Input has 4x channels after pooling
+                nn.Linear(dim * 4, dim * 2, bias=False),
             )
         else:
             self.downsample = None
@@ -593,10 +597,12 @@ class Florence2(AbstractVLM):
 
         # Add task embedding if specified
         if task is not None and self.task_embeddings is not None:
-            task_id = self._config.task_tokens.get(task)
-            if task_id is not None:
+            # Get the index of the task (not the token ID)
+            task_names = list(self._config.task_tokens.keys())
+            if task in task_names:
+                task_idx = task_names.index(task)
                 task_embed = self.task_embeddings(
-                    torch.tensor([task_id], device=encoder_hidden_states.device)
+                    torch.tensor([task_idx], device=encoder_hidden_states.device)
                 )
                 encoder_hidden_states = torch.cat(
                     [task_embed.unsqueeze(0), encoder_hidden_states], dim=1
@@ -665,10 +671,12 @@ class Florence2(AbstractVLM):
 
         # Add task embedding if specified
         if task is not None and self.task_embeddings is not None:
-            task_id = self._config.task_tokens.get(task)
-            if task_id is not None:
+            # Get the index of the task (not the token ID)
+            task_names = list(self._config.task_tokens.keys())
+            if task in task_names:
+                task_idx = task_names.index(task)
                 task_embed = self.task_embeddings(
-                    torch.tensor([task_id], device=encoder_hidden_states.device)
+                    torch.tensor([task_idx], device=encoder_hidden_states.device)
                 )
                 encoder_hidden_states = torch.cat(
                     [task_embed.unsqueeze(0), encoder_hidden_states], dim=1
