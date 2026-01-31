@@ -466,6 +466,10 @@ class PaliGemma(AbstractVLM):
         if images is not None:
             vision_embeds = self.encode_image(images)
 
+            # Get text embeddings if input_ids provided but inputs_embeds not provided
+            if inputs_embeds is None and input_ids is not None:
+                inputs_embeds = self.language_model.embed_tokens(input_ids)
+
             if inputs_embeds is not None:
                 # Prepend vision embeddings to text embeddings
                 inputs_embeds = torch.cat([vision_embeds, inputs_embeds], dim=1)

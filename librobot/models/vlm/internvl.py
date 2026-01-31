@@ -171,9 +171,16 @@ class InternViTEncoder(nn.Module):
         super().__init__()
         self.config = config
 
-        # Patch embedding
+        # Calculate input channels after pixel shuffle inverse
+        # pixel_shuffle.inverse multiplies channels by (factor^2)
+        if config.pixel_shuffle_factor > 1:
+            in_channels = config.vision_in_channels * (config.pixel_shuffle_factor**2)
+        else:
+            in_channels = config.vision_in_channels
+
+        # Patch embedding with adjusted input channels
         self.patch_embed = nn.Conv2d(
-            config.vision_in_channels,
+            in_channels,
             config.vision_hidden_size,
             kernel_size=config.vision_patch_size,
             stride=config.vision_patch_size,
@@ -238,6 +245,8 @@ class InternViTEncoder(nn.Module):
         # Apply pixel shuffle for efficiency if configured
         if self.pixel_shuffle is not None:
             pixel_values = self.pixel_shuffle.inverse(pixel_values)
+            # Update H, W to reflect the shuffled dimensions
+            _, _, H, W = pixel_values.shape
 
         # Patch embedding
         x = self.patch_embed(pixel_values)
@@ -247,7 +256,7 @@ class InternViTEncoder(nn.Module):
         cls_tokens = self.cls_token.expand(B, -1, -1)
         x = torch.cat([cls_tokens, x], dim=1)
 
-        # Add positional embedding
+        # Add positional embedding (use current H, W after any pixel shuffle)
         pos_embed = self.interpolate_pos_encoding(x, H, W)
         x = x + pos_embed
 
@@ -548,6 +557,10 @@ class InternVL2(AbstractVLM):
         # Encode images if provided
         if images is not None:
             vision_embeds = self.encode_image(images)
+
+            # Get text embeddings if input_ids provided but inputs_embeds not provided
+            if inputs_embeds is None and input_ids is not None:
+                inputs_embeds = self.language_model.embed_tokens(input_ids)
 
             if inputs_embeds is not None:
                 # Prepend vision embeddings

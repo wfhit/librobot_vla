@@ -15,6 +15,9 @@ from .adapters.qlora import QLoRAAdapter
 from .base import AbstractVLM
 from .registry import register_vlm
 
+# Constant for masking vision token positions in labels during loss computation
+IGNORE_INDEX = -100
+
 
 @dataclass
 class QwenVLConfig:
@@ -70,19 +73,50 @@ class VisionRotaryEmbedding(nn.Module):
         super().__init__()
         self.dim = dim
         self.theta = theta
-        inv_freq = 1.0 / (theta ** (torch.arange(0, dim, 2).float() / dim))
-        self.register_buffer("inv_freq", inv_freq)
+        # Split dimension into 3 parts for 3D coordinates (t, h, w)
+        # Each coordinate gets dim//3 dimensions, remainder goes to last coord
+        # Ensure each dimension is even for proper RoPE computation
+        base_dim = (dim // 3) // 2 * 2  # Round down to nearest even number
+        remainder = dim - 2 * base_dim
+        # Make remainder even as well
+        remainder = remainder // 2 * 2
+        # Adjust if total doesn't match dim (add to last coordinate)
+        if 2 * base_dim + remainder < dim:
+            remainder += 2
+        self.dims = [base_dim, base_dim, remainder]
+
+        # Create separate inverse frequencies for each coordinate dimension
+        for i, d in enumerate(self.dims):
+            if d > 0:
+                inv_freq = 1.0 / (theta ** (torch.arange(0, d, 2).float() / d))
+            else:
+                inv_freq = torch.zeros(0)
+            self.register_buffer(f"inv_freq_{i}", inv_freq)
 
     def forward(self, coords: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Args:
-            coords: [batch_size, num_patches, 3] (height, width, temporal)
+            coords: [batch_size, num_patches, 3] (temporal, height, width)
         Returns:
-            cos, sin embeddings
+            cos, sin embeddings [B, N, D]
         """
-        # coords: [B, N, 3] -> [B, N, 3, D/2]
-        freqs = torch.einsum("bnd,e->bnde", coords.float(), self.inv_freq)
-        emb = torch.cat([freqs, freqs], dim=-1)
+        B, N, _ = coords.shape
+        device = coords.device
+
+        # Compute rotary embeddings for each coordinate dimension
+        emb_parts = []
+        for i in range(3):
+            d = self.dims[i]
+            if d == 0:
+                continue
+            coord = coords[:, :, i : i + 1]  # [B, N, 1]
+            inv_freq = getattr(self, f"inv_freq_{i}").to(device)  # [d//2]
+            freqs = coord.float() * inv_freq  # [B, N, d//2]
+            emb_part = torch.cat([freqs, freqs], dim=-1)  # [B, N, d]
+            emb_parts.append(emb_part)
+
+        # Concatenate all parts
+        emb = torch.cat(emb_parts, dim=-1)  # [B, N, sum(dims)]
         return emb.cos(), emb.sin()
 
 
@@ -237,6 +271,17 @@ class QwenVisionEncoder(nn.Module):
             pixel_values = pixel_values.unsqueeze(1)  # Add temporal dim
 
         B, T, C, H, W = pixel_values.shape
+
+        # Ensure temporal dimension meets minimum requirement for 3D conv
+        # The temporal kernel size requires T >= temporal_patch_size
+        temporal_patch_size = self.config.vision_temporal_patch_size
+        if T < temporal_patch_size:
+            # Pad temporal dimension by repeating frames
+            repeats_needed = (temporal_patch_size + T - 1) // T  # ceil division
+            pixel_values = pixel_values.repeat(1, repeats_needed, 1, 1, 1)
+            # Trim to exact size needed
+            pixel_values = pixel_values[:, :temporal_patch_size, :, :, :]
+            T = temporal_patch_size
 
         # Rearrange to [B, C, T, H, W] for Conv3D
         pixel_values = rearrange(pixel_values, "b t c h w -> b c t h w")
@@ -597,22 +642,54 @@ class QwenVL(AbstractVLM):
                 - loss: Optional loss if labels provided
                 - past_kvs: Optional KV cache
         """
+        vision_embeds = None
+        vision_seq_len = 0  # Track how many vision tokens were prepended
+        embeddings_were_prepended = False
+
         # Encode images if provided
         if images is not None:
             vision_embeds = self.encode_image(images)
+            B_v, N_v, _ = vision_embeds.shape
+            vision_seq_len = N_v
+
+            # Get text embeddings if input_ids provided but inputs_embeds not provided
+            if inputs_embeds is None and input_ids is not None:
+                inputs_embeds = self.language_model.embed_tokens(input_ids)
 
             if inputs_embeds is not None:
+                # Check if vision tokens will be prepended or replaced
+                if input_ids is not None:
+                    vision_token_mask = input_ids == self._config.vision_token_id
+                    has_vision_tokens = vision_token_mask.any()
+                else:
+                    has_vision_tokens = False
+
                 # Merge vision and text embeddings
-                # This requires special tokens to indicate vision positions
                 inputs_embeds = self._merge_vision_text_embeds(
                     vision_embeds, inputs_embeds, input_ids
                 )
+
+                # If no vision tokens to replace, embeddings were prepended
+                if not has_vision_tokens:
+                    embeddings_were_prepended = True
             else:
                 inputs_embeds = vision_embeds
+                embeddings_were_prepended = True
+
+        # Adjust attention_mask and position_ids if vision embeddings were prepended
+        # Note: When vision embeddings are prepended, the sequence length changes.
+        # The safest approach is to let the model use defaults (None) rather than
+        # trying to adjust provided masks/positions, as the internal attention
+        # layers may expect specific shapes.
+        if embeddings_were_prepended and vision_seq_len > 0:
+            # Clear explicit attention_mask and position_ids to use model defaults
+            # This ensures compatibility with the merged sequence length
+            attention_mask = None
+            position_ids = None
 
         # Forward through language model
         hidden_states, present_kvs = self.language_model(
-            input_ids=input_ids,
+            input_ids=None if inputs_embeds is not None else input_ids,
             attention_mask=attention_mask,
             position_ids=position_ids,
             past_kvs=past_kvs,
@@ -626,12 +703,46 @@ class QwenVL(AbstractVLM):
         # Compute loss if labels provided
         loss = None
         if labels is not None:
+            # Align labels with the actual merged sequence length
+            target_seq_len = logits.size(1)
+            current_seq_len = labels.size(1)
+
+            if vision_embeds is not None:
+                if embeddings_were_prepended and target_seq_len > current_seq_len:
+                    # Vision embeddings were prepended - prepend ignore labels
+                    pad_len = target_seq_len - current_seq_len
+                    pad = torch.full(
+                        (labels.size(0), pad_len),
+                        IGNORE_INDEX,
+                        device=labels.device,
+                        dtype=labels.dtype,
+                    )
+                    labels = torch.cat([pad, labels], dim=1)
+                elif not embeddings_were_prepended and input_ids is not None:
+                    # Vision embeddings replaced existing positions - mask those positions
+                    vision_token_mask = input_ids == self._config.vision_token_id
+                    labels = labels.masked_fill(vision_token_mask, IGNORE_INDEX)
+
+            # Defensive alignment if lengths still mismatch
+            if labels.size(1) != target_seq_len:
+                if labels.size(1) > target_seq_len:
+                    labels = labels[:, -target_seq_len:]
+                else:
+                    pad_len = target_seq_len - labels.size(1)
+                    pad = torch.full(
+                        (labels.size(0), pad_len),
+                        IGNORE_INDEX,
+                        device=labels.device,
+                        dtype=labels.dtype,
+                    )
+                    labels = torch.cat([pad, labels], dim=1)
+
             shift_logits = logits[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
             loss = F.cross_entropy(
                 shift_logits.view(-1, shift_logits.size(-1)),
                 shift_labels.view(-1),
-                ignore_index=-100,
+                ignore_index=IGNORE_INDEX,
             )
 
         output = {
@@ -655,15 +766,20 @@ class QwenVL(AbstractVLM):
     ) -> torch.Tensor:
         """Merge vision and text embeddings based on special tokens."""
         if input_ids is None:
-            # Simple concatenation
+            # Simple concatenation - prepend vision embeddings
+            return torch.cat([vision_embeds, text_embeds], dim=1)
+
+        # Check if there are vision token positions to replace
+        vision_token_mask = input_ids == self._config.vision_token_id
+        has_vision_tokens = vision_token_mask.any()
+
+        if not has_vision_tokens:
+            # No vision tokens in input_ids, prepend vision embeddings
             return torch.cat([vision_embeds, text_embeds], dim=1)
 
         # Replace vision token positions with vision embeddings
         B, L, D = text_embeds.shape
         _, N, _ = vision_embeds.shape
-
-        # Find vision token positions
-        vision_token_mask = input_ids == self._config.vision_token_id
 
         # Create output embeddings
         output_embeds = text_embeds.clone()
