@@ -76,6 +76,9 @@ class FlorenceConfig:
                 "region_to_description": 51209,
             }
 
+        # Create task-to-index mapping for O(1) lookups
+        self.task_to_index = {task: idx for idx, task in enumerate(self.task_tokens.keys())}
+
 
 class PatchEmbed(nn.Module):
     """Image to Patch Embedding."""
@@ -597,10 +600,9 @@ class Florence2(AbstractVLM):
 
         # Add task embedding if specified
         if task is not None and self.task_embeddings is not None:
-            # Get the index of the task (not the token ID)
-            task_names = list(self._config.task_tokens.keys())
-            if task in task_names:
-                task_idx = task_names.index(task)
+            # Use precomputed task-to-index mapping for O(1) lookup
+            task_idx = self._config.task_to_index.get(task)
+            if task_idx is not None:
                 task_embed = self.task_embeddings(
                     torch.tensor([task_idx], device=encoder_hidden_states.device)
                 )
@@ -671,10 +673,9 @@ class Florence2(AbstractVLM):
 
         # Add task embedding if specified
         if task is not None and self.task_embeddings is not None:
-            # Get the index of the task (not the token ID)
-            task_names = list(self._config.task_tokens.keys())
-            if task in task_names:
-                task_idx = task_names.index(task)
+            # Use precomputed task-to-index mapping for O(1) lookup
+            task_idx = self._config.task_to_index.get(task)
+            if task_idx is not None:
                 task_embed = self.task_embeddings(
                     torch.tensor([task_idx], device=encoder_hidden_states.device)
                 )

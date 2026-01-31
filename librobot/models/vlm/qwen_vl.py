@@ -15,6 +15,9 @@ from .adapters.qlora import QLoRAAdapter
 from .base import AbstractVLM
 from .registry import register_vlm
 
+# Constant for masking vision token positions in labels during loss computation
+IGNORE_INDEX = -100
+
 
 @dataclass
 class QwenVLConfig:
@@ -93,7 +96,7 @@ class VisionRotaryEmbedding(nn.Module):
         # Compute rotary embeddings for each coordinate dimension
         emb_parts = []
         for i in range(3):
-            coord = coords[:, :, i:i+1]  # [B, N, 1]
+            coord = coords[:, :, i : i + 1]  # [B, N, 1]
             inv_freq = getattr(self, f"inv_freq_{i}").to(device)  # [d//2]
             freqs = coord.float() * inv_freq  # [B, N, d//2]
             emb_part = torch.cat([freqs, freqs], dim=-1)  # [B, N, d]
@@ -261,8 +264,8 @@ class QwenVisionEncoder(nn.Module):
         temporal_patch_size = self.config.vision_temporal_patch_size
         if T < temporal_patch_size:
             # Pad temporal dimension by repeating frames
-            repeat_factor = (temporal_patch_size + T - 1) // T  # ceil division
-            pixel_values = pixel_values.repeat(1, repeat_factor, 1, 1, 1)
+            repeats_needed = (temporal_patch_size + T - 1) // T  # ceil division
+            pixel_values = pixel_values.repeat(1, repeats_needed, 1, 1, 1)
             # Trim to exact size needed
             pixel_values = pixel_values[:, :temporal_patch_size, :, :, :]
             T = temporal_patch_size
@@ -627,7 +630,7 @@ class QwenVL(AbstractVLM):
                 - past_kvs: Optional KV cache
         """
         vision_embeds = None
-        
+
         # Encode images if provided
         if images is not None:
             vision_embeds = self.encode_image(images)
@@ -664,15 +667,17 @@ class QwenVL(AbstractVLM):
             # Adjust labels for vision tokens if images were provided
             if vision_embeds is not None:
                 B, N, _ = vision_embeds.shape
-                vision_labels = torch.full((B, N), -100, device=labels.device, dtype=labels.dtype)
+                vision_labels = torch.full(
+                    (B, N), IGNORE_INDEX, device=labels.device, dtype=labels.dtype
+                )
                 labels = torch.cat([vision_labels, labels], dim=1)
-            
+
             shift_logits = logits[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
             loss = F.cross_entropy(
                 shift_logits.view(-1, shift_logits.size(-1)),
                 shift_labels.view(-1),
-                ignore_index=-100,
+                ignore_index=IGNORE_INDEX,
             )
 
         output = {
