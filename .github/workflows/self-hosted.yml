@@ -2,6 +2,7 @@ name: Self-Hosted Runner
 
 # Workflow for running jobs on self-hosted runners with environment diagnostics
 # Includes fallback to GitHub-hosted runners when self-hosted is unavailable
+# SECURITY: Self-hosted runner jobs are restricted to repository owner only
 on:
   push:
     branches:
@@ -24,19 +25,33 @@ on:
 
 env:
   PYTHON_VERSION: "3.10"
+  # Docker image for self-hosted runner jobs
+  DOCKER_IMAGE: "python:3.10-slim"
 
 jobs:
-  # Check if self-hosted runner is available
+  # Check if self-hosted runner is available and if user is authorized
   check-runner:
     name: Check Runner Availability
     runs-on: ubuntu-latest
     permissions: {}
     outputs:
       use_self_hosted: ${{ steps.check.outputs.use_self_hosted }}
+      is_owner: ${{ steps.check.outputs.is_owner }}
     steps:
-      - name: Check runner type
+      - name: Check runner type and authorization
         id: check
         run: |
+          # Check if the actor is the repository owner
+          if [ "${{ github.actor }}" = "${{ github.repository_owner }}" ]; then
+            echo "is_owner=true" >> $GITHUB_OUTPUT
+            echo "✅ User ${{ github.actor }} is authorized (repository owner)"
+          else
+            echo "is_owner=false" >> $GITHUB_OUTPUT
+            echo "⚠️ User ${{ github.actor }} is NOT the repository owner (${{ github.repository_owner }})"
+            echo "Self-hosted runner access is restricted to repository owner only"
+          fi
+          
+          # Determine runner type
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             if [ "${{ github.event.inputs.runner_type }}" = "self-hosted" ]; then
               echo "use_self_hosted=true" >> $GITHUB_OUTPUT
@@ -44,16 +59,46 @@ jobs:
               echo "use_self_hosted=false" >> $GITHUB_OUTPUT
             fi
           else
-            # Default to self-hosted for automated runs
+            # Default to self-hosted for automated runs (if owner)
             echo "use_self_hosted=true" >> $GITHUB_OUTPUT
           fi
 
-  # Environment diagnostics on self-hosted runner
+  # Notify unauthorized users that they cannot use the self-hosted runner
+  unauthorized-notice:
+    name: Unauthorized Access Notice
+    needs: check-runner
+    if: needs.check-runner.outputs.use_self_hosted == 'true' && needs.check-runner.outputs.is_owner == 'false'
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Access Denied
+        run: |
+          echo "=============================================="
+          echo "⛔ ACCESS DENIED: Self-Hosted Runner"
+          echo "=============================================="
+          echo ""
+          echo "User: ${{ github.actor }}"
+          echo "Repository Owner: ${{ github.repository_owner }}"
+          echo ""
+          echo "Self-hosted runner access is restricted to the"
+          echo "repository owner only for security reasons."
+          echo ""
+          echo "If you need to run CI/CD jobs, the workflow will"
+          echo "automatically fall back to GitHub-hosted runners."
+          echo "=============================================="
+          exit 1
+
+  # Environment diagnostics on self-hosted runner (in Docker container)
   environment-info-self-hosted:
     name: Environment Info (Self-Hosted)
     needs: check-runner
-    if: needs.check-runner.outputs.use_self_hosted == 'true'
+    # Only run if: using self-hosted AND user is repository owner
+    if: needs.check-runner.outputs.use_self_hosted == 'true' && needs.check-runner.outputs.is_owner == 'true'
     runs-on: [self-hosted, linux, x64]
+    container:
+      image: python:3.10-slim
+      # Root user required for apt-get package installation
+      options: --user root
     timeout-minutes: 10
     continue-on-error: true
     permissions:
@@ -63,11 +108,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install diagnostic tools
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends \
+            procps \
+            lsb-release \
+            pciutils \
+            iproute2 \
+            && rm -rf /var/lib/apt/lists/*
+
       - name: System Information
         run: |
           echo "=========================================="
-          echo "       SYSTEM INFORMATION"
+          echo "       SYSTEM INFORMATION (Docker Container)"
           echo "=========================================="
+          echo ""
+          echo "--- Container Image ---"
+          echo "${{ env.DOCKER_IMAGE }}"
           echo ""
           echo "--- Hostname ---"
           hostname
@@ -88,14 +145,11 @@ jobs:
           echo "       CPU INFORMATION"
           echo "=========================================="
           echo ""
-          echo "--- CPU Model ---"
-          lscpu | grep "Model name" || cat /proc/cpuinfo | grep "model name" | head -1
-          echo ""
           echo "--- CPU Cores ---"
           nproc
           echo ""
           echo "--- CPU Details ---"
-          lscpu 2>/dev/null || cat /proc/cpuinfo
+          cat /proc/cpuinfo | grep "model name" | head -1 || echo "CPU info not available"
           echo ""
 
       - name: Memory Information
@@ -105,10 +159,7 @@ jobs:
           echo "=========================================="
           echo ""
           echo "--- Memory Usage ---"
-          free -h
-          echo ""
-          echo "--- Memory Details ---"
-          cat /proc/meminfo | head -20
+          free -h 2>/dev/null || cat /proc/meminfo | head -5
           echo ""
 
       - name: GPU Information
@@ -120,19 +171,14 @@ jobs:
           echo "--- NVIDIA GPU (nvidia-smi) ---"
           if command -v nvidia-smi &> /dev/null; then
             nvidia-smi
-            echo ""
-            echo "--- CUDA Version ---"
-            nvidia-smi | grep "CUDA Version" || echo "CUDA version not found in nvidia-smi output"
-            echo ""
-            echo "--- GPU Memory ---"
-            nvidia-smi --query-gpu=memory.total,memory.used,memory.free --format=csv
           else
-            echo "nvidia-smi not available (no NVIDIA GPU or drivers not installed)"
+            echo "nvidia-smi not available in container"
+            echo "(GPU passthrough requires nvidia-docker runtime)"
           fi
           echo ""
           echo "--- All GPUs (lspci) ---"
-          lspci 2>/dev/null | grep -i vga || echo "lspci not available"
-          lspci 2>/dev/null | grep -i nvidia || echo "No NVIDIA devices found in lspci"
+          lspci 2>/dev/null | grep -i vga || echo "lspci not available or no VGA devices"
+          lspci 2>/dev/null | grep -i nvidia || echo "No NVIDIA devices found"
           echo ""
 
       - name: Disk Information
@@ -143,19 +189,6 @@ jobs:
           echo ""
           echo "--- Disk Usage ---"
           df -h
-          echo ""
-          echo "--- Block Devices ---"
-          lsblk 2>/dev/null || echo "lsblk not available"
-          echo ""
-
-      - name: Network Information
-        run: |
-          echo "=========================================="
-          echo "       NETWORK INFORMATION"
-          echo "=========================================="
-          echo ""
-          echo "--- Network Interfaces ---"
-          ip addr 2>/dev/null || ifconfig 2>/dev/null || echo "Network info not available"
           echo ""
 
       - name: Software Environment
@@ -170,14 +203,8 @@ jobs:
           echo "--- Pip Version ---"
           pip3 --version 2>/dev/null || pip --version 2>/dev/null || echo "Pip not found"
           echo ""
-          echo "--- Docker Version ---"
-          docker --version 2>/dev/null || echo "Docker not installed"
-          echo ""
           echo "--- Git Version ---"
           git --version
-          echo ""
-          echo "--- CUDA Toolkit ---"
-          nvcc --version 2>/dev/null || echo "CUDA toolkit not installed"
           echo ""
 
       - name: Runner Information
@@ -198,8 +225,11 @@ jobs:
           echo "--- Workspace ---"
           echo "${{ github.workspace }}"
           echo ""
-          echo "--- Environment Variables ---"
-          env | grep -E "^(RUNNER_|GITHUB_)" | sort
+          echo "--- Actor ---"
+          echo "${{ github.actor }}"
+          echo ""
+          echo "--- Repository Owner ---"
+          echo "${{ github.repository_owner }}"
           echo ""
 
   # Fallback environment diagnostics on GitHub-hosted runner
@@ -289,12 +319,17 @@ jobs:
           echo "Runner Name: ${{ runner.name }}"
           echo ""
 
-  # Build and test job on self-hosted runner
+  # Build and test job on self-hosted runner (in Docker container)
   build-self-hosted:
     name: Build and Test (Self-Hosted)
     needs: [check-runner, environment-info-self-hosted]
-    if: needs.check-runner.outputs.use_self_hosted == 'true' && !failure() && !cancelled()
+    # Only run if: using self-hosted AND user is repository owner
+    if: needs.check-runner.outputs.use_self_hosted == 'true' && needs.check-runner.outputs.is_owner == 'true' && !failure() && !cancelled()
     runs-on: [self-hosted, linux, x64]
+    container:
+      image: python:3.10-slim
+      # Root user required for apt-get package installation
+      options: --user root
     timeout-minutes: 30
     permissions:
       contents: read
@@ -303,13 +338,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install system dependencies
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends \
+            git \
+            build-essential \
+            libgl1-mesa-glx \
+            libglib2.0-0 \
+            && rm -rf /var/lib/apt/lists/*
+
       - name: Set up Python
         run: |
-          # Use system Python or pyenv if available
-          if command -v pyenv &> /dev/null; then
-            pyenv install -s ${{ env.PYTHON_VERSION }}
-            pyenv local ${{ env.PYTHON_VERSION }}
-          fi
           python3 --version
 
       - name: Install dependencies
