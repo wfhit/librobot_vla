@@ -11,7 +11,7 @@ Provides inference infrastructure including:
 
 # Import submodules
 from . import buffers, clients, optimization, policy, servers
-from .action_buffer import ActionBuffer, AdaptiveActionBuffer, TemporalEnsembleBuffer
+from .action_buffer import AdaptiveActionBuffer, TemporalEnsembleBuffer
 from .buffers import ActionBuffer, ActionSmoothingBuffer, HistoryBuffer
 from .clients import GRPCClient, RESTClient, WebSocketClient
 from .kv_cache import KVCache, MultiHeadKVCache, StaticKVCache

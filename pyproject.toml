@@ -153,9 +153,16 @@ exclude = '''
 [tool.ruff]
 line-length = 100
 target-version = "py39"
-select = ["E", "F", "I", "N", "W", "UP"]
-ignore = ["E501", "N812"]
 exclude = [".git", ".venv", "build", "dist"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+# ML-standard exceptions:
+# N801: xArmRobot class naming (product name)
+# N802: gRPC method names (OnNext, etc.)
+# N806: Uppercase variables for tensor dimensions (B, N, C, H, W)
+# N817: DDP, FSDP acronym imports
+ignore = ["E501", "N801", "N802", "N806", "N812", "N817"]
 
 [tool.mypy]
 python_version = "3.9"

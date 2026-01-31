@@ -26,7 +26,7 @@ class ModelQuantizer:
     def quantize(self) -> Any:
         """Quantize the model."""
         try:
-            import torch
+            import torch  # noqa: F401
 
             if self.quantization_type == "dynamic":
                 return self._dynamic_quantize()

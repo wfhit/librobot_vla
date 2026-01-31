@@ -69,27 +69,31 @@ git push -u origin feature/my-feature-name  # Push and open PR
 
 ## Developer Commands
 
+**Prefer Docker** for development tasks - no local Python environment setup required.
+
 ```bash
-# Install
+# Format code (PREFERRED - use Docker)
+./scripts/format.sh           # Auto-format with isort, black, ruff
+
+# Lint check (use Docker)
+docker run --rm -v "$(pwd)":/app -w /app --entrypoint ruff librobot-formatter check --config pyproject.toml librobot/ tests/
+
+# Test (use Docker)
+docker run --rm -v "$(pwd)":/app -w /app ghcr.io/wfhit/librobot-train:latest pytest tests/ -m "not gpu"
+
+# Alternative: Local install (if Docker not available)
 pip install -e ".[dev]"       # Development (includes pytest, black, ruff, mypy)
 pip install -e ".[train]"     # Training (accelerate, deepspeed, wandb)
 pip install -e ".[all]"       # Everything
-
-# Test
 make test                     # All tests
-make test-unit               # Unit tests only
 pytest tests/ -m "not slow"  # Skip slow tests
-pytest tests/ -m "not gpu"   # Skip GPU tests
-
-# Code quality
-make lint                    # ruff check
-make format                  # black + ruff fix
-make type-check              # mypy
 
 # Train
 python scripts/train.py --config configs/experiment/default.yaml
 torchrun --nproc_per_node=4 scripts/train.py  # Distributed
 ```
+
+**Note:** Always run `./scripts/format.sh` before committing to ensure code passes CI lint checks.
 
 ## Testing Conventions
 

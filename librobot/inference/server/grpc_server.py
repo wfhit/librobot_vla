@@ -72,7 +72,7 @@ class GRPCServer(AbstractServer):
         logger.info(f"Starting gRPC server on {self.host}:{self.port}")
 
         try:
-            import grpc
+            import grpc  # noqa: F401
             from grpc import aio
 
             # TODO: Import generated protobuf code

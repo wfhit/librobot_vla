@@ -365,7 +365,7 @@ class LIBEROBenchmark(AbstractBenchmark):
     def setup(self) -> None:
         """Setup LIBERO environment."""
         try:
-            import libero
+            import libero  # noqa: F401
 
             logger.info(f"LIBERO suite '{self.suite}' loaded")
         except ImportError:
