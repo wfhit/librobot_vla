@@ -2,10 +2,15 @@
 # Extends base image with training-specific packages and tools
 # Optimized for RTX 5090 + AMD 9950X or multi-GPU (4x L20) setups
 
-FROM librobot-base:latest
+# Default to local base image; override via --build-arg for CI
+ARG BASE_IMAGE=librobot-base:latest
+FROM ${BASE_IMAGE}
 
+# OCI labels for GitHub Container Registry
+LABEL org.opencontainers.image.source="https://github.com/wfhit/librobot_vla"
+LABEL org.opencontainers.image.description="Training image for LibroBot VLA with full dependencies"
+LABEL org.opencontainers.image.licenses="MIT"
 LABEL maintainer="LibroBot Team"
-LABEL description="Training image for LibroBot VLA with full dependencies"
 
 USER root
 

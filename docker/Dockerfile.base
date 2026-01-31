@@ -5,8 +5,12 @@
 
 FROM nvidia/cuda:13.0.0-cudnn-devel-ubuntu24.04
 
+# OCI labels for GitHub Container Registry
+# These enable automatic repository linking and permission inheritance
+LABEL org.opencontainers.image.source="https://github.com/wfhit/librobot_vla"
+LABEL org.opencontainers.image.description="Base image for LibroBot VLA with CUDA 13.0 and PyTorch 2.9"
+LABEL org.opencontainers.image.licenses="MIT"
 LABEL maintainer="LibroBot Team"
-LABEL description="Base image for LibroBot VLA with CUDA 13.0 and PyTorch 2.9"
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
