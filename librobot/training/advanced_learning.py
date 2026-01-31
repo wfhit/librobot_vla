@@ -85,7 +85,6 @@ class RLPolicyWrapper:
     def _setup_heads(self) -> None:
         """Setup value and policy heads for RL."""
         try:
-            import torch
             import torch.nn as nn
 
             # Get embedding dimension from VLA
@@ -165,7 +164,6 @@ class RLPolicyWrapper:
         """
         try:
             from stable_baselines3 import DDPG, PPO, SAC, TD3
-            from stable_baselines3.common.callbacks import BaseCallback
 
             # Select algorithm
             algo_map = {
@@ -1115,7 +1113,7 @@ class EdgeDeployer:
     def _tensorrt_optimize(self) -> Any:
         """Apply TensorRT optimization for NVIDIA devices."""
         try:
-            import torch_tensorrt
+            import torch_tensorrt  # noqa: F401
 
             # Compile with TensorRT
             # Placeholder for actual TensorRT optimization

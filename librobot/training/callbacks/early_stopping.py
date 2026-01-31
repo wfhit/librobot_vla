@@ -188,27 +188,21 @@ class GradientMonitor(AbstractCallback):
         if self.trainer is None:
             return
 
-        try:
-            import torch
+        total_norm = 0.0
+        max_grad = 0.0
+        num_params = 0
 
-            total_norm = 0.0
-            max_grad = 0.0
-            num_params = 0
+        for p in self.trainer.model.parameters():
+            if p.grad is not None:
+                param_norm = p.grad.data.norm(2)
+                total_norm += param_norm.item() ** 2
+                max_grad = max(max_grad, p.grad.data.abs().max().item())
+                num_params += 1
 
-            for p in self.trainer.model.parameters():
-                if p.grad is not None:
-                    param_norm = p.grad.data.norm(2)
-                    total_norm += param_norm.item() ** 2
-                    max_grad = max(max_grad, p.grad.data.abs().max().item())
-                    num_params += 1
+        total_norm = total_norm**0.5
 
-            total_norm = total_norm**0.5
-
-            if self.verbose:
-                print(f"Grad norm: {total_norm:.4f}, Max: {max_grad:.4f}")
-
-        except ImportError:
-            pass
+        if self.verbose:
+            print(f"Grad norm: {total_norm:.4f}, Max: {max_grad:.4f}")
 
 
 __all__ = [

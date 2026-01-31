@@ -175,8 +175,8 @@ class CustomVLA(AbstractVLA):
     def _build_default_fusion(self) -> nn.Module:
         """Build default fusion module for separate encoders."""
         return nn.Sequential(
-            nn.Linear(hidden_dim * 2, hidden_dim),  # Assuming vision + text
-            nn.LayerNorm(hidden_dim),
+            nn.Linear(self.hidden_dim * 2, self.hidden_dim),  # Assuming vision + text
+            nn.LayerNorm(self.hidden_dim),
             nn.GELU(),
         )
 
