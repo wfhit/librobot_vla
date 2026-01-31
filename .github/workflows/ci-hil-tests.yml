@@ -1,7 +1,7 @@
-name: GPU Tests (Self-Hosted)
+name: HIL Tests (Hardware-in-the-Loop)
 
-# GPU tests on self-hosted runner using project's Docker image from ghcr.io
-# The train image is pulled automatically with GITHUB_TOKEN authentication
+# Hardware-in-the-loop tests on self-hosted runner with GPU
+# Uses project's Docker image from ghcr.io for consistent environment
 #
 # Prerequisites:
 #   1. Self-hosted runner with labels: self-hosted, linux, x64
@@ -26,8 +26,8 @@ on:
         type: string
 
 jobs:
-  gpu-tests:
-    name: GPU Tests
+  hil-tests:
+    name: HIL Tests
     # Run on push/PR, manual trigger, or after successful Docker build
     if: |
       github.event_name == 'push' ||
