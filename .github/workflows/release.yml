@@ -180,7 +180,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log in to Docker Hub
-        if: secrets.DOCKERHUB_USERNAME != ''
+        if: vars.DOCKERHUB_ENABLED == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -196,7 +196,6 @@ jobs:
         with:
           images: |
             ghcr.io/${{ github.repository_owner }}/librobot-${{ matrix.image }}
-            ${{ secrets.DOCKERHUB_USERNAME != '' && format('{0}/librobot-{1}', secrets.DOCKERHUB_USERNAME, matrix.image) || '' }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
