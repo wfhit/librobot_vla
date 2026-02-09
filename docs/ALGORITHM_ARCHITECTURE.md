@@ -7,7 +7,7 @@
 - [Overview](#overview)
 - [System Architecture](#system-architecture)
 - [Perception System](#perception-system)
-  - [Surround-View Cameras (OAK FPV)](#surround-view-cameras-oak-fpv)
+  - [Surround-View & V-SLAM Camera (OAK FFC 4P)](#surround-view--v-slam-camera-oak-ffc-4p)
   - [Depth Camera (ZED 2)](#depth-camera-zed-2)
 - [Vision-Language Model (Qwen3-VL)](#vision-language-model-qwen3-vl)
 - [Input Representation](#input-representation)
@@ -23,10 +23,10 @@
 
 ## Overview
 
-This document describes the algorithm architecture for applying Vision-Language-Action (VLA) models to autonomous wheel loader operation. The system combines:
+This document describes the algorithm architecture for applying Vision-Language-Action (VLA) models to **autonomous wheel loader operation**. This architecture is designed specifically for wheel loaders and tailored to their unique perception needs, action space, and operational environment. The system combines:
 
 - **Qwen3-VL** as the vision-language backbone for multimodal understanding
-- **Multi-camera surround view** (4× OAK FPV) plus a **ZED 2 stereo camera** (depth + RGB) for comprehensive scene perception
+- **OAK FFC 4P** (a single board with 4 camera modules) for surround-view RGB and on-device Visual SLAM (V-SLAM), plus a **ZED 2 stereo camera** (depth + RGB) for close-range depth perception
 - **Language commands** and **robot state** as additional inputs
 - A **LingVLA-inspired flow matching action head** that takes token features from Qwen3 and robot state to generate smooth trajectories
 - **Trajectory output**: 7 degrees of freedom for the wheel loader, predicted at 10 Hz with a 16-step horizon
@@ -38,9 +38,9 @@ This document describes the algorithm architecture for applying Vision-Language-
                           └──────────────────────────────────────────┘
 
   ┌───────────────┐   ┌───────────┐   ┌──────────────┐
-  │ 4× OAK FPV   │   │  ZED 2    │   │  Language     │
-  │ (surround     │   │ (depth +  │   │  Command      │
-  │  RGB views)   │   │  RGB)     │   │  (text)       │
+  │ OAK FFC 4P   │   │  ZED 2    │   │  Language     │
+  │ (surround RGB │   │ (depth +  │   │  Command      │
+  │  + V-SLAM)   │   │  RGB)     │   │  (text)       │
   └──────┬────────┘   └─────┬─────┘   └──────┬────────┘
          │                  │                 │
          ▼                  ▼                 ▼
@@ -92,7 +92,7 @@ The algorithm follows a three-stage pipeline that maps raw sensor data and langu
 
 | Stage | Component | Role |
 |-------|-----------|------|
-| **1. Perception** | 4× OAK FPV + ZED 2 | Multi-view RGB images and depth map |
+| **1. Perception** | OAK FFC 4P + ZED 2 | Surround-view RGB, V-SLAM localization, and depth |
 | **2. Understanding** | Qwen3-VL | Fuse vision and language into token embeddings |
 | **3. Action** | Flow Matching Head | Generate 7-DOF trajectory from tokens + robot state |
 
@@ -110,9 +110,11 @@ Robot State  ──────────────▶  State Tokenizer  ─
 
 ## Perception System
 
-### Surround-View Cameras (OAK FPV)
+### Surround-View & V-SLAM Camera (OAK FFC 4P)
 
-Four **Luxonis OAK FPV** (Fixed-Focus PoE) cameras are mounted around the wheel loader to provide a 360° surround view:
+A single **Luxonis OAK FFC 4P** board drives all four surround-view cameras. The OAK FFC 4P connects up to 4 camera modules via flat flexible cables (FFC) and includes an on-device Intel Movidius VPU, which enables real-time **Visual SLAM (V-SLAM)** in addition to image capture. This provides both surround-view imagery for the VLA model and ego-motion estimation for the wheel loader without requiring a separate SLAM system.
+
+**Camera module mounting positions:**
 
 | Camera | Mounting Position | Field of View | Purpose |
 |--------|------------------|---------------|---------|
@@ -125,6 +127,16 @@ Four **Luxonis OAK FPV** (Fixed-Focus PoE) cameras are mounted around the wheel 
 - **Frame rate**: 30 FPS (captured), 10 FPS (processed by VLA)
 - **Output**: 4 × RGB images per timestep
 
+**V-SLAM functionality:**
+
+The OAK FFC 4P runs Visual SLAM on-device using stereo pairs from its camera modules. This produces:
+
+- **6-DOF pose estimate**: Real-time position and orientation of the wheel loader in a local map frame
+- **Sparse 3D map**: Feature-based landmark map of the surrounding environment
+- **Odometry**: Ego-motion estimation independent of wheel encoders or GPS, robust in GPS-denied areas (e.g., indoor stockpiles, tunnels)
+
+The V-SLAM pose output is fused into the robot state vector (see [Robot State](#robot-state)), giving the VLA model awareness of the wheel loader's position and motion history.
+
 ### Depth Camera (ZED 2)
 
 A **Stereolabs ZED 2** stereo camera is mounted at the front of the cab to provide high-quality depth perception for close-range operations:
@@ -134,7 +146,7 @@ A **Stereolabs ZED 2** stereo camera is mounted at the front of the cab to provi
 - **Use case**: Precise bucket positioning, pile distance estimation, obstacle height measurement
 - **Depth encoding**: Depth map is normalized and concatenated as an additional channel to the front RGB view, forming a 4-channel (RGBD) input to the vision encoder
 
-> **Total visual input**: 5 camera views (4× OAK FPV RGB + 1× ZED 2 RGB-D) are processed by the Qwen3-VL vision encoder. The depth channel from ZED 2 provides geometric grounding that pure RGB lacks.
+> **Total visual input**: 5 camera views (4× OAK FFC 4P RGB + 1× ZED 2 RGB-D) are processed by the Qwen3-VL vision encoder. The depth channel from ZED 2 provides geometric grounding that pure RGB lacks. Additionally, the OAK FFC 4P provides V-SLAM pose data that is fed into the robot state.
 
 ---
 
@@ -459,7 +471,7 @@ while operating:
 - **Flow Matching**: [Flow Matching for Generative Modeling (Lipman et al.)](https://arxiv.org/abs/2210.02747) — Foundation of the flow matching formulation
 - **π0**: [π0: A Vision-Language-Action Flow Model for General Robot Control](https://www.physicalintelligence.company/blog/pi0) — Flow matching VLA architecture
 - **Action Chunking**: [Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware (Zhao et al.)](https://arxiv.org/abs/2304.13705) — Action chunking with transformers
-- **OAK FPV Cameras**: [Luxonis OAK Series](https://docs.luxonis.com/) — Edge AI cameras for computer vision
+- **OAK FFC 4P Camera**: [Luxonis OAK FFC 4P](https://docs.luxonis.com/hardware/products/OAK-FFC-4P) — 4-camera board with on-device VPU for V-SLAM and surround view
 - **ZED 2**: [Stereolabs ZED 2](https://www.stereolabs.com/products/zed-2) — Stereo depth camera
 
 ### Related LibroBot Components
