@@ -17,9 +17,9 @@ graph TB
         GPU --- VLA
     end
 
-    subgraph WIFI["📡 Quantenna WiFi 7 (IEEE 802.11be)"]
+    subgraph WIFI["📡 Qualcomm QCNCM865 WiFi 7 (IEEE 802.11be)"]
         direction TB
-        W7["onsemi Quantenna QCS WiFi 7\nMulti-Link Operation (MLO)\nUp to 46 Gbps Peak Throughput\n320 MHz Channel Bandwidth\n4096-QAM / < 2 ms Latency"]
+        W7["Qualcomm QCNCM865\nWiFi 7 + Bluetooth 5.4\n5.8 Gbps / 2×2 MIMO\n320 MHz / 4096-QAM\nMLO Tri-Band / < 2 ms Latency"]
     end
 
     subgraph VEHICLE["🚜 Wheel Loader (On-Vehicle)"]
@@ -59,22 +59,25 @@ The HPC server hosts the core VLA model and handles the computationally intensiv
 | **GPU** | NVIDIA RTX 5090 — 32 GB GDDR7, 1799 GB/s memory bandwidth, Blackwell architecture |
 | **Role** | Runs the full VLA pipeline: VLM backbone → fusion → action head inference |
 
-### WiFi 7 — Quantenna (onsemi) QCS WiFi 7
+### WiFi 7 — Qualcomm QCNCM865
 
-The wireless link uses a Quantenna (onsemi) QCS-series WiFi 7 chipset. Quantenna is an industry leader in carrier-grade WiFi silicon, now part of onsemi. The QCS WiFi 7 platform provides the ultra-low latency and high throughput required for real-time VLA image streaming and action command delivery.
+The wireless link uses the Qualcomm QCNCM865 WiFi 7 module (manufactured by Quectel as the NCM865). This M.2 2230 module provides WiFi 7 (IEEE 802.11be) and Bluetooth 5.4 connectivity with tri-band Multi-Link Operation, delivering the low latency and high throughput required for real-time VLA image streaming and action command delivery.
 
 | Feature | Specification |
 |---|---|
-| **Chipset** | onsemi Quantenna QCS WiFi 7 |
-| **Standard** | IEEE 802.11be (WiFi 7) |
-| **Peak Throughput** | Up to 46 Gbps |
-| **Channel Bandwidth** | Up to 320 MHz (doubled from WiFi 6) |
-| **Modulation** | 4096-QAM (higher data density per symbol) |
-| **Spatial Streams** | Up to 8+ (up to 12 on high-end SKUs) |
-| **Multi-Link Operation (MLO)** | Simultaneous transmission across 2.4 GHz, 5 GHz, and 6 GHz bands |
-| **Latency** | < 2 ms deterministic latency |
-| **Security** | WPA3, industrial-grade encryption |
-| **WiFi Sensing** | Channel State Information (CSI) extraction for AI-based environment awareness |
+| **Module** | Qualcomm QCNCM865 (Quectel NCM865) |
+| **Standard** | IEEE 802.11a/b/g/n/ac/ax/be (WiFi 7) |
+| **Peak Throughput** | Up to 5.8 Gbps |
+| **Channel Bandwidth** | Up to 320 MHz |
+| **Modulation** | 4096-QAM |
+| **MIMO** | 2×2 (two spatial streams) |
+| **Bands** | Tri-band — 2.4 GHz, 5 GHz, 6 GHz |
+| **Multi-Link Operation (MLO)** | Simultaneous multi-band/multi-channel operation (HBS + DBS) |
+| **Bluetooth** | 5.4 (LE Audio, BLE Long Range, 2 Mbps BLE) |
+| **Form Factor** | M.2 2230 (22 × 30 × 2.2 mm) |
+| **Interface** | PCIe 3.0 ×1 (WiFi), USB (Bluetooth) |
+| **Security** | WPA3 |
+| **Operating Temp** | -10 °C to +65 °C |
 | **Key Benefit** | MLO enables real-time image streaming and low-latency action command delivery by bonding multiple frequency bands simultaneously |
 
 ### Jetson Orin NX (Vehicle Proxy)
@@ -111,7 +114,7 @@ sequenceDiagram
     participant OAK as OAK-FFC 4P
     participant ZED as ZED Camera
     participant ORIN as Orin NX 16 GB (Proxy)
-    participant WIFI as Quantenna WiFi 7
+    participant WIFI as QCNCM865 WiFi 7
     participant HPC as HPC (RTX 5090)
     participant LOADER as Wheel Loader
 
