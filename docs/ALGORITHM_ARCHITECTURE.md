@@ -32,56 +32,34 @@ This document describes the algorithm architecture for applying Vision-Language-
 - **Trajectory output**: 7 degrees of freedom for the wheel loader, predicted at 10 Hz with a 16-step horizon
 - **KV-cache** to accelerate autoregressive inference
 
-```
-                          ┌──────────────────────────────────────────┐
-                          │         Wheel Loader VLA Pipeline        │
-                          └──────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Sensors
+        OAK["OAK FFC 4P\n(surround RGB + V-SLAM)"]
+        ZED["ZED 2\n(depth + RGB)"]
+        CMD["Language Command\n(text)"]
+    end
 
-  ┌───────────────┐   ┌───────────┐   ┌──────────────┐
-  │ OAK FFC 4P   │   │  ZED 2    │   │  Language     │
-  │ (surround RGB │   │ (depth +  │   │  Command      │
-  │  + V-SLAM)   │   │  RGB)     │   │  (text)       │
-  └──────┬────────┘   └─────┬─────┘   └──────┬────────┘
-         │                  │                 │
-         ▼                  ▼                 ▼
-  ┌─────────────────────────────────────────────────────┐
-  │              Qwen3-VL  (Vision-Language Model)      │
-  │    ┌────────────────┐    ┌──────────────────┐       │
-  │    │ Vision Encoder  │    │ Language Encoder │       │
-  │    │ (ViT + 3D RoPE)│    │ (Causal LM)     │       │
-  │    └───────┬────────┘    └────────┬─────────┘       │
-  │            └──────────┬───────────┘                  │
-  │                       ▼                              │
-  │           [VLM Token Embeddings]                     │
-  │               (with KV-Cache)                        │
-  └───────────────────────┬─────────────────────────────┘
-                          │
-            ┌─────────────┼──────────────┐
-            │             │              │
-            ▼             ▼              ▼
-   ┌──────────────┐ ┌───────────┐ ┌────────────────┐
-   │ VLM Tokens   │ │ Robot     │ │ Noise Tokens   │
-   │ (visual +    │ │ State     │ │ (action query) │
-   │  language)   │ │ Tokens    │ │                │
-   └──────┬───────┘ └─────┬─────┘ └──────┬─────────┘
-          └───────────┬────┘──────────────┘
-                      ▼
-  ┌─────────────────────────────────────────────────────┐
-  │   Flow Matching Action Head (LingVLA-Inspired)      │
-  │                                                     │
-  │   x(t) = (1 - t)·x₀ + t·x₁                        │
-  │   v_θ(x(t), t, c) → velocity field                 │
-  │                                                     │
-  │   Condition c = [VLM tokens; Robot state tokens]    │
-  └───────────────────────┬─────────────────────────────┘
-                          ▼
-  ┌─────────────────────────────────────────────────────┐
-  │          Trajectory Output                          │
-  │   7 DOF × 16 steps @ 10 Hz  (1.6 s horizon)        │
-  │                                                     │
-  │   [steering, throttle, brake, bucket_tilt,          │
-  │    boom_lift, arm_curl, transmission]               │
-  └─────────────────────────────────────────────────────┘
+    subgraph Qwen3-VL["Qwen3-VL (Vision-Language Model)"]
+        VE["Vision Encoder\n(ViT + 3D RoPE)"]
+        LE["Language Encoder\n(Causal LM)"]
+        VE & LE --> EMB["VLM Token Embeddings\n(with KV-Cache)"]
+    end
+
+    OAK --> VE
+    ZED --> VE
+    CMD --> LE
+
+    EMB --> VLM_TOK["VLM Tokens\n(visual + language)"]
+    RS["Robot State Tokens"] --> FUSE
+    VLM_TOK --> FUSE["Condition Fusion"]
+    NOISE["Noise Tokens\n(action query)"] --> FM
+
+    subgraph FM["Flow Matching Action Head (LingVLA-Inspired)"]
+        FUSE --> VEL["Velocity Network\nv_θ(x(t), t, c) → velocity field"]
+    end
+
+    VEL --> TRAJ["Trajectory Output\n7 DOF × 16 steps @ 10 Hz\n(1.6 s horizon)"]
 ```
 
 ---
@@ -98,12 +76,15 @@ The algorithm follows a three-stage pipeline that maps raw sensor data and langu
 
 ### Data Flow
 
-```
-Cameras (5 views)  ──┐
-                     ├──▶  Qwen3-VL  ──▶  Token Features  ──┐
-Language Command   ──┘                                       ├──▶  Flow Matching  ──▶  Trajectory
-                                                             │       Action Head        (7 DOF × 16)
-Robot State  ──────────────▶  State Tokenizer  ──────────────┘
+```mermaid
+graph LR
+    CAM["Cameras\n(5 views)"] --> VLM["Qwen3-VL"]
+    CMD2["Language Command"] --> VLM
+    VLM --> TOK["Token Features"]
+    TOK --> FM2["Flow Matching\nAction Head"]
+    STATE["Robot State"] --> ST["State Tokenizer"]
+    ST --> FM2
+    FM2 --> TRAJ2["Trajectory\n(7 DOF × 16)"]
 ```
 
 ---
