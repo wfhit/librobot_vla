@@ -9,6 +9,9 @@
 - [Plugin Architecture](#plugin-architecture)
 - [Module Deep Dive](#module-deep-dive)
 
+### Related Documents
+- [Computing Platform Architecture](COMPUTING_PLATFORM.md) — HPC + Orin NX deployment topology for wheel loader applications
+
 ## Overview
 
 LibroBot VLA is a comprehensive framework for building Vision-Language-Action (VLA) models for robot learning. The framework is designed with modularity, extensibility, and type safety as core principles.
